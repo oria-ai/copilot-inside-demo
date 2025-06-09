@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -32,7 +31,6 @@ const ModuleView = ({ moduleId, onBack }: ModuleViewProps) => {
           activities: [
             { id: 'video', title: 'סרטון', completed: true },
             { id: 'tutor', title: 'מדריך אינטראקטיבי', completed: true },
-            { id: 'prompt', title: 'משימת הקלדה', completed: false },
             { id: 'conclusion', title: 'סיכום', completed: false }
           ]
         },
@@ -42,9 +40,18 @@ const ModuleView = ({ moduleId, onBack }: ModuleViewProps) => {
           progress: 0,
           activities: [
             { id: 'video', title: 'סרטון', completed: false },
-            { id: 'tutor', title: 'מדריך אינטראקטיבי', completed: false },
             { id: 'prompt', title: 'משימת הקלדה', completed: false },
-            { id: 'file', title: 'משימת קובץ', completed: false }
+            { id: 'conclusion', title: 'סיכום', completed: false }
+          ]
+        },
+        {
+          id: 'lesson3',
+          title: 'שיעור שלישי',
+          progress: 0,
+          activities: [
+            { id: 'video', title: 'סרטון', completed: false },
+            { id: 'file', title: 'משימת קובץ', completed: false },
+            { id: 'conclusion', title: 'סיכום', completed: false }
           ]
         }
       ]
@@ -73,6 +80,10 @@ const ModuleView = ({ moduleId, onBack }: ModuleViewProps) => {
         videoTitle: 'Intro To Copilot'
       },
       lesson2: {
+        video: 'https://player.vimeo.com/video/1088062270?badge=0&autopause=0&player_id=0&app_id=58479',
+        videoTitle: 'Prompt Enigneering'
+      },
+      lesson3: {
         video: 'https://player.vimeo.com/video/1090416363?badge=0&autopause=0&player_id=0&app_id=58479',
         videoTitle: 'Word 1 Restored Final'
       }

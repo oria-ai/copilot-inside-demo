@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import ClickTutor from '@/components/ClickTutor';
 import PromptTask from '@/components/PromptTask';
 import FileTask from '@/components/FileTask';
 import Conclusion from '@/components/Conclusion';
+import Player from '@vimeo/player';
 
 interface ModuleViewProps {
   moduleId: string;
@@ -104,7 +104,13 @@ const ModuleView = ({ moduleId, onBack }: ModuleViewProps) => {
 
     switch (currentActivity) {
       case 'video':
-        return <VideoLesson videoUrl={lesson.video} videoTitle={lesson.videoTitle} />;
+        return (
+          <VideoLesson
+            videoUrl={lesson.video}
+            videoTitle={lesson.videoTitle}
+            onNext={() => handleActivityClick(currentLesson, 'tutor')}
+          />
+        );
       case 'tutor':
         return <ClickTutor lessonId={currentLesson} />;
       case 'prompt':

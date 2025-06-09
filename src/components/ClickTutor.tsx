@@ -45,7 +45,7 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
     },
     {
       stepNumber: 3,
-      imageName: `1-5-e.png`,
+      imageName: `1-4-e.png`,
       instructions: 'לחץ "See more"',
       clickArea: { top: '73%', left: '83%', width: '9%', height: '6%' }
     },

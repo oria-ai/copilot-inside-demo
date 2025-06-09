@@ -191,12 +191,12 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
                   placeholder={currentStepConfig.inputPlaceholder}
                   style={{
                     position: 'absolute',
-                    left: '28.5%',
+                    left: '29%',
                     top: '36%',
                     width: '65%',
                     height: '9%',
                     fontFamily: 'monospace',
-                    fontSize: '1.2em',
+                    fontSize: '1em',
                     background: 'transparent',
                     border: 'none',
                     color: '#333',

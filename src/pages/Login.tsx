@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +10,8 @@ interface LoginProps {
   onLogin: (userData: any) => void;
 }
 
+const api = 'http://localhost:4000';
+
 const Login = ({ onLogin }: LoginProps) => {
   const [formData, setFormData] = useState({
     email: '',
@@ -18,12 +19,38 @@ const Login = ({ onLogin }: LoginProps) => {
     department: '',
     copilotLanguage: '',
     studyingLanguage: '',
-    role: 'student'
+    role: 'student',
+    name: ''
   });
+  const [tab, setTab] = useState<'signin' | 'signup'>('signin');
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(formData);
+    setError(null);
+    try {
+      if (tab === 'signup') {
+        const res = await fetch(`${api}/users`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        if (!res.ok) throw new Error('Signup failed');
+        const user = await res.json();
+        onLogin(user);
+      } else {
+        const res = await fetch(`${api}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: formData.email, password: formData.password })
+        });
+        if (!res.ok) throw new Error('Login failed');
+        const user = await res.json();
+        onLogin(user);
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred');
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -38,12 +65,12 @@ const Login = ({ onLogin }: LoginProps) => {
           <p className="text-gray-600">התחברות למערכת הלמידה</p>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
+          <Tabs defaultValue="signin" value={tab} onValueChange={v => setTab(v as any)} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="signin">התחברות</TabsTrigger>
               <TabsTrigger value="signup">הרשמה</TabsTrigger>
             </TabsList>
-            
+            {error && <div className="text-red-500 text-center mb-2">{error}</div>}
             <TabsContent value="signin">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
@@ -73,7 +100,6 @@ const Login = ({ onLogin }: LoginProps) => {
                 </Button>
               </form>
             </TabsContent>
-            
             <TabsContent value="signup">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
@@ -94,6 +120,17 @@ const Login = ({ onLogin }: LoginProps) => {
                     type="password"
                     value={formData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
+                    required
+                    className="text-right"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="name">שם</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
                     required
                     className="text-right"
                   />

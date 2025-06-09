@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Login from './Login';
 import StudentDashboard from './StudentDashboard';
@@ -42,7 +41,7 @@ const Index = () => {
   }
 
   if (currentView === 'module') {
-    return <ModuleView moduleId={currentModule} onBack={handleBackToDashboard} />;
+    return <ModuleView moduleId={currentModule} userId={userData?.id || userData?.email} onBack={handleBackToDashboard} />;
   }
 
   return null;

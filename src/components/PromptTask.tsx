@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,7 +66,7 @@ const PromptTask = ({ lessonId }: PromptTaskProps) => {
 
           <div className="space-y-4">
             <label htmlFor="user-input" className="block text-sm font-medium text-gray-700">
-              כתוב את התשובה שלך:
+              סיימת כעת פגישת Teams בעניין 
             </label>
             <Textarea
               id="user-input"

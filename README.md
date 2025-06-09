@@ -71,3 +71,31 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## Backend API (Node + Express + Prisma)
+
+### Setup & Run
+
+1. Navigate to the server folder:
+   ```sh
+   cd server
+   ```
+2. Install dependencies:
+   ```sh
+   npm install
+   ```
+3. Run database migrations:
+   ```sh
+   npx prisma migrate dev --name init
+   ```
+4. (Optional) Seed the database with test data:
+   ```sh
+   npm run seed
+   ```
+5. Start the backend server:
+   ```sh
+   npm run dev
+   ```
+
+- The API will be available at http://localhost:4000
+- The frontend should make requests to this API for users, progress, ratings, and feedback.

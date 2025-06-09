@@ -6,24 +6,41 @@ import Player from '@vimeo/player';
 interface VideoLessonProps {
   videoUrl: string;
   videoTitle: string;
+  lessonId: string;
+  handleActivityComplete: (lessonId: string, progress: number, understandingRating?: number, activityType?: string, activityId?: number) => void;
   onNext?: () => void;
 }
 
-const VideoLesson = ({ videoUrl, videoTitle, onNext }: VideoLessonProps) => {
+const VideoLesson = ({ videoUrl, videoTitle, lessonId, handleActivityComplete, onNext }: VideoLessonProps) => {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const [showRating, setShowRating] = useState(false);
   const [rating, setRating] = useState(0);
+  const [progressSaved, setProgressSaved] = useState(false);
 
   useEffect(() => {
     if (!frameRef.current) return;
     const player = new Player(frameRef.current);
-    const handleEnded = () => setShowRating(true);
+    const handleEnded = () => {
+      setShowRating(true);
+      if (!progressSaved) {
+        handleActivityComplete(lessonId, 50, undefined, 'video', 1);
+        setProgressSaved(true);
+      }
+    };
     player.on('ended', handleEnded);
     return () => {
       player.off('ended', handleEnded);
       player.destroy();
     };
-  }, [videoUrl]);
+  }, [videoUrl, lessonId, handleActivityComplete, progressSaved]);
+
+  const handleNextClick = () => {
+    if (!progressSaved) {
+      handleActivityComplete(lessonId, 50, undefined, 'video', 1);
+      setProgressSaved(true);
+    }
+    if (onNext) onNext();
+  };
 
   return (
     <div className="space-y-6">
@@ -77,7 +94,7 @@ const VideoLesson = ({ videoUrl, videoTitle, onNext }: VideoLessonProps) => {
           </div>
           {/* Next button below video */}
           <div className="flex justify-center mt-4">
-            <Button onClick={onNext} className="px-8">
+            <Button onClick={handleNextClick} className="px-8">
               הבא
             </Button>
           </div>

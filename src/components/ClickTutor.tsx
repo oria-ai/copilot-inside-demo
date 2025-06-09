@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 
 interface ClickTutorProps {
   lessonId: string;
+  handleActivityComplete: (lessonId: string, progress: number, understandingRating?: number, lastActivity?: string, lastStep?: number) => void;
 }
 
 interface StepConfig {
@@ -21,11 +22,16 @@ interface StepConfig {
   inputPlaceholder?: string;
 }
 
-const ClickTutor = ({ lessonId }: ClickTutorProps) => {
+const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [inputValue, setInputValue] = useState('');
   const [showInput, setShowInput] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
+
+  // Progress logic
+  const totalSteps = 6;
+  const baseProgress = 50; // After video
+  const stepIncrement = 40 / totalSteps; // ≈6.67 per step
 
   // ===== STEP CONFIGURATION - EDIT HERE =====
   const stepConfigs: StepConfig[] = [
@@ -71,7 +77,6 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
   // ===== END STEP CONFIGURATION =====
 
   const currentStepConfig = stepConfigs[currentStep - 1];
-  const totalSteps = stepConfigs.length;
 
   // Helper to parse percentage string to number
   const percentToNumber = (percent: string) => parseFloat(percent.replace('%', '')) / 100;
@@ -106,10 +111,11 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
     }
 
     // Move to conclusion if on last step
-    if (currentStep === 6) {
-      if (typeof window !== 'undefined' && window.dispatchEvent) {
-        window.dispatchEvent(new CustomEvent('clickTutorDone'));
-      }
+    if (currentStep === totalSteps) {
+      handleActivityComplete(lessonId, 90, undefined, 'tutor', currentStep);
+      // Move to conclusion activity
+      const event = new CustomEvent('goToConclusion', { detail: { lessonId } });
+      window.dispatchEvent(event);
       return;
     }
 
@@ -122,6 +128,8 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
       return;
     }
     if (currentStep < totalSteps) {
+      const newProgress = baseProgress + stepIncrement * currentStep;
+      handleActivityComplete(lessonId, newProgress, undefined, 'tutor', currentStep);
       setCurrentStep(currentStep + 1);
       setShowInput(false);
       setInputValue('');
@@ -195,7 +203,7 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
                     top: '36%',
                     width: '65%',
                     height: '9%',
-                    fontFamily: 'monospace',
+                    fontFamily: 'ginto',
                     fontSize: '1em',
                     background: 'transparent',
                     border: 'none',

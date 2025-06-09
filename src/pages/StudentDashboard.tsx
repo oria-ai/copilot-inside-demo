@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -9,15 +8,34 @@ interface StudentDashboardProps {
   onModuleClick: (moduleId: string) => void;
 }
 
+const api = 'http://localhost:4000';
+
 const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) => {
+  const [overallProgress, setOverallProgress] = useState(0);
+  const [completedLessons, setCompletedLessons] = useState(0);
+  const [totalLessons, setTotalLessons] = useState(3); // update if you add more lessons
+
+  useEffect(() => {
+    const fetchProgress = async () => {
+      const res = await fetch(`${api}/progress/${userData.id || userData.email}`);
+      if (res.ok) {
+        const data = await res.json();
+        const total = data.reduce((sum, p) => sum + (p.percent || 0), 0);
+        setCompletedLessons(data.filter(p => p.percent === 100).length);
+        setOverallProgress(Math.round((total / (totalLessons * 100)) * 100));
+      }
+    };
+    fetchProgress();
+  }, [userData, totalLessons]);
+
   const modules = [
     {
       id: 'basics',
       title: 'יסודות',
-      progress: 30,
+      progress: overallProgress,
       description: 'לימוד יסודות המערכת',
-      lessons: 4,
-      completedLessons: 1
+      lessons: totalLessons,
+      completedLessons: completedLessons
     }
   ];
 

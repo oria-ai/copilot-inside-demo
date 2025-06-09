@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -59,6 +59,16 @@ const ModuleView = ({ moduleId, onBack }: ModuleViewProps) => {
   };
 
   const currentModule = moduleData[moduleId as keyof typeof moduleData];
+
+  useEffect(() => {
+    const handleTutorDone = () => {
+      setCurrentActivity('conclusion');
+    };
+    window.addEventListener('clickTutorDone', handleTutorDone);
+    return () => {
+      window.removeEventListener('clickTutorDone', handleTutorDone);
+    };
+  }, []);
 
   const handleActivityClick = (lessonId: string, activityId: string) => {
     setCurrentLesson(lessonId);

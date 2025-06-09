@@ -84,40 +84,39 @@ const VideoLesson = ({ videoUrl, videoTitle }: VideoLessonProps) => {
                 </Button>
               </div>
             </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Step indicator - right side */}
+      <div className="w-80">
+        <Card>
+          <CardHeader>
+            <CardTitle>התקדמות השיעור</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-medium">
+                  ✓
+                </div>
+                <span className="text-sm">צפייה בסרטון</span>
+              </div>
+              
+              {videoEnded && (
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-medium">
+                    2
+                  </div>
+                  <span className="text-sm">דירוג הבנה</span>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
-      )}
+      </div>
     </div>
-
-    {/* Step indicator - right side */}
-    <div className="w-80">
-      <Card>
-        <CardHeader>
-          <CardTitle>התקדמות השיעור</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-medium">
-                ✓
-              </div>
-              <span className="text-sm">צפייה בסרטון</span>
-            </div>
-            
-            {videoEnded && (
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-medium">
-                  2
-                </div>
-                <span className="text-sm">דירוג הבנה</span>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  </div>
-);
+  );
 };
 
 export default VideoLesson;

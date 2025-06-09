@@ -31,25 +31,25 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
   const stepConfigs: StepConfig[] = [
     {
       stepNumber: 1,
-      imageName: `${lessonId}-1.png`,
+      imageName: `1-1.png`,
       instructions: 'לחץ על כפתור ההתחלה',
       clickArea: { top: '20%', left: '30%', width: '40%', height: '20%' }
     },
     {
       stepNumber: 2,
-      imageName: `${lessonId}-2.png`,
+      imageName: `1-2.png`,
       instructions: 'בחר את האפשרות הנכונה',
       clickArea: { top: '40%', left: '20%', width: '60%', height: '15%' }
     },
     {
       stepNumber: 3,
-      imageName: `${lessonId}-3.png`,
+      imageName: `1-3.png`,
       instructions: 'לחץ על התפריט',
       clickArea: { top: '10%', left: '50%', width: '30%', height: '25%' }
     },
     {
       stepNumber: 4,
-      imageName: `${lessonId}-4-e.png`,
+      imageName: `1-4-e.png`,
       instructions: 'הכנס טקסט בשדה ואז לחץ להמשך',
       clickArea: { top: '50%', left: '25%', width: '50%', height: '30%' },
       hasInput: true,
@@ -57,25 +57,25 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
     },
     {
       stepNumber: 5,
-      imageName: `${lessonId}-5-e.png`,
+      imageName: `1-5-e.png`,
       instructions: 'לחץ על כפתור השמירה',
       clickArea: { top: '70%', left: '40%', width: '20%', height: '15%' }
     },
     {
       stepNumber: 6,
-      imageName: `${lessonId}-6-e.png`,
+      imageName: `1-6-e.png`,
       instructions: 'אשר את הפעולה',
       clickArea: { top: '30%', left: '35%', width: '30%', height: '20%' }
     },
     {
       stepNumber: 7,
-      imageName: `${lessonId}-7-e.png`,
+      imageName: `1-7-e.png`,
       instructions: 'בדוק את התוצאה',
       clickArea: { top: '15%', left: '10%', width: '80%', height: '25%' }
     },
     {
       stepNumber: 8,
-      imageName: `${lessonId}-8-e.png`,
+      imageName: `1-8-e.png`,
       instructions: 'סיים את התהליך',
       clickArea: { top: '60%', left: '30%', width: '40%', height: '20%' }
     }
@@ -85,7 +85,9 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
   const currentStepConfig = stepConfigs[currentStep - 1];
   const totalSteps = stepConfigs.length;
 
-  const handleImageClick = () => {
+  const handleClickAreaClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
     if (currentStepConfig.hasInput && !showInput) {
       setShowInput(true);
       return;
@@ -118,25 +120,14 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
       <CardContent>
         <div className="space-y-4">
           <div className="text-center">
-            <img 
-              src="/placeholder.svg" 
-              alt="Tutor placeholder"
-              className="mx-auto w-32 h-32 rounded-full object-cover"
-            />
-          </div>
-          
-          <div className="text-center">
             <p className="text-lg mb-4">{currentStepConfig.instructions}</p>
             <p className="text-sm text-gray-600">שלב {currentStep} מתוך {totalSteps}</p>
           </div>
 
           <div className="relative">
-            <div 
-              className="relative cursor-pointer min-h-96 bg-gray-100 rounded-lg flex items-center justify-center"
-              onClick={handleImageClick}
-            >
+            <div className="relative min-h-96 bg-gray-100 rounded-lg flex items-center justify-center">
               <img 
-                src={`/lovable-uploads/${currentStepConfig.imageName}`}
+                src={`/${currentStepConfig.imageName}`}
                 alt={`Step ${currentStep}`}
                 className="max-w-full max-h-full object-contain"
                 onError={(e) => {
@@ -144,15 +135,20 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
                 }}
               />
               
-              {/* Clickable area with red border - REMOVE border-red-500 to make transparent */}
+              {/* 
+                CLICKABLE AREA - TO MAKE TRANSPARENT:
+                Remove these classes: border-2 border-red-500 bg-red-500 bg-opacity-20
+                Keep only: absolute pointer-events-auto cursor-pointer
+              */}
               <div 
-                className="absolute border-2 border-red-500 bg-red-500 bg-opacity-20 pointer-events-none"
+                className="absolute border-2 border-red-500 bg-red-500 bg-opacity-20 cursor-pointer"
                 style={{
                   top: currentStepConfig.clickArea.top,
                   left: currentStepConfig.clickArea.left,
                   width: currentStepConfig.clickArea.width,
                   height: currentStepConfig.clickArea.height
                 }}
+                onClick={handleClickAreaClick}
               />
             </div>
             
@@ -172,6 +168,13 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
           <div className="text-center text-sm text-gray-500">
             לחץ על האזור המסומן באדום כדי להמשיך
           </div>
+
+          {/* TO MAKE THE RED AREA TRANSPARENT, FOLLOW THESE STEPS:
+              1. Find the div with className that includes "border-2 border-red-500 bg-red-500 bg-opacity-20"
+              2. Remove these classes: border-2 border-red-500 bg-red-500 bg-opacity-20  
+              3. Keep these classes: absolute cursor-pointer
+              4. The final className should be: "absolute cursor-pointer"
+          */}
         </div>
       </CardContent>
     </Card>

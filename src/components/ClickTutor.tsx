@@ -85,9 +85,32 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
   const currentStepConfig = stepConfigs[currentStep - 1];
   const totalSteps = stepConfigs.length;
 
-  const handleClickAreaClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleImageClick = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
     
+    // Convert click area percentages to numbers
+    const areaTop = parseFloat(currentStepConfig.clickArea.top);
+    const areaLeft = parseFloat(currentStepConfig.clickArea.left);
+    const areaWidth = parseFloat(currentStepConfig.clickArea.width);
+    const areaHeight = parseFloat(currentStepConfig.clickArea.height);
+    
+    // Check if click is within the red area
+    const isInArea = x >= areaLeft && 
+                    x <= (areaLeft + areaWidth) && 
+                    y >= areaTop && 
+                    y <= (areaTop + areaHeight);
+    
+    if (isInArea) {
+      handleCorrectClick();
+    } else {
+      // Optional: Show feedback for wrong clicks
+      console.log('לחץ על האזור המסומן באדום');
+    }
+  };
+
+  const handleCorrectClick = () => {
     if (currentStepConfig.hasInput && !showInput) {
       setShowInput(true);
       return;
@@ -125,30 +148,32 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
           </div>
 
           <div className="relative">
-            <div className="relative min-h-96 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div 
+              className="relative min-h-96 bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer"
+              onClick={handleImageClick}
+            >
               <img 
                 src={`/${currentStepConfig.imageName}`}
                 alt={`Step ${currentStep}`}
-                className="max-w-full max-h-full object-contain"
+                className="max-w-full max-h-full object-contain pointer-events-none"
                 onError={(e) => {
                   e.currentTarget.src = '/placeholder.svg';
                 }}
               />
               
               {/* 
-                CLICKABLE AREA - TO MAKE TRANSPARENT:
+                CLICKABLE AREA INDICATOR - TO MAKE TRANSPARENT:
                 Remove these classes: border-2 border-red-500 bg-red-500 bg-opacity-20
-                Keep only: absolute pointer-events-auto cursor-pointer
+                Keep only: absolute pointer-events-none
               */}
               <div 
-                className="absolute border-2 border-red-500 bg-red-500 bg-opacity-20 cursor-pointer"
+                className="absolute border-2 border-red-500 bg-red-500 bg-opacity-20 pointer-events-none"
                 style={{
                   top: currentStepConfig.clickArea.top,
                   left: currentStepConfig.clickArea.left,
                   width: currentStepConfig.clickArea.width,
                   height: currentStepConfig.clickArea.height
                 }}
-                onClick={handleClickAreaClick}
               />
             </div>
             
@@ -172,8 +197,8 @@ const ClickTutor = ({ lessonId }: ClickTutorProps) => {
           {/* TO MAKE THE RED AREA TRANSPARENT, FOLLOW THESE STEPS:
               1. Find the div with className that includes "border-2 border-red-500 bg-red-500 bg-opacity-20"
               2. Remove these classes: border-2 border-red-500 bg-red-500 bg-opacity-20  
-              3. Keep these classes: absolute cursor-pointer
-              4. The final className should be: "absolute cursor-pointer"
+              3. Keep these classes: absolute pointer-events-none
+              4. The final className should be: "absolute pointer-events-none"
           */}
         </div>
       </CardContent>

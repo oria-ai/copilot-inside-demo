@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Player from '@vimeo/player';
@@ -11,11 +11,13 @@ interface VideoLessonProps {
 
 const VideoLesson = ({ videoUrl, videoTitle, onNext }: VideoLessonProps) => {
   const frameRef = useRef<HTMLIFrameElement>(null);
+  const [showRating, setShowRating] = useState(false);
+  const [rating, setRating] = useState(0);
 
   useEffect(() => {
     if (!frameRef.current) return;
     const player = new Player(frameRef.current);
-    const handleEnded = () => alert('Video finished!');
+    const handleEnded = () => setShowRating(true);
     player.on('ended', handleEnded);
     return () => {
       player.off('ended', handleEnded);
@@ -39,6 +41,39 @@ const VideoLesson = ({ videoUrl, videoTitle, onNext }: VideoLessonProps) => {
               style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
               title={videoTitle}
             />
+            {/* Understanding rate popup overlay */}
+            {showRating && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'rgba(0,0,0,0.6)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10
+              }}>
+                <div className="bg-white rounded-lg p-8 shadow-lg text-center">
+                  <p className="text-lg mb-4">עד כמה הבנת את הנושא?</p>
+                  <div className="flex justify-center gap-2 mb-4">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => setRating(star)}
+                        className={`text-3xl ${rating >= star ? 'text-yellow-400' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
+                      >
+                        ⭐
+                      </button>
+                    ))}
+                  </div>
+                  <Button onClick={() => setShowRating(false)} className="mt-4">
+                    שלח דירוג
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
           {/* Next button below video */}
           <div className="flex justify-center mt-4">

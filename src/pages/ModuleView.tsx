@@ -223,6 +223,11 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     setLessonAndActivity(lessonId, activityId);
   };
 
+  // Separate handler for lesson header toggle (only toggles dropdown)
+  const handleLessonHeaderClick = (lessonId: string) => {
+    setExpandedLesson(expandedLesson === lessonId ? '' : lessonId);
+  };
+
   // Handle conclusion completion and navigation atomically
   const handleConclusionComplete = async (lessonId: string, rating: number) => {
     // Save progress first
@@ -343,7 +348,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
                   <Button
                     variant="ghost"
                     className="w-full justify-between p-3 h-auto"
-                    onClick={() => setExpandedLesson(expandedLesson === lesson.id ? '' : lesson.id)}
+                    onClick={() => handleLessonHeaderClick(lesson.id)}
                   >
                     <div className="text-right">
                       <div className="font-medium">{lesson.title}</div>

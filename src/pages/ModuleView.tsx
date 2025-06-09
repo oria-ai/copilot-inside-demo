@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -129,13 +130,8 @@ const ModuleView = ({ moduleId, onBack }: ModuleViewProps) => {
       </header>
 
       <div className="flex">
-        {/* Main content - 80% */}
-        <div className="flex-1 p-6">
-          {renderMainContent()}
-        </div>
-
-        {/* Progress sidebar - 20% */}
-        <div className="w-80 bg-white border-l p-6">
+        {/* Progress sidebar - LEFT side */}
+        <div className="w-80 bg-white border-r p-6">
           <div className="space-y-4">
             <div>
               <h3 className="text-lg font-semibold text-gray-800 mb-2">{currentModule.title}</h3>
@@ -181,6 +177,11 @@ const ModuleView = ({ moduleId, onBack }: ModuleViewProps) => {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Main content - RIGHT side */}
+        <div className="flex-1 p-6">
+          {renderMainContent()}
         </div>
       </div>
     </div>

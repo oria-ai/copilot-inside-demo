@@ -92,6 +92,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && showConfetti) {
+        console.log('Escape pressed, closing confetti');
         setShowConfetti(false);
         proceedToStep3();
       }
@@ -102,6 +103,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
   }, [showConfetti]);
 
   const proceedToStep3 = () => {
+    console.log('Proceeding to step 3');
     const newProgress = baseProgress + stepIncrement * currentStep;
     handleActivityComplete(lessonId, newProgress, undefined, 'tutor', currentStep);
     setCurrentStep(3);
@@ -155,6 +157,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
     if (currentStep < totalSteps) {
       // Show confetti popup after step 2
       if (currentStep === 2) {
+        console.log('Step 2 completed, showing confetti');
         setShowConfetti(true);
         return;
       }
@@ -170,11 +173,21 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
     console.log('Skipping tutor');
   };
 
+  const handleSendButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (inputValue.trim() === '') return;
+    console.log('Send button clicked in step 2, showing confetti');
+    setShowConfetti(true);
+  };
+
+  console.log('Current step:', currentStep, 'Show confetti:', showConfetti);
+
   return (
     <>
       <ConfettiOverlay 
         open={showConfetti} 
         onClose={() => {
+          console.log('Confetti overlay closed');
           setShowConfetti(false);
           proceedToStep3();
         }}
@@ -185,6 +198,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
           <Button 
             className="w-full" 
             onClick={() => {
+              console.log('Continue button clicked');
               setShowConfetti(false);
               proceedToStep3();
             }}
@@ -294,11 +308,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
                       zIndex: 21,
                     }}
                     disabled={inputValue.trim() === ''}
-                    onClick={e => {
-                      e.stopPropagation();
-                      if (inputValue.trim() === '') return;
-                      setShowConfetti(true);
-                    }}
+                    onClick={handleSendButtonClick}
                   >
                     {/* No text */}
                   </button>

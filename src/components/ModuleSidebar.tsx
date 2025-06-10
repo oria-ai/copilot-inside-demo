@@ -70,55 +70,73 @@ const ModuleSidebar = ({
   };
 
   return (
-    <div className="w-80 bg-white border-r p-6">
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">{currentModule.title}</h3>
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
-            <span>{Math.round(getModuleProgress())}% הושלם</span>
+    <div className="w-80 bg-card border-l border-border">
+      <div className="p-6 space-y-6">
+        {/* Module Header */}
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-xl font-semibold text-foreground mb-2">{currentModule.title}</h3>
+            <div className="flex justify-between items-center text-secondary mb-3">
+              <span className="font-medium">{Math.round(getModuleProgress())}% הושלם</span>
+              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                {userProgress.filter(p => p.percent === 100).length}/{currentModule.lessons.length} שיעורים
+              </span>
+            </div>
+            <Progress value={Math.round(getModuleProgress())} className="h-3" />
           </div>
-          <Progress value={Math.round(getModuleProgress())} className="h-2" />
         </div>
 
-        <div className="space-y-2">
+        {/* Lessons List */}
+        <div className="space-y-3">
           {currentModule.lessons.map((lesson) => (
-            <div key={lesson.id} className="border rounded-lg">
+            <div key={lesson.id} className="card-elevated overflow-hidden">
               <Button
                 variant="ghost"
-                className="w-full justify-between p-3 h-auto"
+                className="w-full justify-between p-4 h-auto hover:bg-primary/5 transition-colors"
                 onClick={(event) => handleLessonHeaderClick(lesson.id, event)}
               >
-                <div className="text-right">
-                  <div className="font-medium">{lesson.title}</div>
-                  <div className="text-sm text-gray-500">
-                    {Math.round(userProgress.find(p => p.lessonId === lesson.id)?.percent ?? 0)}%
+                <div className="text-right flex-1">
+                  <div className="font-semibold text-foreground text-base">{lesson.title}</div>
+                  <div className="text-secondary mt-1">
+                    {Math.round(userProgress.find(p => p.lessonId === lesson.id)?.percent ?? 0)}% הושלם
                   </div>
                 </div>
-                {expandedLesson === lesson.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${
+                    userProgress.find(p => p.lessonId === lesson.id)?.percent === 100
+                      ? 'bg-accent'
+                      : userProgress.find(p => p.lessonId === lesson.id)?.percent > 0
+                      ? 'bg-primary'
+                      : 'bg-muted'
+                  }`} />
+                  {expandedLesson === lesson.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </div>
               </Button>
               
               {expandedLesson === lesson.id && (
-                <div className="px-3 pb-3 space-y-1">
+                <div className="px-4 pb-4 space-y-2 border-t border-border/50 bg-secondary/30">
                   {lesson.activities.map((activity) => (
                     <Button
                       key={activity.id}
                       variant="ghost"
-                      className={`w-full justify-between p-2 h-auto text-sm ${
+                      className={`w-full justify-between p-3 h-auto text-sm rounded-md transition-all ${
                         currentLessonId === lesson.id && currentActivityId === activity.id 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : ''
+                          ? 'bg-primary text-primary-foreground shadow-sm' 
+                          : 'hover:bg-card'
                       }`}
                       onClick={() => handleActivityClick(lesson.id, activity.id)}
                     >
-                      <span>{activity.title}</span>
-                      <div className="w-4 h-4 rounded-full border-2 border-gray-300 relative overflow-hidden">
+                      <span className="font-medium">{activity.title}</span>
+                      <div className="w-5 h-5 rounded-full border-2 border-border bg-card relative overflow-hidden">
                         <div 
                           style={{ 
                             height: '100%', 
                             width: `${Math.round(getActivityProgress(lesson.id, activity.id))}%`, 
-                            background: 'rgba(34,197,94,0.7)' 
+                            background: getActivityProgress(lesson.id, activity.id) === 100 
+                              ? 'hsl(var(--accent))' 
+                              : 'hsl(var(--primary))'
                           }} 
-                          className="absolute left-0 top-0 rounded-full transition-all duration-300" 
+                          className="absolute left-0 top-0 transition-all duration-300" 
                         />
                       </div>
                     </Button>

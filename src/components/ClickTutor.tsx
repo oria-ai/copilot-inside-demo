@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -94,13 +93,17 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
       if (event.key === 'Escape' && showConfetti) {
         console.log('Escape pressed, closing confetti');
         setShowConfetti(false);
-        proceedToStep3();
+        if (currentStep === 2) {
+          proceedToStep3();
+        } else if (currentStep === totalSteps) {
+          handleFinalCompletion();
+        }
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [showConfetti]);
+  }, [showConfetti, currentStep]);
 
   const proceedToStep3 = () => {
     console.log('Proceeding to step 3');
@@ -109,6 +112,14 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
     setCurrentStep(3);
     setShowInput(false);
     setInputValue('');
+  };
+
+  const handleFinalCompletion = () => {
+    console.log('Final completion');
+    handleActivityComplete(lessonId, 90, undefined, 'tutor', currentStep);
+    // Move to conclusion activity
+    const event = new CustomEvent('goToConclusion', { detail: { lessonId } });
+    window.dispatchEvent(event);
   };
 
   // Handler for clicking anywhere on the image
@@ -139,10 +150,8 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
 
     // Move to conclusion if on last step
     if (currentStep === totalSteps) {
-      handleActivityComplete(lessonId, 90, undefined, 'tutor', currentStep);
-      // Move to conclusion activity
-      const event = new CustomEvent('goToConclusion', { detail: { lessonId } });
-      window.dispatchEvent(event);
+      console.log('Final step completed, showing confetti');
+      setShowConfetti(true);
       return;
     }
 
@@ -189,21 +198,36 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
         onClose={() => {
           console.log('Confetti overlay closed');
           setShowConfetti(false);
-          proceedToStep3();
+          if (currentStep === 2) {
+            proceedToStep3();
+          } else if (currentStep === totalSteps) {
+            handleFinalCompletion();
+          }
         }}
       >
         <div className="text-center" dir="rtl">
-          <h2 className="text-2xl font-bold mb-4">מעולה!</h2>
-          <p className="text-lg mb-6">עכשיו אתה יודע איך לשוחח עם קופיילוט. בוא נמצא יחד את ספריית הפרומפטים</p>
+          <h2 className="text-2xl font-bold mb-4">
+            {currentStep === 2 ? 'מעולה!' : 'כל הכבוד!'}
+          </h2>
+          <p className="text-lg mb-6">
+            {currentStep === 2 
+              ? 'עכשיו אתה יודע איך לשוחח עם קופיילוט. בוא נמצא יחד את ספריית הפרומפטים'
+              : 'סיימת בהצלחה את כל השלבים! עכשיו אתה מוכן להתחיל להשתמש בקופיילוט'
+            }
+          </p>
           <Button 
             className="w-full" 
             onClick={() => {
               console.log('Continue button clicked');
               setShowConfetti(false);
-              proceedToStep3();
+              if (currentStep === 2) {
+                proceedToStep3();
+              } else if (currentStep === totalSteps) {
+                handleFinalCompletion();
+              }
             }}
           >
-            המשך
+            {currentStep === 2 ? 'המשך' : 'סיום'}
           </Button>
         </div>
       </ConfettiOverlay>

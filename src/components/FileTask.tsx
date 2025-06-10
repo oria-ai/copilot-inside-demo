@@ -1,9 +1,24 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Upload,
+  Loader2
+} from 'lucide-react';
 
 interface FileTaskProps {
   lessonId: string;
@@ -15,93 +30,174 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
   const [showPopup, setShowPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [systemPrompt, setSystemPrompt] = useState('');
 
+  // Slides content
   const cards = [
     {
       title: 'הורדת קובץ',
-      instructions: 'הורד את הקובץ הבא כדי להתחיל במשימה',
-      showDownload: true
+      instructions: 'הורד את קובץ התמלול כדי להתחיל במשימה',
+      showDownload: true,
+      showUpload: false
     },
     {
-      title: 'ביצוע המשימה',
-      instructions: 'עבוד על הקובץ שהורדת לפי ההוראות',
-      showDownload: false
+      title: 'הוראות עבודה',
+      instructions: 'קרא את התמלול בעיון וסמן את הנקודות העיקריות',
+      showDownload: false,
+      showUpload: false
+    },
+    {
+      title: 'טיפים לסיכום',
+      instructions: 'זכור להתמקד בהחלטות שהתקבלו ובפעולות המשך',
+      showDownload: false,
+      showUpload: false
     },
     {
       title: 'העלאת קובץ',
-      instructions: 'העלה את הקובץ לאחר שסיימת לעבוד עליו',
-      showDownload: false
+      instructions: 'העלה את הקובץ המסוכם שיצרת',
+      showDownload: false,
+      showUpload: true
     }
   ];
 
+  /* -------------------------------------------------- */
+  /*   Load system instruction from /task2.txt          */
+  /* -------------------------------------------------- */
+  useEffect(() => {
+    const loadSystemPrompt = async () => {
+      try {
+        const res = await fetch('/task2.txt');
+        if (!res.ok) throw new Error('Failed to load system prompt');
+        setSystemPrompt(await res.text());
+      } catch (err) {
+        console.error('Error loading system prompt:', err);
+        setSystemPrompt('You are a helpful assistant that reviews document summaries.');
+      }
+    };
+
+    loadSystemPrompt();
+  }, []);
+
+  /* -------------------------------------------------- */
+  /*   Helpers                                          */
+  /* -------------------------------------------------- */
   const handleDownload = () => {
-    // Simulate file download
-    console.log('Downloading file...');
+    const transcriptContent = `תמלול פגישה - דוגמה
+
+תאריך: 15.1.2024
+משתתפים: דני, רונית, יוסי, מיכל
+נושא: תכנון פרויקט חדש
+
+[כאן יהיה התמלול המלא של הפגישה - 3500 מילים]
+
+דני: בוקר טוב לכולם.
+רונית: אני חושבת שכדאי להתמקד קודם ביעדים.
+
+(המשך התמלול.)`;
+
+    const blob = new Blob([transcriptContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'תמלול.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setUploadedFile(file);
-    }
+    if (file) setUploadedFile(file);
   };
 
+  /* -------------------------------------------------- */
+  /*   Submit to Worker                                 */
+  /* -------------------------------------------------- */
   const handleSubmit = async () => {
     if (!uploadedFile) {
       alert('אנא העלה קובץ');
       return;
     }
+    if (!systemPrompt) {
+      alert('שגיאה בטעינת המערכת. אנא רענן את העמוד.');
+      return;
+    }
 
     setIsLoading(true);
     setShowPopup(true);
-
-    const formData = new FormData();
-    formData.append('file', uploadedFile);
-    formData.append('prompt', 'זהו placeholder לprompt מקובץ task2.txt');
+    setFeedback('');
 
     try {
+      /* fetch the reference transcript as a Blob */
+      const referenceRes = await fetch('/task2reference.txt');
+      if (!referenceRes.ok) throw new Error('Failed to load reference transcript');
+      const referenceText = await referenceRes.text();
+      const referenceFile = new File([
+        new Blob([referenceText], { type: 'text/plain;charset=utf-8' })
+      ], 'task2reference.txt', { type: 'text/plain' });
+
+      /* build form‑data */
+      const formData = new FormData();
+      formData.append('systemPrompt', systemPrompt);
+      formData.append('userFile', uploadedFile);
+      formData.append('referenceFile', referenceFile);
+
       const response = await fetch('https://copilot-file.oria-masas-ai.workers.dev/', {
         method: 'POST',
         body: formData
       });
 
+      if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
       const data = await response.json();
-      setFeedback(data.feedback || 'הקובץ נבדק בהצלחה');
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      setFeedback('אירעה שגיאה בבדיקת הקובץ');
+      setFeedback(data.response || 'הקובץ נבדק בהצלחה');
+    } catch (err) {
+      console.error('Error uploading file:', err);
+      setFeedback('אירעה שגיאה בבדיקת הקובץ. אנא נסה שוב.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleContinue = () => {
+  const handleResubmit = () => {
     setShowPopup(false);
-    console.log('Continue to conclusion');
+    setFeedback('');
   };
 
+  const handleContinue = () => {
+    setShowPopup(false);
+    console.log('Continue to next step');
+  };
+
+  /* -------------------------------------------------- */
+  /*   Render                                           */
+  /* -------------------------------------------------- */
   return (
     <>
       <Card>
         <CardHeader>
-          <CardTitle>משימת קובץ</CardTitle>
+          <CardTitle>משימת סיכום תמלול</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {/* Card carousel */}
+            {/* Carousel */}
             <div className="relative">
-              <div className="bg-gray-50 rounded-lg p-6 min-h-64">
+              <div className="bg-gray-50 rounded-lg p-6 min-h-[200px]">
                 <h3 className="text-xl font-semibold mb-4">{cards[currentCard].title}</h3>
                 <p className="text-gray-700 mb-6">{cards[currentCard].instructions}</p>
-                
+
                 {cards[currentCard].showDownload && (
-                  <Button onClick={handleDownload} className="w-full">
-                    הורד קובץ
+                  <Button
+                    onClick={handleDownload}
+                    className="w-full max-w-xs mx-auto flex items-center gap-2"
+                  >
+                    <Download size={20} />
+                    הורד קובץ תמלול
                   </Button>
                 )}
               </div>
 
-              {/* Navigation buttons */}
+              {/* Nav buttons + dots */}
               <div className="flex justify-between items-center mt-4">
                 <Button
                   variant="outline"
@@ -113,13 +209,12 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
                   הקודם
                 </Button>
 
-                {/* Dots indicator */}
                 <div className="flex gap-2">
-                  {cards.map((_, index) => (
+                  {cards.map((_, idx) => (
                     <div
-                      key={index}
-                      className={`w-2 h-2 rounded-full ${
-                        index === currentCard ? 'bg-blue-500' : 'bg-gray-300'
+                      key={idx}
+                      className={`w-2 h-2 rounded-full transition-colors ${
+                        idx === currentCard ? 'bg-blue-500' : 'bg-gray-300'
                       }`}
                     />
                   ))}
@@ -137,28 +232,39 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
               </div>
             </div>
 
-            {/* File upload section (shown only on last card) */}
-            {currentCard === cards.length - 1 && (
+            {/* Upload step */}
+            {cards[currentCard].showUpload && (
               <div className="space-y-4">
                 <div>
                   <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 mb-2">
                     בחר קובץ להעלאה:
                   </label>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    onChange={handleFileUpload}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
+                  <div className="flex items-center gap-2">
+                    <label
+                      htmlFor="file-upload"
+                      className="cursor-pointer px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md font-medium text-sm flex items-center gap-2"
+                    >
+                      <Upload size={16} />
+                      בחר קובץ
+                      <input
+                        id="file-upload"
+                        type="file"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        accept=".txt,.doc,.docx"
+                      />
+                    </label>
+                    {uploadedFile && (
+                      <p className="text-sm text-green-600">נבחר: {uploadedFile.name}</p>
+                    )}
+                  </div>
                 </div>
 
-                {uploadedFile && (
-                  <p className="text-sm text-green-600">
-                    קובץ נבחר: {uploadedFile.name}
-                  </p>
-                )}
-
-                <Button onClick={handleSubmit} className="w-full" disabled={!uploadedFile}>
+                <Button
+                  onClick={handleSubmit}
+                  className="w-full max-w-xs mx-auto"
+                  disabled={!uploadedFile}
+                >
                   שלח קובץ
                 </Button>
               </div>
@@ -169,22 +275,28 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
 
       {/* Feedback popup */}
       <Dialog open={showPopup} onOpenChange={setShowPopup}>
-        <DialogContent className="text-right" dir="rtl">
+        <DialogContent className="text-right max-w-md" dir="rtl">
           <DialogHeader>
             <DialogTitle>תוצאות בדיקת הקובץ</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             {isLoading ? (
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                <p>בודק את הקובץ...</p>
+                <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4" />
+                <p>בודק את הקובץ שלך.</p>
               </div>
             ) : (
               <div className="space-y-4">
-                <p className="text-gray-700">{feedback}</p>
-                <Button onClick={handleContinue} className="w-full">
-                  המשך לסיכום
-                </Button>
+                <div
+                  className="text-gray-700 prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900"
+                  dangerouslySetInnerHTML={{ __html: feedback }}
+                />
+                <div className="flex gap-3 justify-center pt-4">
+                  <Button onClick={handleResubmit} variant="outline">
+                    הגש מחדש
+                  </Button>
+                  <Button onClick={handleContinue}>המשך</Button>
+                </div>
               </div>
             )}
           </div>

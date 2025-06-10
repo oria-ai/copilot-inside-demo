@@ -208,9 +208,17 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
 
   // Save current position whenever user navigates (but NOT when it's just programmatic navigation)
   useEffect(() => {
+    console.log('Position save effect triggered:', { 
+      lessonId: lessonState.lessonId, 
+      activityId: lessonState.activityId, 
+      isLoading, 
+      isNavigatingProgrammatically 
+    });
+    
     if (!lessonState.lessonId || !lessonState.activityId || isLoading || isNavigatingProgrammatically) return;
     
     const savePosition = async () => {
+      console.log('Saving position:', { lessonId: lessonState.lessonId, activityId: lessonState.activityId });
       await fetch(`${api}/progress`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -229,15 +237,18 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
 
   // Sidebar click handler (no hasUserSelected)
   const handleActivityClick = (lessonId: string, activityId: string) => {
+    console.log('Activity clicked:', { lessonId, activityId });
     setLessonAndActivity(lessonId, activityId);
   };
 
   // FIXED: This function ONLY toggles dropdown, no navigation at all
   const handleLessonHeaderClick = (lessonId: string, event: React.MouseEvent) => {
+    console.log('Lesson header clicked:', { lessonId, currentExpanded: expandedLesson, currentLessonState: lessonState });
     event.preventDefault();
     event.stopPropagation();
     // Only toggle the dropdown, no navigation whatsoever
     setExpandedLesson(expandedLesson === lessonId ? '' : lessonId);
+    console.log('After header click - only toggling dropdown, no state change');
   };
 
   // Handle conclusion completion and navigation atomically

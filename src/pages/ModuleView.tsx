@@ -268,7 +268,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
       case 'tutor':
         return <ClickTutor lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} />;
       case 'prompt':
-        return <PromptTask lessonId={lessonState.lessonId} />;
+        return <PromptTask lessonId={lessonState.lessonId} onNext={goToNext} />;
       case 'file':
         return <FileTask lessonId={lessonState.lessonId} />;
       case 'conclusion':

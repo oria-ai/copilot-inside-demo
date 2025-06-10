@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 interface PromptTaskProps {
   lessonId: string;
+  onNext?: () => void;
 }
 
 const AMERICAN_ANSWERS = [
@@ -20,7 +22,7 @@ const INITIAL_PROMPT = 'תסכם לי בבקשה את הפגישה שאוכל ל
 // Your Cloudflare Worker URL
 const WORKER_URL = 'https://copilot-text.oria-masas-ai.workers.dev/';
 
-const PromptTask = ({ lessonId }: PromptTaskProps) => {
+const PromptTask = ({ lessonId, onNext }: PromptTaskProps) => {
   const [step, setStep] = useState<'american' | 'improve'>('american');
   const [selected, setSelected] = useState<string[]>([]);
   const [americanError, setAmericanError] = useState('');
@@ -139,9 +141,9 @@ const PromptTask = ({ lessonId }: PromptTaskProps) => {
   };
 
   const handleContinue = () => {
-    // Placeholder for next activity
-    setFeedback('');
-    setShowContinue(false);
+    if (onNext) {
+      onNext();
+    }
   };
 
   return (

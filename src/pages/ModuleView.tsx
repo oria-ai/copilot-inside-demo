@@ -37,12 +37,12 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
       lessons: [
         {
           id: 'lesson1',
-          title: 'שיעור ראשון',
+          title: 'שיעור ראשון - היכרות עם קופיילוט',
           video: 'https://player.vimeo.com/video/1086753235?badge=0&autopause=0&player_id=0&app_id=58479',
           videoTitle: 'Intro To Copilot',
           activities: [
-            { id: 'video', title: 'סרטון', completed: true },
-            { id: 'tutor', title: 'מדריך אינטראקטיבי', completed: true },
+            { id: 'video', title: 'מבוא', completed: true },
+            { id: 'tutor', title: 'הדרכה טכנית', completed: true },
             { id: 'conclusion', title: 'סיכום', completed: false }
           ]
         },
@@ -330,7 +330,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-white">{currentModule.title}</h1>
-            <p className="text-white/90">קורס אינטראקטיבי ב-Copilot</p>
+            <p className="text-white/90">יסודות השימוש ב-Copilot</p>
           </div>
         </div>
       </header>

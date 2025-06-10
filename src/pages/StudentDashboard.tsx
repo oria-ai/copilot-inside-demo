@@ -35,7 +35,7 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
       id: 'basics',
       title: 'יסודות',
       progress: overallProgress,
-      description: 'לימוד יסודות המערכת',
+      description: 'יסודות השימוש בקופיילוט',
       lessons: totalLessons,
       completedLessons: completedLessons
     }

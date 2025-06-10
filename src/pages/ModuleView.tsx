@@ -223,7 +223,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     setLessonAndActivity(lessonId, activityId);
   };
 
-  // Separate handler for lesson header toggle (only toggles dropdown)
+  // Fixed handler for lesson header toggle (ONLY toggles dropdown, no navigation)
   const handleLessonHeaderClick = (lessonId: string) => {
     setExpandedLesson(expandedLesson === lessonId ? '' : lessonId);
   };

@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-
-interface ClickTutorProps {
-  lessonId: string;
-  handleActivityComplete: (lessonId: string, progress: number, understandingRating?: number, lastActivity?: string, lastStep?: number) => void;
-}
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface StepConfig {
   stepNumber: number;
@@ -22,11 +18,17 @@ interface StepConfig {
   inputPlaceholder?: string;
 }
 
+interface ClickTutorProps {
+  lessonId: string;
+  handleActivityComplete: (lessonId: string, progress: number, understandingRating?: number, lastActivity?: string, lastStep?: number) => void;
+}
+
 const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [inputValue, setInputValue] = useState('');
   const [showInput, setShowInput] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Progress logic
   const totalSteps = 6;
@@ -38,7 +40,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
     {
       stepNumber: 1,
       imageName: `1-3.png`,
-      instructions: 'בחר ב"עבודה"',
+      instructions: 'נכנסנו לקופיילוט, בחר ב"עבודה"',
       clickArea: { top: '42%', left: '52%', width: '26%', height: '31%' }
     },
     {
@@ -128,6 +130,10 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
       return;
     }
     if (currentStep < totalSteps) {
+      // Show confetti popup after step 2
+      if (currentStep === 2) {
+        setShowConfetti(true);
+      }
       const newProgress = baseProgress + stepIncrement * currentStep;
       handleActivityComplete(lessonId, newProgress, undefined, 'tutor', currentStep);
       setCurrentStep(currentStep + 1);
@@ -141,138 +147,154 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>בואו נעשה זאת יחד</CardTitle>
-        <Button variant="outline" onClick={handleSkip}>
-          דלג
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="text-center">
-            <p className="text-lg mb-4">{currentStepConfig.instructions}</p>
-            <p className="text-sm text-gray-600">שלב {currentStep} מתוך {totalSteps}</p>
+    <>
+      <Dialog open={showConfetti} onOpenChange={setShowConfetti}>
+        <DialogContent className="text-right max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>הצלחה!</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 flex flex-col items-center justify-center text-center gap-6">
+            <div className="text-2xl font-bold mb-2">מעולה, עכשיו אתה יודע איך לשוחח עם קופיילוט.</div>
+            <div className="text-lg mb-4">בוא נמצא יחד את ספריית הפרומפטים</div>
+            <Button className="w-full mt-4" onClick={() => setShowConfetti(false)}>
+              המשך
+            </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>בוא נעשה זאת יחד</CardTitle>
+          <Button variant="outline" onClick={handleSkip}>
+            דלג
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="text-center">
+              <p className="text-lg mb-4">{currentStepConfig.instructions}</p>
+              <p className="text-sm text-gray-600">שלב {currentStep} מתוך {totalSteps}</p>
+            </div>
 
-          {/* Responsive aspect-ratio container for screenshot */}
-          <div
-            className="relative w-full max-w-2xl mx-auto aspect-[16/9] bg-transparent rounded-lg flex items-center justify-center overflow-hidden"
-            style={{ minHeight: '300px' }}
-            onClick={handleImageClick}
-            role="button"
-            aria-label="המשך לשלב הבא על ידי לחיצה על האזור המתאים"
-            tabIndex={0}
-            onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-              if (e.key === 'Enter' || e.key === ' ') handleImageClick(e as unknown as React.MouseEvent<HTMLDivElement, MouseEvent>);
-            }}
-          >
-            <img
-              src={`/${currentStep === 2 ? step2Image : currentStepConfig.imageName}`}
-              alt={`Step ${currentStep}`}
-              className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
-              onError={e => {
-                (e.currentTarget as HTMLImageElement).src = '/placeholder.svg';
+            {/* Responsive aspect-ratio container for screenshot */}
+            <div
+              className="relative w-full max-w-2xl mx-auto aspect-[16/9] bg-transparent rounded-lg flex items-center justify-center overflow-hidden"
+              style={{ minHeight: '300px' }}
+              onClick={handleImageClick}
+              role="button"
+              aria-label="המשך לשלב הבא על ידי לחיצה על האזור המתאים"
+              tabIndex={0}
+              onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+                if (e.key === 'Enter' || e.key === ' ') handleImageClick(e as unknown as React.MouseEvent<HTMLDivElement, MouseEvent>);
               }}
-              draggable={false}
-            />
-            {/* Show the red hotspot for positioning, except on step 2 */}
-            {currentStep !== 2 && (
-              <div
-                className="absolute pointer-events-none"
-                style={{
-                  top: currentStepConfig.clickArea.top,
-                  left: currentStepConfig.clickArea.left,
-                  width: currentStepConfig.clickArea.width,
-                  height: currentStepConfig.clickArea.height
+            >
+              <img
+                src={`/${currentStep === 2 ? step2Image : currentStepConfig.imageName}`}
+                alt={`Step ${currentStep}`}
+                className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+                onError={e => {
+                  (e.currentTarget as HTMLImageElement).src = '/placeholder.svg';
                 }}
+                draggable={false}
               />
-            )}
-            {/* Step 2: Overlay invisible input and send button */}
-            {currentStep === 2 && (
-              <>
-                <input
-                  type="text"
-                  dir="ltr"
-                  value={inputValue}
-                  onChange={e => setInputValue(e.target.value)}
-                  placeholder={currentStepConfig.inputPlaceholder}
+              {/* Show the red hotspot for positioning, except on step 2 */}
+              {currentStep !== 2 && (
+                <div
+                  className="absolute pointer-events-none"
                   style={{
-                    position: 'absolute',
-                    left: '29%',
-                    top: '36%',
-                    width: '65%',
-                    height: '9%',
-                    fontFamily: 'ginto',
-                    fontSize: '1em',
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#333',
-                    caretColor: '#333',
-                    outline: 'none',
-                    padding: '0 8px',
-                    zIndex: 20,
-                    cursor: isInputFocused ? 'text' : 'pointer',
+                    top: currentStepConfig.clickArea.top,
+                    left: currentStepConfig.clickArea.left,
+                    width: currentStepConfig.clickArea.width,
+                    height: currentStepConfig.clickArea.height
                   }}
-                  onClick={e => {
-                    e.stopPropagation();
-                    setIsInputFocused(true);
-                  }}
-                  onBlur={() => setIsInputFocused(false)}
-                  autoFocus={false}
-                  onFocus={e => e.stopPropagation()}
-                  tabIndex={0}
                 />
-                <button
-                  type="button"
-                  style={{
-                    position: 'absolute',
-                    left: '88.5%',
-                    top: '45%',
-                    width: '4%',
-                    height: '6%',
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'transparent',
-                    fontWeight: 600,
-                    fontSize: '1em',
-                    cursor: inputValue.trim() !== '' ? 'pointer' : 'not-allowed',
-                    opacity: 0,
-                    zIndex: 21,
-                  }}
-                  disabled={inputValue.trim() === ''}
-                  onClick={e => {
-                    e.stopPropagation();
-                    if (inputValue.trim() === '') return;
-                    setCurrentStep(currentStep + 1);
-                    setShowInput(false);
-                    setInputValue('');
-                    setIsInputFocused(false);
-                  }}
-                >
-                  {/* No text */}
-                </button>
-              </>
-            )}
-            {showInput && currentStepConfig.hasInput && currentStep !== 2 && (
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-                <Input
-                  value={inputValue}
-                  onChange={e => setInputValue(e.target.value)}
-                  placeholder={currentStepConfig.inputPlaceholder}
-                  className="bg-white border-2 border-blue-500"
-                  autoFocus
-                />
-              </div>
-            )}
-          </div>
+              )}
+              {/* Step 2: Overlay invisible input and send button */}
+              {currentStep === 2 && (
+                <>
+                  <input
+                    type="text"
+                    dir="ltr"
+                    value={inputValue}
+                    onChange={e => setInputValue(e.target.value)}
+                    placeholder={currentStepConfig.inputPlaceholder}
+                    style={{
+                      position: 'absolute',
+                      left: '29%',
+                      top: '36%',
+                      width: '65%',
+                      height: '9%',
+                      fontFamily: 'ginto',
+                      fontSize: '1em',
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#333',
+                      caretColor: '#333',
+                      outline: 'none',
+                      padding: '0 8px',
+                      zIndex: 20,
+                      cursor: isInputFocused ? 'text' : 'pointer',
+                    }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setIsInputFocused(true);
+                    }}
+                    onBlur={() => setIsInputFocused(false)}
+                    autoFocus={false}
+                    onFocus={e => e.stopPropagation()}
+                    tabIndex={0}
+                  />
+                  <button
+                    type="button"
+                    style={{
+                      position: 'absolute',
+                      left: '88.5%',
+                      top: '45%',
+                      width: '4%',
+                      height: '6%',
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'transparent',
+                      fontWeight: 600,
+                      fontSize: '1em',
+                      cursor: inputValue.trim() !== '' ? 'pointer' : 'not-allowed',
+                      opacity: 0,
+                      zIndex: 21,
+                    }}
+                    disabled={inputValue.trim() === ''}
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (inputValue.trim() === '') return;
+                      setCurrentStep(currentStep + 1);
+                      setShowInput(false);
+                      setInputValue('');
+                      setIsInputFocused(false);
+                    }}
+                  >
+                    {/* No text */}
+                  </button>
+                </>
+              )}
+              {showInput && currentStepConfig.hasInput && currentStep !== 2 && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                  <Input
+                    value={inputValue}
+                    onChange={e => setInputValue(e.target.value)}
+                    placeholder={currentStepConfig.inputPlaceholder}
+                    className="bg-white border-2 border-blue-500"
+                    autoFocus
+                  />
+                </div>
+              )}
+            </div>
 
-          <div className="text-center text-sm text-gray-500">
-            לחץ על האזור הנכון בתמונה כדי להמשיך
+            <div className="text-center text-sm text-gray-500">
+              לחץ על האזור הנכון בתמונה כדי להמשיך
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 

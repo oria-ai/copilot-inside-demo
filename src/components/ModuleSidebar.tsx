@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -29,10 +28,20 @@ const ModuleSidebar = ({
 }: SidebarProps) => {
   const [expandedLesson, setExpandedLesson] = useState(currentLessonId);
 
+  // Update expanded lesson when current lesson changes
+  useEffect(() => {
+    setExpandedLesson(currentLessonId);
+  }, [currentLessonId]);
+
   const getActivityProgress = (lessonId: string, activityId: string) => {
     const progress = userProgress.find((p) => p.lessonId === lessonId)?.percent ?? 0;
     if (activityId === 'video') return progress >= 50 ? 100 : progress;
     if (activityId === 'tutor') {
+      if (progress >= 90) return 100;
+      if (progress > 50) return ((progress - 50) / 40) * 100;
+      return 0;
+    }
+    if (activityId === 'prompt') {
       if (progress >= 90) return 100;
       if (progress > 50) return ((progress - 50) / 40) * 100;
       return 0;

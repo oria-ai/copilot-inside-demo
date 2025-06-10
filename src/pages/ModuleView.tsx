@@ -8,6 +8,7 @@ import ClickTutor from '@/components/ClickTutor';
 import PromptTask from '@/components/PromptTask';
 import FileTask from '@/components/FileTask';
 import Conclusion from '@/components/Conclusion';
+import ModuleSidebar from '@/components/ModuleSidebar';
 
 interface ModuleViewProps {
   moduleId: string;
@@ -27,7 +28,6 @@ interface UserProgress {
 
 const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
   const [lessonState, setLessonState] = useState<{ lessonId: string; activityId: string }>({ lessonId: '', activityId: '' });
-  const [expandedLesson, setExpandedLesson] = useState('');
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -74,7 +74,6 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
 
   const currentModule = moduleData[moduleId as keyof typeof moduleData];
 
-  // Memoize handleActivityComplete to prevent unnecessary re-renders
   const handleActivityComplete = useCallback(async (
     lessonId: string,
     progress: number,
@@ -95,7 +94,6 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     }
   }, [userId]);
 
-  // Fetch user progress and resume position from backend
   useEffect(() => {
     const fetchProgress = async () => {
       setIsLoading(true);
@@ -112,7 +110,6 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
             lessonId: progressWithActivity.lessonId, 
             activityId: progressWithActivity.lastActivity 
           });
-          setExpandedLesson(progressWithActivity.lessonId);
         } else {
           // No saved position, start at first lesson's video
           const firstLesson = currentModule.lessons[0];
@@ -122,7 +119,6 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
           } else {
             setLessonState({ lessonId: firstLesson.id, activityId: firstLesson.activities[0].id });
           }
-          setExpandedLesson(firstLesson.id);
         }
       }
       setIsLoading(false);
@@ -130,11 +126,15 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     fetchProgress();
   }, [userId]);
 
-  // Helper to get lesson/activity completion and progress
   const getActivityProgress = (lessonId: string, activityId: string) => {
     const progress = userProgress.find((p) => p.lessonId === lessonId)?.percent ?? 0;
     if (activityId === 'video') return progress >= 50 ? 100 : progress;
     if (activityId === 'tutor') {
+      if (progress >= 90) return 100;
+      if (progress > 50) return ((progress - 50) / 40) * 100;
+      return 0;
+    }
+    if (activityId === 'prompt') {
       if (progress >= 90) return 100;
       if (progress > 50) return ((progress - 50) / 40) * 100;
       return 0;
@@ -145,7 +145,6 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
 
   const isActivityCompleted = (lessonId: string, activityId: string) => getActivityProgress(lessonId, activityId) === 100;
 
-  // Helper to get module progress
   const getModuleProgress = () => {
     if (!userProgress.length) return 0;
     const totalLessons = currentModule.lessons.length;
@@ -153,7 +152,6 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     return Math.round((total / (totalLessons * 100)) * 100);
   };
 
-  // Listen for goToConclusion event from ClickTutor
   useEffect(() => {
     const goToConclusionHandler = (_e: Event) => {
       setLessonState(prev => ({ ...prev, activityId: 'conclusion' }));
@@ -162,7 +160,6 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     return () => window.removeEventListener('goToConclusion', goToConclusionHandler);
   }, []);
 
-  // Helper to get the next activity in order
   const getNextActivity = (lessonId: string, activityId: string) => {
     const lessonIdx = currentModule.lessons.findIndex(l => l.id === lessonId);
     const lesson = currentModule.lessons[lessonIdx];
@@ -180,7 +177,6 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     return null;
   };
 
-  // Helper to set lesson and activity, always preferring video as entry point
   const setLessonAndDefaultActivity = (lessonId: string) => {
     const lesson = currentModule.lessons.find(l => l.id === lessonId);
     if (!lesson) return;
@@ -192,12 +188,10 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     }
   };
 
-  // Helper to set lesson and activity together (for non-default cases)
   const setLessonAndActivity = (lessonId: string, activityId: string) => {
     setLessonState({ lessonId, activityId });
   };
 
-  // Save current position whenever user navigates
   useEffect(() => {
     if (!lessonState.lessonId || !lessonState.activityId || isLoading) return;
     
@@ -218,17 +212,11 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     savePosition();
   }, [lessonState.lessonId, lessonState.activityId, isLoading, userId, userProgress]);
 
-  // Sidebar click handler (no hasUserSelected)
-  const handleActivityClick = (lessonId: string, activityId: string) => {
+  // Activity selection handler for sidebar
+  const handleActivitySelect = (lessonId: string, activityId: string) => {
     setLessonAndActivity(lessonId, activityId);
   };
 
-  // Separate handler for lesson header toggle (only toggles dropdown)
-  const handleLessonHeaderClick = (lessonId: string) => {
-    setExpandedLesson(expandedLesson === lessonId ? '' : lessonId);
-  };
-
-  // Handle conclusion completion and navigation atomically
   const handleConclusionComplete = useCallback(async (lessonId: string, rating: number) => {
     // Save progress first
     await fetch(`${api}/progress`, {
@@ -309,7 +297,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
       case 'tutor':
         return <ClickTutor lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} />;
       case 'prompt':
-        return <PromptTask lessonId={lessonState.lessonId} />;
+        return <PromptTask lessonId={lessonState.lessonId} onNext={goToNext} handleActivityComplete={handleActivityComplete} />;
       case 'file':
         return <FileTask lessonId={lessonState.lessonId} />;
       case 'conclusion':
@@ -332,55 +320,13 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
 
       <div className="flex">
         {/* Progress sidebar - LEFT side */}
-        <div className="w-80 bg-white border-r p-6">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">{currentModule.title}</h3>
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>{Math.round(getModuleProgress())}% הושלם</span>
-              </div>
-              <Progress value={Math.round(getModuleProgress())} className="h-2" />
-            </div>
-
-            <div className="space-y-2">
-              {currentModule.lessons.map((lesson) => (
-                <div key={lesson.id} className="border rounded-lg">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between p-3 h-auto"
-                    onClick={() => handleLessonHeaderClick(lesson.id)}
-                  >
-                    <div className="text-right">
-                      <div className="font-medium">{lesson.title}</div>
-                      <div className="text-sm text-gray-500">{Math.round(userProgress.find(p => p.lessonId === lesson.id)?.percent ?? 0)}%</div>
-                    </div>
-                    {expandedLesson === lesson.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  </Button>
-                  
-                  {expandedLesson === lesson.id && (
-                    <div className="px-3 pb-3 space-y-1">
-                      {lesson.activities.map((activity) => (
-                        <Button
-                          key={activity.id}
-                          variant="ghost"
-                          className="w-full justify-between p-2 h-auto text-sm"
-                          onClick={() => {
-                            handleActivityClick(lesson.id, activity.id);
-                          }}
-                        >
-                          <span>{activity.title}</span>
-                          <div className="w-4 h-4 rounded-full border-2 border-gray-300 relative overflow-hidden">
-                            <div style={{ height: '100%', width: `${Math.round(getActivityProgress(lesson.id, activity.id))}%`, background: 'rgba(34,197,94,0.7)' }} className="absolute left-0 top-0 rounded-full transition-all duration-300" />
-                          </div>
-                        </Button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <ModuleSidebar 
+          currentModule={currentModule}
+          userProgress={userProgress}
+          currentLessonId={lessonState.lessonId}
+          currentActivityId={lessonState.activityId}
+          onActivitySelect={handleActivitySelect}
+        />
 
         {/* Main content - RIGHT side */}
         <div className="flex-1 p-6">

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import ConfettiOverlay from '@/components/ConfettiOverlay';
 
 interface StepConfig {
   stepNumber: number;
@@ -86,6 +87,27 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
   // For step 2, determine which image to show based on input focus or value
   const step2Image = currentStep === 2 && (isInputFocused || inputValue.trim() !== '') ? '1-4-1-e.png' : currentStepConfig.imageName;
 
+  // Handle escape key to close confetti
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showConfetti) {
+        setShowConfetti(false);
+        proceedToStep3();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showConfetti]);
+
+  const proceedToStep3 = () => {
+    const newProgress = baseProgress + stepIncrement * currentStep;
+    handleActivityComplete(lessonId, newProgress, undefined, 'tutor', currentStep);
+    setCurrentStep(3);
+    setShowInput(false);
+    setInputValue('');
+  };
+
   // Handler for clicking anywhere on the image
   const handleImageClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     // Get bounding rect of the image wrapper
@@ -132,8 +154,8 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
     if (currentStep < totalSteps) {
       // Show confetti popup after step 2
       if (currentStep === 2) {
-        alert('step 2 popup!');
         setShowConfetti(true);
+        return;
       }
       const newProgress = baseProgress + stepIncrement * currentStep;
       handleActivityComplete(lessonId, newProgress, undefined, 'tutor', currentStep);
@@ -149,6 +171,29 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
 
   return (
     <>
+      <ConfettiOverlay 
+        open={showConfetti} 
+        onClose={() => {
+          setShowConfetti(false);
+          proceedToStep3();
+        }}
+      >
+        <div className="text-center" dir="rtl">
+          <h2 className="text-2xl font-bold mb-4">מעולה!</h2>
+          <p className="text-lg mb-6">עכשיו אתה יודע איך לשוחח עם קופיילוט. בוא נמצא יחד את ספריית הפרומפטים</p>
+          <Button 
+            className="w-full" 
+            onClick={() => {
+              setShowConfetti(false);
+              proceedToStep3();
+            }}
+          >
+            המשך
+          </Button>
+        </div>
+      </ConfettiOverlay>
+
+      
       <Dialog open={showConfetti} onOpenChange={setShowConfetti}>
         <DialogContent className="text-right max-w-md" dir="rtl">
           <DialogHeader>
@@ -266,10 +311,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
                     onClick={e => {
                       e.stopPropagation();
                       if (inputValue.trim() === '') return;
-                      setCurrentStep(currentStep + 1);
-                      setShowInput(false);
-                      setInputValue('');
-                      setIsInputFocused(false);
+                      setShowConfetti(true);
                     }}
                   >
                     {/* No text */}

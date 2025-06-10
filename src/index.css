@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 191 71% 51%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -24,33 +25,33 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 85 62% 56%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 191 71% 51%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
+    --sidebar-primary: 191 71% 51%;
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 191 71% 51%;
 
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Hands-On-AI Brand Colors */
+    --turquoise: 191 71% 51%;
+    --green: 85 62% 56%;
+    --light-gray: 0 0% 96%;
+    --dark-gray: 0 0% 13%;
+    --medium-gray: 0 0% 47%;
   }
 
   .dark {
@@ -63,7 +64,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    --primary: 191 71% 51%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -72,7 +73,7 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 85 62% 56%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -80,15 +81,15 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 191 71% 51%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary: 191 71% 51%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 191 71% 51%;
   }
 }
 
@@ -98,6 +99,85 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-inter;
+  }
+
+  h1 {
+    @apply text-3xl font-bold text-dark-gray leading-tight;
+  }
+
+  h2 {
+    @apply text-xl font-semibold text-dark-gray leading-tight;
+  }
+
+  h3 {
+    @apply text-lg font-medium text-dark-gray leading-tight;
+  }
+
+  .text-body {
+    @apply text-base text-dark-gray leading-relaxed;
+  }
+
+  .text-secondary {
+    @apply text-sm text-medium-gray leading-relaxed;
+  }
+}
+
+/* Custom gradient utilities */
+@layer utilities {
+  .bg-gradient-turquoise {
+    background: linear-gradient(135deg, hsl(var(--turquoise)) 0%, hsl(var(--green)) 100%);
+  }
+
+  .bg-gradient-light {
+    background: linear-gradient(135deg, #ffffff 0%, hsl(var(--light-gray)) 100%);
+  }
+
+  .bg-gradient-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  }
+
+  .shadow-soft {
+    box-shadow: 0 4px 20px rgba(53, 177, 214, 0.1);
+  }
+
+  .shadow-card {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  .border-gradient {
+    border: 1px solid;
+    border-image: linear-gradient(135deg, hsl(var(--turquoise)), hsl(var(--green))) 1;
+  }
+}
+
+/* Color shortcuts */
+@layer utilities {
+  .text-turquoise {
+    color: hsl(var(--turquoise));
+  }
+
+  .text-green {
+    color: hsl(var(--green));
+  }
+
+  .text-dark-gray {
+    color: hsl(var(--dark-gray));
+  }
+
+  .text-medium-gray {
+    color: hsl(var(--medium-gray));
+  }
+
+  .bg-turquoise {
+    background-color: hsl(var(--turquoise));
+  }
+
+  .bg-green {
+    background-color: hsl(var(--green));
+  }
+
+  .bg-light-gray {
+    background-color: hsl(var(--light-gray));
   }
 }

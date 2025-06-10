@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
+import { ChevronDown, ChevronUp, ArrowLeft, BookOpen } from 'lucide-react';
 import VideoLesson from '@/components/VideoLesson';
 import ClickTutor from '@/components/ClickTutor';
 import PromptTask from '@/components/PromptTask';
@@ -249,16 +249,26 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     
     if (isLoading) {
       return (
-        <div className="flex items-center justify-center h-96 text-gray-500">
-          <p>טוען...</p>
+        <div className="flex items-center justify-center h-96 text-medium-gray">
+          <div className="bg-gradient-card rounded-3xl p-8 shadow-card">
+            <div className="animate-pulse flex items-center">
+              <div className="bg-gradient-turquoise w-8 h-8 rounded-full mr-4"></div>
+              <p className="text-lg">טוען...</p>
+            </div>
+          </div>
         </div>
       );
     }
     
     if (!lessonState.lessonId || !lessonState.activityId) {
       return (
-        <div className="flex items-center justify-center h-96 text-gray-500">
-          <p>בחר שיעור ופעילות כדי להתחיל</p>
+        <div className="flex items-center justify-center h-96 text-medium-gray">
+          <div className="bg-gradient-card rounded-3xl p-8 shadow-card text-center">
+            <div className="bg-light-gray w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4">
+              <BookOpen className="h-8 w-8 text-medium-gray" />
+            </div>
+            <p className="text-lg">בחר שיעור ופעילות כדי להתחיל</p>
+          </div>
         </div>
       );
     }
@@ -308,13 +318,20 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      <header className="bg-white shadow-sm border-b px-6 py-4">
+    <div className="min-h-screen bg-gradient-light" dir="rtl">
+      <header className="bg-gradient-turquoise shadow-soft border-b-0 px-6 py-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={onBack} className="p-2">
-            <ArrowLeft className="h-5 w-5" />
+          <Button 
+            variant="ghost" 
+            onClick={onBack} 
+            className="p-3 text-white hover:bg-white/20 rounded-2xl transition-all duration-300"
+          >
+            <ArrowLeft className="h-6 w-6" />
           </Button>
-          <h1 className="text-2xl font-bold text-gray-800">{currentModule.title}</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-white">{currentModule.title}</h1>
+            <p className="text-white/90">קורס אינטראקטיבי ב-Copilot</p>
+          </div>
         </div>
       </header>
 
@@ -329,8 +346,10 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
         />
 
         {/* Main content - RIGHT side */}
-        <div className="flex-1 p-6">
-          {renderMainContent()}
+        <div className="flex-1 p-8">
+          <div className="bg-white rounded-3xl shadow-card min-h-[600px]">
+            {renderMainContent()}
+          </div>
         </div>
       </div>
     </div>

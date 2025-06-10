@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, PlayCircle, CheckCircle2 } from 'lucide-react';
 
 interface UserProgress {
   lessonId: string;
@@ -28,7 +28,6 @@ const ModuleSidebar = ({
 }: SidebarProps) => {
   const [expandedLesson, setExpandedLesson] = useState(currentLessonId);
 
-  // Update expanded lesson when current lesson changes
   useEffect(() => {
     setExpandedLesson(currentLessonId);
   }, [currentLessonId]);
@@ -57,72 +56,108 @@ const ModuleSidebar = ({
     return Math.round((total / (totalLessons * 100)) * 100);
   };
 
-  // ONLY toggles dropdown - no navigation
   const handleLessonHeaderClick = (lessonId: string, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
     setExpandedLesson(expandedLesson === lessonId ? '' : lessonId);
   };
 
-  // ONLY handles activity selection
   const handleActivityClick = (lessonId: string, activityId: string) => {
     onActivitySelect(lessonId, activityId);
   };
 
   return (
-    <div className="w-80 bg-white border-r p-6">
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">{currentModule.title}</h3>
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
-            <span>{Math.round(getModuleProgress())}% הושלם</span>
+    <div className="w-80 bg-gradient-card border-r-0 p-6 shadow-soft">
+      <div className="space-y-6">
+        {/* Module Progress Card */}
+        <Card className="bg-gradient-turquoise text-white rounded-3xl border-0 shadow-card">
+          <div className="p-6">
+            <h3 className="text-xl font-bold mb-3">{currentModule.title}</h3>
+            <div className="flex justify-between text-sm text-white/90 mb-3">
+              <span>{Math.round(getModuleProgress())}% הושלם</span>
+              <span>התקדמות כללית</span>
+            </div>
+            <Progress 
+              value={Math.round(getModuleProgress())} 
+              className="h-3 bg-white/20 rounded-full" 
+            />
           </div>
-          <Progress value={Math.round(getModuleProgress())} className="h-2" />
-        </div>
+        </Card>
 
-        <div className="space-y-2">
+        {/* Lessons List */}
+        <div className="space-y-3">
+          <h4 className="text-lg font-semibold text-dark-gray mb-4">שיעורים</h4>
           {currentModule.lessons.map((lesson) => (
-            <div key={lesson.id} className="border rounded-lg">
+            <div key={lesson.id} className="bg-white rounded-2xl shadow-card border-0 overflow-hidden">
               <Button
                 variant="ghost"
-                className="w-full justify-between p-3 h-auto"
+                className="w-full justify-between p-4 h-auto rounded-2xl hover:bg-light-gray/50 transition-all duration-300"
                 onClick={(event) => handleLessonHeaderClick(lesson.id, event)}
               >
-                <div className="text-right">
-                  <div className="font-medium">{lesson.title}</div>
-                  <div className="text-sm text-gray-500">
-                    {Math.round(userProgress.find(p => p.lessonId === lesson.id)?.percent ?? 0)}%
+                <div className="text-right flex-1">
+                  <div className="font-semibold text-dark-gray">{lesson.title}</div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="text-sm text-medium-gray">
+                      {Math.round(userProgress.find(p => p.lessonId === lesson.id)?.percent ?? 0)}% הושלם
+                    </div>
+                    {userProgress.find(p => p.lessonId === lesson.id)?.percent === 100 && (
+                      <CheckCircle2 className="h-4 w-4 text-green" />
+                    )}
                   </div>
                 </div>
-                {expandedLesson === lesson.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                <div className="bg-light-gray rounded-xl p-2">
+                  {expandedLesson === lesson.id ? 
+                    <ChevronUp className="h-4 w-4 text-medium-gray" /> : 
+                    <ChevronDown className="h-4 w-4 text-medium-gray" />
+                  }
+                </div>
               </Button>
               
               {expandedLesson === lesson.id && (
-                <div className="px-3 pb-3 space-y-1">
-                  {lesson.activities.map((activity) => (
-                    <Button
-                      key={activity.id}
-                      variant="ghost"
-                      className={`w-full justify-between p-2 h-auto text-sm ${
-                        currentLessonId === lesson.id && currentActivityId === activity.id 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : ''
-                      }`}
-                      onClick={() => handleActivityClick(lesson.id, activity.id)}
-                    >
-                      <span>{activity.title}</span>
-                      <div className="w-4 h-4 rounded-full border-2 border-gray-300 relative overflow-hidden">
-                        <div 
-                          style={{ 
-                            height: '100%', 
-                            width: `${Math.round(getActivityProgress(lesson.id, activity.id))}%`, 
-                            background: 'rgba(34,197,94,0.7)' 
-                          }} 
-                          className="absolute left-0 top-0 rounded-full transition-all duration-300" 
-                        />
-                      </div>
-                    </Button>
-                  ))}
+                <div className="px-4 pb-4 space-y-2">
+                  {lesson.activities.map((activity) => {
+                    const progress = getActivityProgress(lesson.id, activity.id);
+                    const isCompleted = progress === 100;
+                    const isCurrent = currentLessonId === lesson.id && currentActivityId === activity.id;
+                    
+                    return (
+                      <Button
+                        key={activity.id}
+                        variant="ghost"
+                        className={`w-full justify-between p-3 h-auto text-sm rounded-xl transition-all duration-300 ${
+                          isCurrent 
+                            ? 'bg-gradient-turquoise text-white shadow-soft' 
+                            : 'hover:bg-light-gray/70'
+                        }`}
+                        onClick={() => handleActivityClick(lesson.id, activity.id)}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className={isCurrent ? 'text-white' : 'text-dark-gray'}>
+                            {activity.title}
+                          </span>
+                          {isCompleted && !isCurrent && (
+                            <CheckCircle2 className="h-4 w-4 text-green" />
+                          )}
+                        </div>
+                        
+                        <div className={`w-6 h-6 rounded-full border-2 relative overflow-hidden ${
+                          isCurrent ? 'border-white' : 'border-light-gray'
+                        }`}>
+                          <div 
+                            style={{ 
+                              height: '100%', 
+                              width: `${Math.round(progress)}%`, 
+                              background: isCurrent ? 'rgba(255,255,255,0.3)' : 'hsl(var(--green))' 
+                            }} 
+                            className="absolute left-0 top-0 rounded-full transition-all duration-500" 
+                          />
+                          {isCurrent && (
+                            <PlayCircle className="absolute inset-0.5 text-white" />
+                          )}
+                        </div>
+                      </Button>
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -132,6 +132,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
     if (currentStep < totalSteps) {
       // Show confetti popup after step 2
       if (currentStep === 2) {
+        alert('step 2 popup!');
         setShowConfetti(true);
       }
       const newProgress = baseProgress + stepIncrement * currentStep;

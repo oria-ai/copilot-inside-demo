@@ -308,25 +308,13 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="container-main">
-          <div className="flex items-center gap-4 py-4">
-            <Button 
-              variant="ghost" 
-              onClick={onBack} 
-              className="p-2 hover:bg-primary/10 hover:text-primary transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-3">
-              <div className="text-2xl">🤖</div>
-              <h1 className="text-xl font-bold text-foreground">Hands-On-AI</h1>
-            </div>
-            <div className="mx-4 text-muted-foreground">|</div>
-            <h2 className="text-xl font-semibold text-foreground">{currentModule.title}</h2>
-          </div>
+    <div className="min-h-screen bg-gray-50" dir="rtl">
+      <header className="bg-white shadow-sm border-b px-6 py-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" onClick={onBack} className="p-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl font-bold text-gray-800">{currentModule.title}</h1>
         </div>
       </header>
 
@@ -341,7 +329,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
         />
 
         {/* Main content - RIGHT side */}
-        <div className="flex-1 section">
+        <div className="flex-1 p-6">
           {renderMainContent()}
         </div>
       </div>

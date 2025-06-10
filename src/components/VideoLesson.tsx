@@ -19,28 +19,23 @@ const VideoLesson = ({ videoUrl, videoTitle, lessonId, handleActivityComplete, o
   const [progressSaved, setProgressSaved] = useState(false);
 
   useEffect(() => {
-    console.log('VideoLesson effect running for:', { videoUrl, lessonId });
     if (!frameRef.current) return;
     const player = new Player(frameRef.current);
     const handleEnded = () => {
-      console.log('Video ended, showing rating');
       setShowRating(true);
       if (!progressSaved) {
-        console.log('Saving video progress');
         handleActivityComplete(lessonId, 50, undefined, 'video', 1);
         setProgressSaved(true);
       }
     };
     player.on('ended', handleEnded);
     return () => {
-      console.log('VideoLesson cleanup for:', lessonId);
       player.off('ended', handleEnded);
       player.destroy();
     };
   }, [videoUrl, lessonId, handleActivityComplete, progressSaved]);
 
   const handleNextClick = () => {
-    console.log('Video next button clicked');
     if (!progressSaved) {
       handleActivityComplete(lessonId, 50, undefined, 'video', 1);
       setProgressSaved(true);

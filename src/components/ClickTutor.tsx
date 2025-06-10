@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -193,21 +194,6 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
         </div>
       </ConfettiOverlay>
 
-      
-      <Dialog open={showConfetti} onOpenChange={setShowConfetti}>
-        <DialogContent className="text-right max-w-md" dir="rtl">
-          <DialogHeader>
-            <DialogTitle>הצלחה!</DialogTitle>
-          </DialogHeader>
-          <div className="py-4 flex flex-col items-center justify-center text-center gap-6">
-            <div className="text-2xl font-bold mb-2">מעולה, עכשיו אתה יודע איך לשוחח עם קופיילוט.</div>
-            <div className="text-lg mb-4">בוא נמצא יחד את ספריית הפרומפטים</div>
-            <Button className="w-full mt-4" onClick={() => setShowConfetti(false)}>
-              המשך
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>בוא נעשה זאת יחד</CardTitle>

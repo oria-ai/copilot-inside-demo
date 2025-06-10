@@ -224,7 +224,9 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
   };
 
   // Fixed handler for lesson header toggle (ONLY toggles dropdown, no navigation)
-  const handleLessonHeaderClick = (lessonId: string) => {
+  const handleLessonHeaderClick = (lessonId: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
     setExpandedLesson(expandedLesson === lessonId ? '' : lessonId);
   };
 
@@ -348,7 +350,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
                   <Button
                     variant="ghost"
                     className="w-full justify-between p-3 h-auto"
-                    onClick={() => handleLessonHeaderClick(lesson.id)}
+                    onClick={(event) => handleLessonHeaderClick(lesson.id, event)}
                   >
                     <div className="text-right">
                       <div className="font-medium">{lesson.title}</div>

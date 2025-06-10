@@ -30,6 +30,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
   const [expandedLesson, setExpandedLesson] = useState('');
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isNavigatingProgrammatically, setIsNavigatingProgrammatically] = useState(false);
 
   // Fetch user progress and resume position from backend
   useEffect(() => {
@@ -44,21 +45,25 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
         const progressWithActivity = data.find(p => p.lastActivity && p.lastActivity !== '');
         if (progressWithActivity) {
           // Resume from last position
+          setIsNavigatingProgrammatically(true);
           setLessonState({ 
             lessonId: progressWithActivity.lessonId, 
             activityId: progressWithActivity.lastActivity 
           });
           setExpandedLesson(progressWithActivity.lessonId);
+          setIsNavigatingProgrammatically(false);
         } else {
           // No saved position, start at first lesson's video
           const firstLesson = currentModule.lessons[0];
           const videoActivity = firstLesson.activities.find(a => a.id === 'video');
+          setIsNavigatingProgrammatically(true);
           if (videoActivity) {
             setLessonState({ lessonId: firstLesson.id, activityId: 'video' });
           } else {
             setLessonState({ lessonId: firstLesson.id, activityId: firstLesson.activities[0].id });
           }
           setExpandedLesson(firstLesson.id);
+          setIsNavigatingProgrammatically(false);
         }
       }
       setIsLoading(false);
@@ -109,7 +114,6 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
 
   const currentModule = moduleData[moduleId as keyof typeof moduleData];
 
-  // Helper to get lesson/activity completion and progress
   const getActivityProgress = (lessonId: string, activityId: string) => {
     const progress = userProgress.find((p) => p.lessonId === lessonId)?.percent ?? 0;
     if (activityId === 'video') return progress >= 50 ? 100 : progress;
@@ -124,7 +128,6 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
 
   const isActivityCompleted = (lessonId: string, activityId: string) => getActivityProgress(lessonId, activityId) === 100;
 
-  // Helper to get module progress
   const getModuleProgress = () => {
     if (!userProgress.length) return 0;
     const totalLessons = currentModule.lessons.length;
@@ -156,7 +159,9 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
   // Listen for goToConclusion event from ClickTutor
   useEffect(() => {
     const goToConclusionHandler = (_e: Event) => {
+      setIsNavigatingProgrammatically(true);
       setLessonState(prev => ({ ...prev, activityId: 'conclusion' }));
+      setIsNavigatingProgrammatically(false);
     };
     window.addEventListener('goToConclusion', goToConclusionHandler);
     return () => window.removeEventListener('goToConclusion', goToConclusionHandler);
@@ -184,22 +189,26 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
   const setLessonAndDefaultActivity = (lessonId: string) => {
     const lesson = currentModule.lessons.find(l => l.id === lessonId);
     if (!lesson) return;
+    setIsNavigatingProgrammatically(true);
     const videoActivity = lesson.activities.find(a => a.id === 'video');
     if (videoActivity) {
       setLessonState({ lessonId, activityId: 'video' });
     } else {
       setLessonState({ lessonId, activityId: lesson.activities[0].id });
     }
+    setIsNavigatingProgrammatically(false);
   };
 
   // Helper to set lesson and activity together (for non-default cases)
   const setLessonAndActivity = (lessonId: string, activityId: string) => {
+    setIsNavigatingProgrammatically(true);
     setLessonState({ lessonId, activityId });
+    setIsNavigatingProgrammatically(false);
   };
 
-  // Save current position whenever user navigates
+  // Save current position whenever user navigates (but NOT when it's just programmatic navigation)
   useEffect(() => {
-    if (!lessonState.lessonId || !lessonState.activityId || isLoading) return;
+    if (!lessonState.lessonId || !lessonState.activityId || isLoading || isNavigatingProgrammatically) return;
     
     const savePosition = async () => {
       await fetch(`${api}/progress`, {
@@ -216,17 +225,18 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     };
     
     savePosition();
-  }, [lessonState.lessonId, lessonState.activityId, isLoading, userId, userProgress]);
+  }, [lessonState.lessonId, lessonState.activityId, isLoading, isNavigatingProgrammatically, userId, userProgress]);
 
   // Sidebar click handler (no hasUserSelected)
   const handleActivityClick = (lessonId: string, activityId: string) => {
     setLessonAndActivity(lessonId, activityId);
   };
 
-  // Fixed handler for lesson header toggle (ONLY toggles dropdown, no navigation)
+  // FIXED: This function ONLY toggles dropdown, no navigation at all
   const handleLessonHeaderClick = (lessonId: string, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
+    // Only toggle the dropdown, no navigation whatsoever
     setExpandedLesson(expandedLesson === lessonId ? '' : lessonId);
   };
 

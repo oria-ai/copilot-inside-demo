@@ -186,7 +186,7 @@ function markdownToHTML(md) {
  */
 async function generateGeminiResponse(systemPrompt, userText, referenceText) {
   const endpoint =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDrei2P4mnar13CgMppLga3QTULd9IVqzc";
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${env.GEMINI_API_KEY}";
 
   const maxChars = 30000;            // conservative safety-cut
   const safeRef  = referenceText.slice(0, maxChars);

@@ -160,10 +160,7 @@ const ModuleSidebar = ({
                         </div>
                         
                         <div className="relative flex items-center justify-center w-7 h-7">
-                          <CircularProgress value={progress} size={28} strokeWidth={4} />
-                          {isCurrent && (
-                            <PlayCircle className="absolute inset-1 text-cyan-500" />
-                          )}
+                          <CircularProgress value={progress} size={28} strokeWidth={isCurrent ? 6 : 4} />
                         </div>
                       </Button>
                     );

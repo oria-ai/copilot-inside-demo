@@ -331,20 +331,21 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
 
       {/* Feedback popup */}
       <Dialog open={showPopup} onOpenChange={setShowPopup}>
-        <DialogContent className="text-right max-w-md" dir="rtl">
+        <DialogContent className="text-right max-w-md flex flex-col" dir="rtl" style={{ maxHeight: '80vh' }}>
           <DialogHeader className="items-center text-center">
             <DialogTitle className="w-full text-center">תוצאות בדיקת הקובץ</DialogTitle>
           </DialogHeader>
-          <div className="py-4">
+          <div className="py-4 flex flex-col flex-1 min-h-0">
             {isLoading ? (
-              <div className="text-center">
+              <div className="text-center flex-1 flex items-center justify-center">
                 <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4" />
                 <p>בודק את הקובץ שלך.</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 flex-1 min-h-0 flex flex-col">
                 <div
-                  className="text-gray-700 prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900"
+                  className="text-gray-700 prose prose-sm max-w-none flex-1 min-h-0 overflow-auto [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900"
+                  style={{ maxHeight: '30vh' }}
                   dangerouslySetInnerHTML={{ __html: feedback }}
                 />
                 <div className="flex gap-3 justify-center pt-4">

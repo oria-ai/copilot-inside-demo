@@ -217,7 +217,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
           <p className="text-lg mb-6">
             {currentStep === 2 
               ? 'עכשיו אתה יודע איך לשוחח עם קופיילוט. בוא נמצא יחד את ספריית הפרומפטים'
-              : 'סיימת בהצלחה את כל השלבים! עכשיו אתה מוכן להתחיל להשתמש בקופיילוט'
+              : 'עכשיו אתה יודע איפה למצוא את ספריית הפרומפטים. נעבור לסיכום השיעור.'
             }
           </p>
           <Button 
@@ -240,7 +240,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
       <div className="p-8 max-w-4xl mx-auto">
         {/* Centered Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-dark-gray mb-2">לחץ על האזור הנכון בתמונה</h1>
+          <h1 className="text-2xl font-bold text-dark-gray mb-2">{currentStepConfig.instructions}</h1>
         </div>
 
         {/* Photo Section */}
@@ -357,7 +357,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
 
         {/* Instructions */}
         <div className="text-center mb-8">
-          <p className="text-xl font-medium text-dark-gray">{currentStepConfig.instructions}</p>
+          <p className="text-xl font-medium text-dark-gray">לחץ על האזור הנכון בתמונה</p>
         </div>
 
         {/* Skip Button */}

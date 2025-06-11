@@ -84,28 +84,14 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
   /*   Helpers                                          */
   /* -------------------------------------------------- */
   const handleDownload = () => {
-    const transcriptContent = `תמלול פגישה - דוגמה
-
-תאריך: 15.1.2024
-משתתפים: דני, רונית, יוסי, מיכל
-נושא: תכנון פרויקט חדש
-
-[כאן יהיה התמלול המלא של הפגישה - 3500 מילים]
-
-דני: בוקר טוב לכולם.
-רונית: אני חושבת שכדאי להתמקד קודם ביעדים.
-
-(המשך התמלול.)`;
-
-    const blob = new Blob([transcriptContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
+    // Download the file תמלול.docx from the public directory
+    const url = '/תמלול.docx';
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'תמלול.txt';
+    link.download = 'תמלול.docx';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

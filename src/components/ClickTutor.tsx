@@ -1,162 +1,300 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+interface StepConfig {
+  stepNumber: number;
+  imageName: string;
+  instructions: string;
+  clickArea: {
+    top: string;
+    left: string;
+    width: string;
+    height: string;
+  };
+  hasInput?: boolean;
+  inputPlaceholder?: string;
+}
 
 interface ClickTutorProps {
   lessonId: string;
-  handleActivityComplete: (lessonId: string, progress: number, understandingRating?: number, activityType?: string, step?: number) => void;
+  handleActivityComplete: (lessonId: string, progress: number, understandingRating?: number, lastActivity?: string, lastStep?: number) => void;
 }
 
 const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [startDialogOpen, setStartDialogOpen] = useState(true);
+  const [inputValue, setInputValue] = useState('');
+  const [showInput, setShowInput] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
-  const tutorialSteps = [
+  // Progress logic
+  const totalSteps = 6;
+  const baseProgress = 50; // After video
+  const stepIncrement = 40 / totalSteps; // ≈6.67 per step
+
+  // ===== STEP CONFIGURATION - EDIT HERE =====
+  const stepConfigs: StepConfig[] = [
     {
-      id: 1,
-      instruction: 'לחץ על האזור הנכון בתמונה',
-      image: '/1-1.png',
-      clickArea: { x: 50, y: 50, width: 100, height: 50 }
+      stepNumber: 1,
+      imageName: `1-3.png`,
+      instructions: 'נכנסנו לקופיילוט, בחר ב"עבודה"',
+      clickArea: { top: '42%', left: '52%', width: '26%', height: '31%' }
     },
     {
-      id: 2,
-      instruction: 'בחר את הפעולה הנכונה מהתפריט',
-      image: '/1-2.png',
-      clickArea: { x: 200, y: 100, width: 120, height: 60 }
+      stepNumber: 2,
+      imageName: `1-4-e.png`,
+      instructions: 'כתוב לקופיילוט פרומפט קצר ושלח',
+      clickArea: { top: '36%', left: '28.5%', width: '65%', height: '9%' },
+      hasInput: true,
+      inputPlaceholder: ''
     },
     {
-      id: 3,
-      instruction: 'הקלד את הטקסט הנדרש בשדה',
-      image: '/1-3.png',
-      clickArea: { x: 150, y: 200, width: 200, height: 40 }
+      stepNumber: 3,
+      imageName: `1-4-e.png`,
+      instructions: 'לחץ "See more"',
+      clickArea: { top: '73%', left: '83%', width: '9%', height: '6%' }
     },
     {
-      id: 4,
-      instruction: 'לחץ על כפתור השמירה',
-      image: '/1-4-1-e.png',
-      clickArea: { x: 300, y: 250, width: 80, height: 40 }
+      stepNumber: 4,
+      imageName: `1-6-e.png`,
+      instructions: 'לחץ "Prompt Gallery"',
+      clickArea: { top: '82%', left: '75%', width: '10%', height: '6%' }
     },
     {
-      id: 5,
-      instruction: 'בדוק שהפעולה הושלמה בהצלחה',
-      image: '/1-5-e.png',
-      clickArea: { x: 180, y: 150, width: 140, height: 80 }
+      stepNumber: 5,
+      imageName: `1-7-e.png`,
+      instructions: 'פתח את התפקיד ובחר מכירות',
+      clickArea: { top: '30%', left: '34%', width: '19%', height: '5%' }
     },
     {
-      id: 6,
-      instruction: 'סיים את התהליך',
-      image: '/1-6-e.png',
-      clickArea: { x: 250, y: 300, width: 100, height: 50 }
+      stepNumber: 6,
+      imageName: `1-8-e.png`,
+      instructions: 'פתח את התפקיד ובחר מכירות',
+      clickArea: { top: '54%', left: '34%', width: '6%', height: '5%' }
     }
   ];
+  // ===== END STEP CONFIGURATION =====
 
-  useEffect(() => {
-    if (completedSteps.length > 0) {
-      const progress = Math.round((completedSteps.length / tutorialSteps.length) * 100);
-      handleActivityComplete(lessonId, progress, undefined, 'tutor', completedSteps.length);
-    }
-  }, [completedSteps, lessonId, handleActivityComplete, tutorialSteps.length]);
+  const currentStepConfig = stepConfigs[currentStep - 1];
 
-  const handleCorrectClick = () => {
-    if (!completedSteps.includes(currentStep)) {
-      setCompletedSteps(prev => [...prev, currentStep]);
+  // Helper to parse percentage string to number
+  const percentToNumber = (percent: string) => parseFloat(percent.replace('%', '')) / 100;
+
+  // For step 2, determine which image to show based on input focus or value
+  const step2Image = currentStep === 2 && (isInputFocused || inputValue.trim() !== '') ? '1-4-1-e.png' : currentStepConfig.imageName;
+
+  // Handler for clicking anywhere on the image
+  const handleImageClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    // Get bounding rect of the image wrapper
+    const wrapper = e.currentTarget;
+    const rect = wrapper.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    const relX = clickX / rect.width;
+    const relY = clickY / rect.height;
+
+    // Get click area as numbers
+    const areaLeft = percentToNumber(currentStepConfig.clickArea.left);
+    const areaTop = percentToNumber(currentStepConfig.clickArea.top);
+    const areaWidth = percentToNumber(currentStepConfig.clickArea.width);
+    const areaHeight = percentToNumber(currentStepConfig.clickArea.height);
+
+    const inArea =
+      relX >= areaLeft &&
+      relX <= areaLeft + areaWidth &&
+      relY >= areaTop &&
+      relY <= areaTop + areaHeight;
+
+    if (!inArea) {
+      return;
     }
-    
-    if (currentStep < tutorialSteps.length) {
+
+    // Move to conclusion if on last step
+    if (currentStep === totalSteps) {
+      handleActivityComplete(lessonId, 90, undefined, 'tutor', currentStep);
+      // Move to conclusion activity
+      const event = new CustomEvent('goToConclusion', { detail: { lessonId } });
+      window.dispatchEvent(event);
+      return;
+    }
+
+    if (currentStepConfig.hasInput && !showInput) {
+      setShowInput(true);
+      return;
+    }
+    if (currentStepConfig.hasInput && showInput && inputValue.trim() === '') {
+      alert('אנא הכנס ערך בשדה');
+      return;
+    }
+    if (currentStep < totalSteps) {
+      // Show confetti popup after step 2
+      if (currentStep === 2) {
+        alert('step 2 popup!');
+        setShowConfetti(true);
+      }
+      const newProgress = baseProgress + stepIncrement * currentStep;
+      handleActivityComplete(lessonId, newProgress, undefined, 'tutor', currentStep);
       setCurrentStep(currentStep + 1);
+      setShowInput(false);
+      setInputValue('');
     }
   };
 
   const handleSkip = () => {
-    window.dispatchEvent(new Event('goToConclusion'));
+    console.log('Skipping tutor');
   };
-
-  const getCurrentStepData = () => {
-    return tutorialSteps.find(step => step.id === currentStep) || tutorialSteps[0];
-  };
-
-  const stepData = getCurrentStepData();
 
   return (
     <>
-      {/* Start Task Popup */}
-      <Dialog open={startDialogOpen}>
+      <Dialog open={showConfetti} onOpenChange={setShowConfetti}>
         <DialogContent className="text-right max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle>התחלת משימה</DialogTitle>
+            <DialogTitle>הצלחה!</DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <p>ברוך הבא למשימה הראשונה! כאן תוכל להוריד את קובץ התמלול, לקרוא הוראות, ולקבל טיפים לסיכום. לחץ על "התחל" כדי להתחיל.</p>
-            <Button className="mt-6 w-full" onClick={() => setStartDialogOpen(false)}>
-              התחל
+          <div className="py-4 flex flex-col items-center justify-center text-center gap-6">
+            <div className="text-2xl font-bold mb-2">מעולה, עכשיו אתה יודע איך לשוחח עם קופיילוט.</div>
+            <div className="text-lg mb-4">בוא נמצא יחד את ספריית הפרומפטים</div>
+            <Button className="w-full mt-4" onClick={() => setShowConfetti(false)}>
+              המשך
             </Button>
           </div>
         </DialogContent>
       </Dialog>
-
-      <div className="space-y-6 p-6">
-        <Card className="rounded-3xl shadow-card border-0">
-          <CardHeader>
-            <CardTitle className="text-center text-2xl font-bold text-dark-gray">
-              לחץ על האזור הנכון בתמונה
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Image */}
-            <div className="flex justify-center">
-              <div className="relative inline-block bg-light-gray rounded-3xl p-4 shadow-soft">
-                <img 
-                  src={stepData.image} 
-                  alt={`Step ${currentStep}`}
-                  className="max-w-full h-auto rounded-2xl"
-                />
-                <div
-                  className="absolute cursor-pointer bg-blue-500/20 border-2 border-blue-500 rounded-2xl hover:bg-blue-500/30 transition-colors"
-                  style={{
-                    left: stepData.clickArea.x,
-                    top: stepData.clickArea.y,
-                    width: stepData.clickArea.width,
-                    height: stepData.clickArea.height
-                  }}
-                  onClick={handleCorrectClick}
-                />
-              </div>
-            </div>
-
-            {/* Step Counter */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>בוא נעשה זאת יחד</CardTitle>
+          <Button variant="outline" onClick={handleSkip}>
+            דלג
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
             <div className="text-center">
-              <p className="text-lg font-semibold text-medium-gray">
-                שלב {currentStep} מתוך {tutorialSteps.length}
-              </p>
+              <p className="text-lg mb-4">{currentStepConfig.instructions}</p>
+              <p className="text-sm text-gray-600">שלב {currentStep} מתוך {totalSteps}</p>
             </div>
 
-            {/* Instructions */}
-            <div className="text-center bg-gradient-card rounded-3xl p-6 shadow-soft">
-              <p className="text-lg text-dark-gray font-medium">
-                {stepData.instruction}
-              </p>
+            {/* Responsive aspect-ratio container for screenshot */}
+            <div
+              className="relative w-full max-w-2xl mx-auto aspect-[16/9] bg-transparent rounded-lg flex items-center justify-center overflow-hidden"
+              style={{ minHeight: '300px' }}
+              onClick={handleImageClick}
+              role="button"
+              aria-label="המשך לשלב הבא על ידי לחיצה על האזור המתאים"
+              tabIndex={0}
+              onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+                if (e.key === 'Enter' || e.key === ' ') handleImageClick(e as unknown as React.MouseEvent<HTMLDivElement, MouseEvent>);
+              }}
+            >
+              <img
+                src={`/${currentStep === 2 ? step2Image : currentStepConfig.imageName}`}
+                alt={`Step ${currentStep}`}
+                className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+                onError={e => {
+                  (e.currentTarget as HTMLImageElement).src = '/placeholder.svg';
+                }}
+                draggable={false}
+              />
+              {/* Show the red hotspot for positioning, except on step 2 */}
+              {currentStep !== 2 && (
+                <div
+                  className="absolute pointer-events-none"
+                  style={{
+                    top: currentStepConfig.clickArea.top,
+                    left: currentStepConfig.clickArea.left,
+                    width: currentStepConfig.clickArea.width,
+                    height: currentStepConfig.clickArea.height
+                  }}
+                />
+              )}
+              {/* Step 2: Overlay invisible input and send button */}
+              {currentStep === 2 && (
+                <>
+                  <input
+                    type="text"
+                    dir="ltr"
+                    value={inputValue}
+                    onChange={e => setInputValue(e.target.value)}
+                    placeholder={currentStepConfig.inputPlaceholder}
+                    style={{
+                      position: 'absolute',
+                      left: '29%',
+                      top: '36%',
+                      width: '65%',
+                      height: '9%',
+                      fontFamily: 'ginto',
+                      fontSize: '1em',
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#333',
+                      caretColor: '#333',
+                      outline: 'none',
+                      padding: '0 8px',
+                      zIndex: 20,
+                      cursor: isInputFocused ? 'text' : 'pointer',
+                    }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setIsInputFocused(true);
+                    }}
+                    onBlur={() => setIsInputFocused(false)}
+                    autoFocus={false}
+                    onFocus={e => e.stopPropagation()}
+                    tabIndex={0}
+                  />
+                  <button
+                    type="button"
+                    style={{
+                      position: 'absolute',
+                      left: '88.5%',
+                      top: '45%',
+                      width: '4%',
+                      height: '6%',
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'transparent',
+                      fontWeight: 600,
+                      fontSize: '1em',
+                      cursor: inputValue.trim() !== '' ? 'pointer' : 'not-allowed',
+                      opacity: 0,
+                      zIndex: 21,
+                    }}
+                    disabled={inputValue.trim() === ''}
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (inputValue.trim() === '') return;
+                      setCurrentStep(currentStep + 1);
+                      setShowInput(false);
+                      setInputValue('');
+                      setIsInputFocused(false);
+                    }}
+                  >
+                    {/* No text */}
+                  </button>
+                </>
+              )}
+              {showInput && currentStepConfig.hasInput && currentStep !== 2 && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                  <Input
+                    value={inputValue}
+                    onChange={e => setInputValue(e.target.value)}
+                    placeholder={currentStepConfig.inputPlaceholder}
+                    className="bg-white border-2 border-blue-500"
+                    autoFocus
+                  />
+                </div>
+              )}
             </div>
 
-            {/* Skip Button */}
-            <div className="flex justify-center pt-4">
-              <Button 
-                variant="outline" 
-                onClick={handleSkip}
-                className="px-8 py-3 rounded-2xl border-medium-gray/30 text-medium-gray hover:bg-light-gray/50"
-              >
-                דלג
-              </Button>
+            <div className="text-center text-sm text-gray-500">
+              לחץ על האזור הנכון בתמונה כדי להמשיך
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </>
   );
 };

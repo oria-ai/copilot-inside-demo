@@ -32,22 +32,20 @@ const Conclusion = ({ lessonId, onConclusionComplete }: ConclusionProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>סיכום השיעור</CardTitle>
+        <CardTitle>מה למדנו?</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
           {/* Conclusion content placeholder */}
           <div className="prose max-w-none text-right">
-            <h3>כותרת סיכום - placeholder</h3>
-            <p>
-              זהו טקסט סיכום לדוגמה. כאן יהיה תוכן HTML עם הסבר על מה שנלמד בשיעור.
-              ניתן לכלול כאן רשימות, טקסט מודגש, קישורים ועוד.
+            <h3>היכרות עם קופיילוט</h3>
+            <p>למדנו איפה למצוא את קופיילוט, ואיך אנחנו "מפעילים" אותו באמצעות פרומפט.
+              <br />
+              למדנו מה זה בכלל פרומפט.
+              <br />
+              וראינו איך למצוא את ספריית הפרומפטים, עם המון פרומפטים מוכנים לשימוש לפי תפקיד.
+              <br />
             </p>
-            <ul>
-              <li>נקודה חשובה ראשונה</li>
-              <li>נקודה חשובה שנייה</li>
-              <li>נקודה חשובה שלישית</li>
-            </ul>
           </div>
 
           {/* Rating section */}

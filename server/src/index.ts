@@ -30,11 +30,11 @@ app.post("/users", async (req: Request, res: Response) => {
 
 /* ---------- Progress ---------- */
 app.post("/progress", async (req: Request, res: Response) => {
-  const { userId, lessonId, percent, lastActivity, lastStep } = req.body;
+  const { userId, lessonId, percent, lastActivity, lastStep, activityProgress } = req.body;
   const prog = await prisma.progress.upsert({
     where: { userId_lessonId: { userId, lessonId } },
-    update: { percent, lastActivity, lastStep },
-    create: { userId, lessonId, percent, lastActivity, lastStep },
+    update: { percent, lastActivity, lastStep, activityProgress },
+    create: { userId, lessonId, percent, lastActivity, lastStep, activityProgress },
   });
   res.json(prog);
 });

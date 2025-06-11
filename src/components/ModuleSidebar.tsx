@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { Progress, CircularProgress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, PlayCircle, CheckCircle2 } from 'lucide-react';
 
@@ -9,10 +9,30 @@ interface UserProgress {
   percent: number;
   lastActivity?: string;
   lastStep?: number;
+  activityProgress?: Record<string, boolean | number[]>;
+}
+
+interface Activity {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+interface Lesson {
+  id: string;
+  title: string;
+  video: string;
+  videoTitle: string;
+  activities: Activity[];
+}
+
+interface Module {
+  title: string;
+  lessons: Lesson[];
 }
 
 interface SidebarProps {
-  currentModule: any;
+  currentModule: Module;
   userProgress: UserProgress[];
   currentLessonId: string;
   currentActivityId: string;
@@ -33,19 +53,19 @@ const ModuleSidebar = ({
   }, [currentLessonId]);
 
   const getActivityProgress = (lessonId: string, activityId: string) => {
-    const progress = userProgress.find((p) => p.lessonId === lessonId)?.percent ?? 0;
-    if (activityId === 'video') return progress >= 50 ? 100 : progress;
+    const progressObj = userProgress.find((p) => p.lessonId === lessonId);
+    const activityProgress = progressObj?.activityProgress || {};
+    if (activityId === 'video') return activityProgress['video'] ? 100 : 0;
     if (activityId === 'tutor') {
-      if (progress >= 90) return 100;
-      if (progress > 50) return ((progress - 50) / 40) * 100;
-      return 0;
+      const steps = Array.isArray(activityProgress['tutor']) ? activityProgress['tutor'].length : 0;
+      return steps >= 6 ? 100 : Math.round((steps / 6) * 100);
     }
-    if (activityId === 'prompt') {
-      if (progress >= 90) return 100;
-      if (progress > 50) return ((progress - 50) / 40) * 100;
-      return 0;
+    if (activityId === 'prompt') return activityProgress['prompt'] ? 100 : 0;
+    if (activityId === 'file') {
+      const cards = Array.isArray(activityProgress['file']) ? activityProgress['file'].length : 0;
+      return cards >= 4 ? 100 : Math.round((cards / 4) * 100);
     }
-    if (activityId === 'conclusion') return progress === 100 ? 100 : 0;
+    if (activityId === 'conclusion') return activityProgress['conclusion'] ? 100 : 0;
     return 0;
   };
 
@@ -77,10 +97,9 @@ const ModuleSidebar = ({
               <span>{Math.round(getModuleProgress())}% הושלם</span>
               <span>התקדמות כללית</span>
             </div>
-            <Progress 
-              value={Math.round(getModuleProgress())} 
-              className="h-3 bg-white/20 rounded-full" 
-            />
+            <div className="flex justify-center items-center mt-4 mb-2">
+              <CircularProgress value={getModuleProgress()} size={56} strokeWidth={6} />
+            </div>
           </div>
         </Card>
 
@@ -140,19 +159,10 @@ const ModuleSidebar = ({
                           )}
                         </div>
                         
-                        <div className={`w-6 h-6 rounded-full border-2 relative overflow-hidden ${
-                          isCurrent ? 'border-white' : 'border-light-gray'
-                        }`}>
-                          <div 
-                            style={{ 
-                              height: '100%', 
-                              width: `${Math.round(progress)}%`, 
-                              background: isCurrent ? 'rgba(255,255,255,0.3)' : 'hsl(var(--green))' 
-                            }} 
-                            className="absolute left-0 top-0 rounded-full transition-all duration-500" 
-                          />
+                        <div className="relative flex items-center justify-center w-7 h-7">
+                          <CircularProgress value={progress} size={28} strokeWidth={4} />
                           {isCurrent && (
-                            <PlayCircle className="absolute inset-0.5 text-white" />
+                            <PlayCircle className="absolute inset-1 text-cyan-500" />
                           )}
                         </div>
                       </Button>

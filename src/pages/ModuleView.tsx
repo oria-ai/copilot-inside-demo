@@ -19,11 +19,15 @@ interface ModuleViewProps {
 const api = 'http://localhost:4000';
 
 // 1. Define a type for user progress
+interface ActivityProgress {
+  [activityId: string]: boolean | number[]; // boolean for simple complete, number[] for steps/cards
+}
 interface UserProgress {
   lessonId: string;
   percent: number;
   lastActivity?: string;
   lastStep?: number;
+  activityProgress?: ActivityProgress;
 }
 
 const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
@@ -48,23 +52,23 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
         },
         {
           id: 'lesson2',
-          title: 'שיעור שני',
+          title: 'שיעור שני - הנדסת פרומפטים',
           video: 'https://player.vimeo.com/video/1088062270?badge=0&autopause=0&player_id=0&app_id=58479',
           videoTitle: 'Prompt Enigneering',
           activities: [
-            { id: 'video', title: 'סרטון', completed: false },
-            { id: 'prompt', title: 'משימת הקלדה', completed: false },
+            { id: 'video', title: 'הנדסת פרומפטים', completed: false },
+            { id: 'prompt', title: 'שיפור פרומפט', completed: false },
             { id: 'conclusion', title: 'סיכום', completed: false }
           ]
         },
         {
           id: 'lesson3',
-          title: 'שיעור שלישי',
+          title: 'שיעור שלישי - קופיילוט עם Word',
           video: 'https://player.vimeo.com/video/1090416363?badge=0&autopause=0&player_id=0&app_id=58479',
           videoTitle: 'Word 1 Restored Final',
           activities: [
-            { id: 'video', title: 'סרטון', completed: false },
-            { id: 'file', title: 'משימת קובץ', completed: false },
+            { id: 'video', title: 'קופיילוט עם Word', completed: false },
+            { id: 'file', title: 'תרגול חי', completed: false },
             { id: 'conclusion', title: 'סיכום', completed: false }
           ]
         }
@@ -81,10 +85,29 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     activityId?: string,
     step?: number
   ) => {
+    // Find current progress for this lesson
+    const prev = userProgress.find(p => p.lessonId === lessonId);
+    const activityProgress: ActivityProgress = prev?.activityProgress ? { ...prev.activityProgress } : {};
+    if (activityId) {
+      if (activityId === 'tutor') {
+        // Mark step as completed in array
+        const steps = Array.isArray(activityProgress[activityId]) ? [...(activityProgress[activityId] as number[])] : [];
+        if (step && !steps.includes(step)) steps.push(step);
+        activityProgress[activityId] = steps;
+      } else if (activityId === 'file') {
+        // Mark card as completed in array
+        const cards = Array.isArray(activityProgress[activityId]) ? [...(activityProgress[activityId] as number[])] : [];
+        if (step && !cards.includes(step)) cards.push(step);
+        activityProgress[activityId] = cards;
+      } else {
+        // Mark as completed
+        activityProgress[activityId] = true;
+      }
+    }
     await fetch(`${api}/progress`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, lessonId, percent: progress, lastActivity: activityId, lastStep: step })
+      body: JSON.stringify({ userId, lessonId, percent: progress, lastActivity: activityId, lastStep: step, activityProgress })
     });
     // Refresh progress
     const res = await fetch(`${api}/progress/${userId}`);
@@ -92,7 +115,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
       const data = await res.json();
       setUserProgress(data);
     }
-  }, [userId]);
+  }, [userId, userProgress]);
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -127,19 +150,19 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
   }, [userId]);
 
   const getActivityProgress = (lessonId: string, activityId: string) => {
-    const progress = userProgress.find((p) => p.lessonId === lessonId)?.percent ?? 0;
-    if (activityId === 'video') return progress >= 50 ? 100 : progress;
+    const progressObj = userProgress.find((p) => p.lessonId === lessonId);
+    const activityProgress = progressObj?.activityProgress || {};
+    if (activityId === 'video') return activityProgress['video'] ? 100 : 0;
     if (activityId === 'tutor') {
-      if (progress >= 90) return 100;
-      if (progress > 50) return ((progress - 50) / 40) * 100;
-      return 0;
+      const steps = Array.isArray(activityProgress['tutor']) ? activityProgress['tutor'].length : 0;
+      return steps >= 6 ? 100 : Math.round((steps / 6) * 100);
     }
-    if (activityId === 'prompt') {
-      if (progress >= 90) return 100;
-      if (progress > 50) return ((progress - 50) / 40) * 100;
-      return 0;
+    if (activityId === 'prompt') return activityProgress['prompt'] ? 100 : 0;
+    if (activityId === 'file') {
+      const cards = Array.isArray(activityProgress['file']) ? activityProgress['file'].length : 0;
+      return cards >= 4 ? 100 : Math.round((cards / 4) * 100);
     }
-    if (activityId === 'conclusion') return progress === 100 ? 100 : 0;
+    if (activityId === 'conclusion') return activityProgress['conclusion'] ? 100 : 0;
     return 0;
   };
 

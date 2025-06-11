@@ -159,8 +159,8 @@ const ModuleSidebar = ({
                           )}
                         </div>
                         
-                        <div className="relative flex items-center justify-center w-7 h-7">
-                          <CircularProgress value={progress} size={28} strokeWidth={isCurrent ? 6 : 4} />
+                        <div className="flex items-center justify-center w-8 h-8">
+                          <CircularProgress value={progress} size={32} strokeWidth={6} />
                         </div>
                       </Button>
                     );

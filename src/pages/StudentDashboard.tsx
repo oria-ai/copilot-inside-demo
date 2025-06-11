@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Clock, Trophy, ArrowLeft, FileText, MessageSquare } from 'lucide-react';
+import { Dialog } from '@headlessui/react';
 
 interface UserData {
   id?: string;
@@ -31,6 +32,13 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
   /** Adjust this number to control the space between the cards (in pixels) */
   const centerSpaceWidth = 90; // <--- CHANGE THIS NUMBER FOR SPACING
 
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<'prompt' | 'feedback' | null>(null);
+
+  // Feedback HTML (from user)
+  const feedbackHtml = `<p class="mb-4">היי, הנה משוב על הפרומפט שלך:</p><ul class="list-disc list-inside mb-4 space-y-1"><li class="mb-1"><strong>תפקיד:</strong> חסר. הפרומפט לא מציין מי אמור לסכם את הפגישה.</li><li class="mb-1"><strong>מטרה:</strong> קיימת, אך כללית מאוד - "שאוכל לשלוח מייל לכולם".</li><li class="mb-1"><strong>הקשר:</strong> חסר לחלוטין. אין שום מידע על הפגישה עצמה (נושא, משתתפים, החלטות שהתקבלו וכו').</li><li class="mb-1"><strong>תוצר רצוי:</strong> חסר פירוט. "סיכום" זה כללי מדי. מה בדיוק צריך לכלול הסיכום? מה אורך הסיכום הרצוי?</li></ul><p class="mb-4">המלצות לשיפור:</p><ul class="list-disc list-inside mb-4 space-y-1"><li class="mb-1">הוסף תפקיד: לדוגמה, "בתור עוזר/ת אישי/ת...".</li><li class="mb-1">פרט את ההקשר: ציין את נושא הפגישה, תאריך, משתתפים מרכזיים, מטרת הפגישה.</li><li class="mb-1">הגדר את התוצר הרצוי בצורה מפורטת: לדוגמה, "סיכום תמציתי של עיקרי הדברים, החלטות שהתקבלו ופעולות המשך נדרשות, באורך של עד 200 מילים".</li><li class="mb-1">חדד את המטרה: פרט למה הסיכום ישמש, לדוגמה "כדי ליידע את כל המשתתפים על ההחלטות שהתקבלו ולתאם את המשך הפעילות".</li></ul>`;
+
   useEffect(() => {
     const fetchProgress = async () => {
       const res = await fetch(`${api}/progress/${userData.id || userData.email}`);
@@ -58,13 +66,19 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
   const assignments = [
     {
       id: 'task2',
-      title: 'משימה 2: יצירת פונקציה עם AI',
-      prompt: 'צרו פונקציה שמחשבת את הממוצע של רשימת מספרים, תוך שימוש ב-Copilot',
-      feedback: 'הפתרון שלכם מצוין! הקוד נקי ויעיל. שימו לב לטיפול במקרי קיצון כמו רשימה ריקה.',
+      title: 'משימה 2 - שיפור פרומפט',
+      prompt: 'כתוב לי בבקשה סיכום של הפגישה שהייתה שאוכל לשלוח',
+      feedback: feedbackHtml,
       status: 'completed',
       grade: 95
     }
   ];
+
+  // Helper to truncate text
+  const truncateText = (text: string, maxLength: number) => {
+    if (!text) return '';
+    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-light" dir="rtl">
@@ -72,7 +86,7 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
       <header className="bg-gradient-turquoise shadow-soft border-b-0 px-6 py-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">ברוכים הבאים לפלטפורמה</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">ברוכים הבאים לקורס קופיילוט 2.0</h1>
             <p className="text-white/90">קורס אינטראקטיבי ב-Copilot שמביא אתכם לעבודה מעשית עם AI</p>
           </div>
           <div className="bg-white/20 backdrop-blur-sm rounded-3xl px-6 py-4 text-white">
@@ -111,6 +125,7 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
                     </div>
                   </div>
                   <CardHeader className="pb-4">
+                  <p className="text-medium-gray mt-2">{module.description}</p>
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm text-medium-gray" dir="rtl">
                         <span>{module.completedLessons}/{module.lessons} שיעורים</span>
@@ -118,7 +133,6 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
                       </div>
                       <Progress value={module.progress} className="h-3 rounded-full" dir="rtl" />
                     </div>
-                    <p className="text-medium-gray mt-2">{module.description}</p>
                   </CardHeader>
                   <CardContent className="pt-0 mt-auto">
                     <Button className="w-full bg-gradient-turquoise hover:opacity-90 text-white rounded-3xl h-12 font-semibold shadow-soft transition-all duration-300 group-hover:scale-105">
@@ -160,16 +174,23 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0 space-y-4 mt-auto">
-                    <div className="bg-light-gray rounded-2xl p-4">
-                      <h4 className="font-semibold text-dark-gray mb-2">הוראות המשימה:</h4>
-                      <p className="text-sm text-medium-gray leading-relaxed">{assignment.prompt}</p>
+                    <div className="bg-light-gray rounded-2xl p-4 cursor-pointer" onClick={() => { setModalType('prompt'); setModalOpen(true); }}>
+                      <h4 className="font-semibold text-dark-gray mb-2">הפרומפט שלי:</h4>
+                      <p className="text-sm text-medium-gray leading-relaxed">
+                        {truncateText(assignment.prompt, 40)}
+                        {assignment.prompt.length > 40 && <span className="text-blue-500"> קרא עוד</span>}
+                      </p>
                     </div>
-                    <div className="bg-white rounded-2xl p-4 border-2 border-green/20">
+                    <div className="bg-white rounded-2xl p-4 border-2 border-green/20 cursor-pointer" onClick={() => { setModalType('feedback'); setModalOpen(true); }}>
                       <div className="flex items-center gap-2 mb-2">
                         <MessageSquare className="h-4 w-4 text-green" />
                         <h4 className="font-semibold text-dark-gray">משוב AI:</h4>
                       </div>
-                      <p className="text-sm text-medium-gray leading-relaxed">{assignment.feedback}</p>
+                      <div className="text-sm text-medium-gray leading-relaxed">
+                        {/* Render only a preview of the feedback (strip HTML tags for preview) */}
+                        {truncateText(assignment.feedback.replace(/<[^>]+>/g, ''), 40)}
+                        {assignment.feedback.replace(/<[^>]+>/g, '').length > 40 && <span className="text-blue-500"> קרא עוד</span>}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -213,6 +234,26 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
 
         {/* Open Tasks Section - Removed since assignments moved to top */}
       </div>
+
+      {/* Modal for full prompt/feedback */}
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
+        <div className="flex items-center justify-center min-h-screen px-4">
+          <div className="fixed inset-0 bg-black opacity-30 z-40" />
+          <div className="relative bg-white rounded-3xl shadow-xl max-w-lg w-full mx-auto p-8 z-50" dir="rtl">
+            <button onClick={() => setModalOpen(false)} className="absolute left-4 top-4 text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            <h2 className="text-2xl font-bold mb-4 text-dark-gray">
+              {modalType === 'prompt' ? 'הוראות המשימה' : 'משוב AI'}
+            </h2>
+            <div className="prose prose-sm max-w-none text-gray-700" style={{ direction: 'rtl' }}>
+              {modalType === 'prompt' ? (
+                <div>{assignments[0].prompt}</div>
+              ) : (
+                <div dangerouslySetInnerHTML={{ __html: assignments[0].feedback }} />
+              )}
+            </div>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 };

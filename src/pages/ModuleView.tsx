@@ -319,14 +319,10 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
       );
     }
 
-    // Find the current lesson object from currentModule.lessons
     const lesson = currentModule.lessons.find(l => l.id === lessonState.lessonId);
     if (!lesson) {
       return <div className="text-red-500">שיעור לא נמצא: {lessonState.lessonId}</div>;
     }
-
-    const showStartDialog = justTransitionedToFile.current;
-    if (justTransitionedToFile.current) justTransitionedToFile.current = false;
 
     switch (lessonState.activityId) {
       case 'video':
@@ -345,7 +341,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
       case 'prompt':
         return <PromptTask lessonId={lessonState.lessonId} onNext={goToNext} handleActivityComplete={handleActivityComplete} />;
       case 'file':
-        return <FileTask lessonId={lessonState.lessonId} showStartDialog={showStartDialog} />;
+        return <FileTask lessonId={lessonState.lessonId} />;
       case 'conclusion':
         return <Conclusion lessonId={lessonState.lessonId} onConclusionComplete={handleConclusionComplete} />;
       default:
@@ -372,7 +368,6 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
       </header>
 
       <div className="flex">
-        {/* Progress sidebar - LEFT side */}
         <ModuleSidebar 
           currentModule={currentModule}
           userProgress={userProgress}
@@ -381,7 +376,6 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
           onActivitySelect={handleActivitySelect}
         />
 
-        {/* Main content - RIGHT side */}
         <div className="flex-1 p-8">
           <div className="bg-white rounded-3xl shadow-card min-h-[600px]">
             {renderMainContent()}

@@ -1,12 +1,22 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Clock, Trophy, ArrowLeft, FileText, MessageSquare } from 'lucide-react';
 
+interface UserData {
+  id?: string;
+  email: string;
+  department: string;
+  copilotLanguage: string;
+  studyingLanguage: string;
+  role: string;
+  name: string;
+  password?: string;
+}
+
 interface StudentDashboardProps {
-  userData: any;
+  userData: UserData;
   onModuleClick: (moduleId: string) => void;
 }
 
@@ -16,6 +26,10 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
   const [overallProgress, setOverallProgress] = useState(0);
   const [completedLessons, setCompletedLessons] = useState(0);
   const [totalLessons, setTotalLessons] = useState(3);
+
+  // To control the space between the cards, change the value of 'centerSpaceWidth' below
+  /** Adjust this number to control the space between the cards (in pixels) */
+  const centerSpaceWidth = 90; // <--- CHANGE THIS NUMBER FOR SPACING
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -71,19 +85,64 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Top Section - My Assignments and My Courses */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* My Assignments - Left Side */}
-          <div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 lg:flex lg:flex-row lg:gap-0">
+          {/* My Courses - Right Side (now on the left) */}
+          <div className="flex-1 flex flex-col">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-dark-gray mb-2">הקורסים שלי</h2>
+              <p className="text-medium-gray">התחילו את המסע שלכם לעולם ה-AI</p>
+            </div>
+            <div className="space-y-6 flex-1 flex flex-col">
+              {modules.map((module) => (
+                <Card 
+                  key={module.id} 
+                  className="bg-gradient-card shadow-card hover:shadow-xl transition-all duration-300 cursor-pointer rounded-3xl border-0 overflow-hidden group flex flex-col h-full"
+                  onClick={() => onModuleClick(module.id)}
+                >
+                  <div className="h-32 bg-gradient-turquoise relative overflow-hidden flex flex-col justify-between">
+                    <div className="absolute inset-0 bg-white/10 backdrop-blur-sm z-0"></div>
+                    <div className="relative z-10 p-6 pb-0">
+                      <h3 className="text-xl font-bold text-white drop-shadow mb-2">{module.title}</h3>
+                    </div>
+                    <div className="absolute bottom-4 right-4 z-10">
+                      <div className="bg-white/20 rounded-2xl px-4 py-2">
+                        <span className="text-white font-semibold">{module.progress}%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <CardHeader className="pb-4">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm text-medium-gray" dir="rtl">
+                        <span>{module.completedLessons}/{module.lessons} שיעורים</span>
+                        <span>{module.progress}% הושלם</span>
+                      </div>
+                      <Progress value={module.progress} className="h-3 rounded-full" dir="rtl" />
+                    </div>
+                    <p className="text-medium-gray mt-2">{module.description}</p>
+                  </CardHeader>
+                  <CardContent className="pt-0 mt-auto">
+                    <Button className="w-full bg-gradient-turquoise hover:opacity-90 text-white rounded-3xl h-12 font-semibold shadow-soft transition-all duration-300 group-hover:scale-105">
+                      המשך לימוד
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+          {/* Center space for large screens (no divider) */}
+          <div className="hidden lg:block" style={{ minWidth: centerSpaceWidth }} />
+          {/* My Assignments - Left Side (now on the right) */}
+          <div className="flex-1 flex flex-col">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-dark-gray mb-2">המשימות שלי</h2>
               <p className="text-medium-gray">משימות שהוגשו וקיבלו משובים</p>
             </div>
-            
-            <div className="space-y-4">
+            <div className="space-y-4 flex-1 flex flex-col">
               {assignments.map((assignment) => (
                 <Card 
                   key={assignment.id} 
-                  className="bg-gradient-card shadow-card rounded-3xl border-0 overflow-hidden"
+                  className="bg-gradient-card shadow-card rounded-3xl border-0 overflow-hidden flex flex-col h-full"
                 >
                   <CardHeader className="pb-4">
                     <div className="flex justify-between items-start">
@@ -94,74 +153,23 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
                         <div>
                           <CardTitle className="text-lg font-bold text-dark-gray">{assignment.title}</CardTitle>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-sm text-medium-gray">ציון:</span>
-                            <span className="bg-green text-white px-2 py-1 rounded-xl text-sm font-semibold">
-                              {assignment.grade}
-                            </span>
+
                           </div>
                         </div>
                       </div>
                     </div>
                   </CardHeader>
-                  
-                  <CardContent className="pt-0 space-y-4">
+                  <CardContent className="pt-0 space-y-4 mt-auto">
                     <div className="bg-light-gray rounded-2xl p-4">
                       <h4 className="font-semibold text-dark-gray mb-2">הוראות המשימה:</h4>
                       <p className="text-sm text-medium-gray leading-relaxed">{assignment.prompt}</p>
                     </div>
-                    
                     <div className="bg-white rounded-2xl p-4 border-2 border-green/20">
                       <div className="flex items-center gap-2 mb-2">
                         <MessageSquare className="h-4 w-4 text-green" />
                         <h4 className="font-semibold text-dark-gray">משוב AI:</h4>
                       </div>
                       <p className="text-sm text-medium-gray leading-relaxed">{assignment.feedback}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-
-          {/* My Courses - Right Side */}
-          <div>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-dark-gray mb-2">הקורסים שלי</h2>
-              <p className="text-medium-gray">התחילו את המסע שלכם לעולם ה-AI</p>
-            </div>
-            
-            <div className="space-y-6">
-              {modules.map((module) => (
-                <Card 
-                  key={module.id} 
-                  className="bg-gradient-card shadow-card hover:shadow-xl transition-all duration-300 cursor-pointer rounded-3xl border-0 overflow-hidden group"
-                  onClick={() => onModuleClick(module.id)}
-                >
-                  <div className="h-32 bg-gradient-turquoise relative overflow-hidden">
-                    <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-                    <div className="absolute bottom-4 right-4">
-                      <div className="bg-white/20 rounded-2xl px-4 py-2">
-                        <span className="text-white font-semibold">{module.progress}%</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-xl font-bold text-dark-gray">{module.title}</CardTitle>
-                    <p className="text-medium-gray">{module.description}</p>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-0">
-                    <div className="space-y-4">
-                      <div className="flex justify-between text-sm text-medium-gray">
-                        <span>{module.completedLessons}/{module.lessons} שיעורים</span>
-                        <span>{module.progress}% הושלם</span>
-                      </div>
-                      <Progress value={module.progress} className="h-3 rounded-full" />
-                      <Button className="w-full bg-gradient-turquoise hover:opacity-90 text-white rounded-3xl h-12 font-semibold shadow-soft transition-all duration-300 group-hover:scale-105">
-                        המשך לימוד
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>

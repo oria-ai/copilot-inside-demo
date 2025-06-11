@@ -26,7 +26,7 @@ const Conclusion = ({ lessonId, onConclusionComplete }: ConclusionProps) => {
   const getStarStyle = (starIndex: number) => {
     const displayRating = hoveredRating || rating;
     const isFilled = starIndex <= displayRating;
-    return isFilled ? 'text-yellow-400' : 'text-gray-300 border border-gray-400';
+    return isFilled ? 'text-yellow-400' : 'text-gray-300';
   };
 
   return (

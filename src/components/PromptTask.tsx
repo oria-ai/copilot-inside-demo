@@ -32,6 +32,7 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
   const [showContinue, setShowContinue] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [showHow, setShowHow] = useState(false);
 
   // Load system prompt from file
   useEffect(() => {
@@ -160,15 +161,8 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
         <div className="space-y-6">
           {step === 'american' && (
             <div className="space-y-4">
-              <div className="block text-sm font-medium text-gray-700">
-                סיימת כעת פגישת Teams בהובלתך, בה החלטתם על יעדי הפיתוח לשבוע הקרוב. <br />
-                אתה מעוניין לנסח מייל סיכום בעזרת קופיילוט, שיסכם את המשימות של כל אחד. <br />
-                כתבת לקופיילוט את הפרומפט הבא, אבל קיבלת תוצאה כללית ומאכזבת. <br />
-                מה לדעתך האלמנטים החסרים בפרומפט?
-              </div>
-              <div className="mb-2 font-medium text-gray-700">
-                סמן את שני האלמנטים החסרים בפרומפט:
-              </div>
+              <div className="block text-sm font-medium text-gray-700 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: `סיימת כעת פגישת Teams בהובלתך, בה החלטתם על יעדי הפיתוח לשבוע הקרוב.<br />אתה מעוניין לנסח מייל סיכום בעזרת קופיילוט, שיסכם את המשימות של כל אחד.<br />כתבת לקופיילוט את הפרומפט הבא, אבל קיבלת תוצאה כללית ומאכזבת.<br />מה לדעתך האלמנטים החסרים בפרומפט?` }} />
+              <div className="mb-2 font-medium text-gray-700">סמן את שני האלמנטים החסרים בפרומפט:</div>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-2">
                 <div className="mt-2 text-gray-800">{INITIAL_PROMPT}</div>
               </div>
@@ -191,7 +185,38 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
 
           {step === 'improve' && (
             <div className="space-y-4">
-              <div className="mb-2 font-medium text-gray-700">שפר את הפרומפט כך שישיג תוצאה מיטבית</div>
+              <div className="mb-2 font-medium text-gray-700 flex items-center gap-2">
+                <span>שפר את הפרומפט כך שישיג תוצאה מיטבית</span>
+              </div>
+              {showHow && (
+                <div className="mt-2 text-gray-700 prose prose-sm max-w-none" dir="rtl">
+                  <b>הנחיות לשיפור:</b>
+                  <ul>
+                    <li>הוסף הקשר ומטרה לפרומפט</li>
+                    <li>פרט את התפקידים והמשימות</li>
+                    <li>השתמש במבנה רשימה</li>
+                    <li>הדגש תוצרים רצויים</li>
+                  </ul>
+                  דוגמה: <b>"סכם את הפגישה תוך פירוט משימות לכל חבר צוות והצע פעולות המשך"</b>
+                </div>
+              )}
+              <div className="mt-2">
+                {showHow ? (
+                  <span
+                    className="text-blue-600 underline cursor-pointer text-sm"
+                    onClick={() => setShowHow(false)}
+                  >
+                    הצג פחות
+                  </span>
+                ) : (
+                  <span
+                    className="text-blue-600 underline cursor-pointer text-sm"
+                    onClick={() => setShowHow(true)}
+                  >
+                    איך?
+                  </span>
+                )}
+              </div>
               <Textarea
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}

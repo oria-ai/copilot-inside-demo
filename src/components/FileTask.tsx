@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -32,30 +31,32 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
+  const [showHow1, setShowHow1] = useState(false);
+  const [showHow2, setShowHow2] = useState(false);
 
   // Slides content
   const cards = [
     {
-      title: 'הורדת קובץ',
-      instructions: 'הורד את קובץ התמלול כדי להתחיל במשימה',
+      title: 'רקע',
+      instructions: 'סיימנו עכשיו פגישת פתיחת שבוע ארוכה ועמוסה.<br />אתה מעוניין להפיק מסמך קצר שמסכם את המשימות של הצוות שלך - צוות הפיתוח.<br />הורד את הקובץ, ולחץ "הבא" להמשך ההנחיות.',
       showDownload: true,
       showUpload: false
     },
     {
       title: 'הוראות עבודה',
-      instructions: 'קרא את התמלול בעיון וסמן את הנקודות העיקריות',
+      instructions: 'פתח מסמך וורד חדש, ובקש מקופיילוט ליצור עבורך סיכום מהתמלול.<br />עבור ברפרוף על המסמך כדי להבין את ההקשר, והקפד לשלוח לקופיילוט פרומפט מלא ומפורט.',
       showDownload: false,
       showUpload: false
     },
     {
-      title: 'טיפים לסיכום',
-      instructions: 'זכור להתמקד בהחלטות שהתקבלו ובפעולות המשך',
+      title: 'הוראות עבודה',
+      instructions: 'בדוק את התוצאה, ובמידת הצורך תן לקופיילוט הנחיות לתיקון. <br />אל תשאיר הכל בידי המכונה - תמיד טוב לתת קצת מגע אישי בסוף.',
       showDownload: false,
       showUpload: false
     },
     {
       title: 'העלאת קובץ',
-      instructions: 'העלה את הקובץ המסוכם שיצרת',
+      instructions: 'העלה את הקובץ המסוכם שיצרת לטובת קבלת משוב.',
       showDownload: false,
       showUpload: true
     }
@@ -165,10 +166,11 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
     setFeedback('');
   };
 
-  const handleContinue = () => {
-    setShowPopup(false);
-    console.log('Continue to next step');
-  };
+  const handleSkip = useCallback(() => {
+    // Move to conclusion activity
+    const event = new CustomEvent('goToConclusion', { detail: { lessonId } });
+    window.dispatchEvent(event);
+  }, [lessonId]);
 
   /* -------------------------------------------------- */
   /*   Render                                           */
@@ -185,8 +187,49 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
             <div className="relative">
               <div className="bg-gray-50 rounded-lg p-6 min-h-[200px]">
                 <h3 className="text-xl font-semibold mb-4">{cards[currentCard].title}</h3>
-                <p className="text-gray-700 mb-6">{cards[currentCard].instructions}</p>
-
+                <div className="text-gray-700 mb-6 prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900" dangerouslySetInnerHTML={{ __html: cards[currentCard].instructions }} />
+                {/* How link for card 1 and 2 */}
+                {(currentCard === 1 || currentCard === 2) && (
+                  <>
+                    {/* Extra instructions for card 1 and 2 */}
+                    {currentCard === 1 && showHow1 && (
+                      <div className="mt-2 text-gray-700 prose prose-sm max-w-none" dir="rtl">
+                        הנחיות נוספות:
+                        <br />
+                        <ul><li>לאחר שתפתח קובץ וורד חדש, תראה שורת שיחה עם קופיילוט בראש הקובץ.</li><li>לחץ על המקש "/", וכך תוכל לבחור קובץ מהמחשב להתייחסות. בחר את קובץ התמלול.</li><li>כתוב פרומפט מפורט שמסביר מה זה קובץ התמלול ומה על קופיילוט לעשות.</li></ul>
+                      </div>
+                    )}
+                    {currentCard === 2 && showHow2 && (
+                      <div className="mt-2 text-gray-700 prose prose-sm max-w-none" dir="rtl">
+                        הנחיות נוספות:
+                        <br />
+                        לאחר יצירת הסיכום, קופיילוט יפתח עבורך חלון צ'אט בתחתית המסך לטובת הנחיות לתיקון.
+                        <br />
+                        תמיד תוכל להמשיך לבקש מקופיילוט עריכות על המסמך, באמצעות לחיצה על סימן הקופיילוט - 
+                        <br />
+                        הוא מופיע תמיד ליד השורה בה אתה כותב.
+                      </div>
+                    )}
+                    {/* Clickable text below extra instructions or below main instructions */}
+                    <div className="mt-2">
+                      {((currentCard === 1 && showHow1) || (currentCard === 2 && showHow2)) ? (
+                        <span
+                          className="text-blue-600 underline cursor-pointer text-md"
+                          onClick={() => currentCard === 1 ? setShowHow1(false) : setShowHow2(false)}
+                        >
+                          הצג פחות
+                        </span>
+                      ) : (
+                        <span
+                          className="text-blue-600 underline cursor-pointer text-md"
+                          onClick={() => currentCard === 1 ? setShowHow1(true) : setShowHow2(true)}
+                        >
+                          איך בדיוק?
+                        </span>
+                      )}
+                    </div>
+                  </>
+                )}
                 {cards[currentCard].showDownload && (
                   <Button
                     onClick={handleDownload}
@@ -200,16 +243,17 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
 
               {/* Nav buttons + dots */}
               <div className="flex justify-between items-center mt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentCard(Math.max(0, currentCard - 1))}
-                  disabled={currentCard === 0}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                  הקודם
-                </Button>
-
+                {/* Show prev except on first card, next except on last card */}
+                {currentCard !== 0 ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentCard(Math.max(0, currentCard - 1))}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                    הקודם
+                  </Button>
+                ) : <div />}
                 <div className="flex gap-2">
                   {cards.map((_, idx) => (
                     <div
@@ -220,16 +264,16 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
                     />
                   ))}
                 </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentCard(Math.min(cards.length - 1, currentCard + 1))}
-                  disabled={currentCard === cards.length - 1}
-                >
-                  הבא
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
+                {currentCard !== cards.length - 1 ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentCard(Math.min(cards.length - 1, currentCard + 1))}
+                  >
+                    הבא
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                ) : <div />}
               </div>
             </div>
 
@@ -274,11 +318,22 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
         </CardContent>
       </Card>
 
+      {/* Skip Button at the bottom */}
+      <div className="text-center mt-8">
+        <Button
+          variant="outline"
+          onClick={handleSkip}
+          className="px-8 py-3 rounded-2xl border-2 border-primary-turquoise text-primary-turquoise hover:bg-primary-turquoise hover:text-white transition-all duration-300 w-40 mx-auto"
+        >
+          דלג לסיכום
+        </Button>
+      </div>
+
       {/* Feedback popup */}
       <Dialog open={showPopup} onOpenChange={setShowPopup}>
         <DialogContent className="text-right max-w-md" dir="rtl">
-          <DialogHeader>
-            <DialogTitle>תוצאות בדיקת הקובץ</DialogTitle>
+          <DialogHeader className="items-center text-center">
+            <DialogTitle className="w-full text-center">תוצאות בדיקת הקובץ</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             {isLoading ? (
@@ -296,7 +351,9 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
                   <Button onClick={handleResubmit} variant="outline">
                     הגש מחדש
                   </Button>
-                  <Button onClick={handleContinue}>המשך</Button>
+                  <Button onClick={handleSkip} className="w-40">
+                    המשך
+                  </Button>
                 </div>
               </div>
             )}

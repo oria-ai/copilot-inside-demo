@@ -9,9 +9,10 @@ interface VideoLessonProps {
   lessonId: string;
   handleActivityComplete: (lessonId: string, progress: number, understandingRating?: number, activityType?: string, activityId?: number) => void;
   onNext?: () => void;
+  lessonDisplayName: string;
 }
 
-const VideoLesson = ({ videoUrl, videoTitle, lessonId, handleActivityComplete, onNext }: VideoLessonProps) => {
+const VideoLesson = ({ videoUrl, videoTitle, lessonId, handleActivityComplete, onNext, lessonDisplayName }: VideoLessonProps) => {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const [showRating, setShowRating] = useState(false);
   const [rating, setRating] = useState(0);
@@ -47,7 +48,7 @@ const VideoLesson = ({ videoUrl, videoTitle, lessonId, handleActivityComplete, o
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>סרטון השיעור</CardTitle>
+          <CardTitle>{lessonDisplayName}</CardTitle>
         </CardHeader>
         <CardContent>
           <div style={{ padding: '56.25% 0 0 0', position: 'relative' }}>

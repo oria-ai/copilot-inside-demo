@@ -30,7 +30,6 @@ model Progress {
   lastActivity String?
   lastStep   Int?
   updatedAt DateTime @updatedAt
-  activityProgress Json?
 
   user      User     @relation(fields: [userId], references: [id])
   @@unique([userId, lessonId])

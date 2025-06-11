@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress, CircularProgress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, PlayCircle, CheckCircle2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, PlayCircle, CheckCircle2, Activity, BookOpenCheck, Dumbbell } from 'lucide-react';
 
 interface UserProgress {
   lessonId: string;
@@ -141,7 +141,17 @@ const ModuleSidebar = ({
                     const progress = getActivityProgress(lesson.id, activity.id);
                     const isCompleted = progress === 100;
                     const isCurrent = currentLessonId === lesson.id && currentActivityId === activity.id;
-                    
+                    // Choose icon based on activity type
+                    let IconComponent = null;
+                    if (activity.id === 'video') {
+                      IconComponent = PlayCircle;
+                    } else if (activity.id === 'conclusion') {
+                      IconComponent = BookOpenCheck;
+                    } else if (['tutor', 'prompt', 'file'].includes(activity.id)) {
+                      IconComponent = Dumbbell;
+                    } else {
+                      IconComponent = Activity;
+                    }
                     return (
                       <Button
                         key={activity.id}
@@ -153,16 +163,19 @@ const ModuleSidebar = ({
                         }`}
                         onClick={() => handleActivityClick(lesson.id, activity.id)}
                       >
-                        <div className="flex items-center gap-2">
-                          <span className={isCurrent ? 'text-white' : 'text-dark-gray'}>
-                            {activity.title}
-                          </span>
-                          {isCompleted && !isCurrent && (
-                            <CheckCircle2 className="h-4 w-4 text-green" />
-                          )}
-                        </div>
-                        
-                        <div className="flex items-center justify-center w-8 h-8">
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <span className={isCurrent ? 'text-white' : 'text-dark-gray'}>
+                              {activity.title}
+                            </span>
+                            {isCompleted && !isCurrent && (
+                              <CheckCircle2 className="h-4 w-4 text-green" />
+                            )}
+                          </div>
+                          {/* Icon next to the title group, not at the edge */}
+                          <div className="flex-shrink-0">
+                            <IconComponent className={`h-5 w-5 ${isCurrent ? 'text-white' : 'text-medium-gray'}`} />
+                          </div>
                         </div>
                       </Button>
                     );

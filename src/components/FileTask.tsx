@@ -50,7 +50,7 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
     },
     {
       title: 'הוראות עבודה',
-      instructions: 'בדוק את התוצאה, ובמידת הצורך תן לקופיילוט הנחיות לתיקון. <br />אל תשאיר הכל בידי המכונה - תמיד טוב לתת קצת מגע אישי בסוף.',
+      instructions: "בדוק את התוצאה, ובמידת הצורך תן לקופיילוט הנחיות לתיקון. <br />אל תשאיר הכל בידי המכונה! תמיד טוב לעבור על הטקסט, ולתת קצת טאצ' אישי.",
       showDownload: false,
       showUpload: false
     },
@@ -180,15 +180,11 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
                     {/* Extra instructions for card 1 and 2 */}
                     {currentCard === 1 && showHow1 && (
                       <div className="mt-2 text-gray-700 prose prose-sm max-w-none" dir="rtl">
-                        הנחיות נוספות:
-                        <br />
                         <ul><li>לאחר שתפתח קובץ וורד חדש, תראה שורת שיחה עם קופיילוט בראש הקובץ.</li><li>לחץ על המקש "/", וכך תוכל לבחור קובץ מהמחשב להתייחסות. בחר את קובץ התמלול.</li><li>כתוב פרומפט מפורט שמסביר מה זה קובץ התמלול ומה על קופיילוט לעשות.</li></ul>
                       </div>
                     )}
                     {currentCard === 2 && showHow2 && (
                       <div className="mt-2 text-gray-700 prose prose-sm max-w-none" dir="rtl">
-                        הנחיות נוספות:
-                        <br />
                         לאחר יצירת הסיכום, קופיילוט יפתח עבורך חלון צ'אט בתחתית המסך לטובת הנחיות לתיקון.
                         <br />
                         תמיד תוכל להמשיך לבקש מקופיילוט עריכות על המסמך, באמצעות לחיצה על סימן הקופיילוט - 
@@ -322,15 +318,15 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
 
       {/* Feedback popup */}
       <Dialog open={showPopup} onOpenChange={setShowPopup}>
-        <DialogContent className="text-right max-w-md flex flex-col" dir="rtl" style={{ maxHeight: '80vh' }}>
-          <DialogHeader className="items-center text-center">
+        <DialogContent className="text-right max-w-md flex flex-col items-center" dir="rtl" style={{ maxHeight: '80vh' }}>
+          <DialogHeader className="items-center w-full">
             <DialogTitle className="w-full text-center">תוצאות בדיקת הקובץ</DialogTitle>
           </DialogHeader>
-          <div className="py-4 flex flex-col flex-1 min-h-0">
+          <div className="py-4 flex flex-col flex-1 min-h-0 w-full">
             {isLoading ? (
-              <div className="text-center flex-1 flex items-center justify-center">
-                <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4" />
-                <p>בודק את הקובץ שלך.</p>
+              <div className="flex flex-col items-center justify-center flex-1 text-center">
+                <Loader2 className="h-12 w-12 animate-spin mb-4 mx-auto" />
+                <p className="text-center w-full">בודק את הקובץ שלך.</p>
               </div>
             ) : (
               <div className="space-y-4 flex-1 min-h-0 flex flex-col">

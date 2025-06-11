@@ -51,7 +51,8 @@ export const CircularProgress = ({ value, size = 40, strokeWidth = 4, className 
         strokeWidth={strokeWidth}
         text={''}
         styles={buildStyles({
-          pathColor: '#06b6d4', // Tailwind cyan-500
+          pathColor: '#47ff2a', // Tailwind cyan-500
+          // pathColor: '#22c55e', // Tailwind green-500
           trailColor: '#e5e7eb', // Tailwind gray-200
           strokeLinecap: 'round',
           textColor: 'transparent',

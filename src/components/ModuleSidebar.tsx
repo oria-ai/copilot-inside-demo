@@ -92,13 +92,16 @@ const ModuleSidebar = ({
         {/* Module Progress Card */}
         <Card className="bg-gradient-turquoise text-white rounded-3xl border-0 shadow-card">
           <div className="p-6">
-            <h3 className="text-xl font-bold mb-3">{currentModule.title}</h3>
-            <div className="flex justify-between text-sm text-white/90 mb-3">
-              <span>{Math.round(getModuleProgress())}% הושלם</span>
-              <span>התקדמות כללית</span>
-            </div>
-            <div className="flex justify-center items-center mt-4 mb-2">
-              <CircularProgress value={getModuleProgress()} size={56} strokeWidth={6} />
+            <div className="flex flex-row justify-between items-center">
+              {/* Right side: title and % */}
+              <div className="flex flex-col items-start text-right">
+                <h3 className="text-xl font-bold mb-1">{currentModule.title}</h3>
+                <span className="text-sm text-white/90">{Math.round(getModuleProgress())}% הושלם</span>
+              </div>
+              {/* Left side: circle */}
+              <div className="flex items-center justify-center">
+                <CircularProgress value={getModuleProgress()} size={56} strokeWidth={6} />
+              </div>
             </div>
           </div>
         </Card>

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import ConfettiOverlay from '@/components/ConfettiOverlay';
 
 interface StepConfig {
   stepNumber: number;
@@ -29,6 +30,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
   const [showInput, setShowInput] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [startDialogOpen, setStartDialogOpen] = useState(true);
 
   // Progress logic
   const totalSteps = 6;
@@ -86,6 +88,41 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
   // For step 2, determine which image to show based on input focus or value
   const step2Image = currentStep === 2 && (isInputFocused || inputValue.trim() !== '') ? '1-4-1-e.png' : currentStepConfig.imageName;
 
+  // Handle escape key to close confetti
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showConfetti) {
+        console.log('Escape pressed, closing confetti');
+        setShowConfetti(false);
+        if (currentStep === 2) {
+          proceedToStep3();
+        } else if (currentStep === totalSteps) {
+          handleFinalCompletion();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showConfetti, currentStep]);
+
+  const proceedToStep3 = () => {
+    console.log('Proceeding to step 3');
+    const newProgress = baseProgress + stepIncrement * currentStep;
+    handleActivityComplete(lessonId, newProgress, undefined, 'tutor', currentStep);
+    setCurrentStep(3);
+    setShowInput(false);
+    setInputValue('');
+  };
+
+  const handleFinalCompletion = () => {
+    console.log('Final completion');
+    handleActivityComplete(lessonId, 90, undefined, 'tutor', currentStep);
+    // Move to conclusion activity
+    const event = new CustomEvent('goToConclusion', { detail: { lessonId } });
+    window.dispatchEvent(event);
+  };
+
   // Handler for clicking anywhere on the image
   const handleImageClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     // Get bounding rect of the image wrapper
@@ -114,10 +151,8 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
 
     // Move to conclusion if on last step
     if (currentStep === totalSteps) {
-      handleActivityComplete(lessonId, 90, undefined, 'tutor', currentStep);
-      // Move to conclusion activity
-      const event = new CustomEvent('goToConclusion', { detail: { lessonId } });
-      window.dispatchEvent(event);
+      console.log('Final step completed, showing confetti');
+      setShowConfetti(true);
       return;
     }
 
@@ -132,8 +167,9 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
     if (currentStep < totalSteps) {
       // Show confetti popup after step 2
       if (currentStep === 2) {
-        alert('step 2 popup!');
+        console.log('Step 2 completed, showing confetti');
         setShowConfetti(true);
+        return;
       }
       const newProgress = baseProgress + stepIncrement * currentStep;
       handleActivityComplete(lessonId, newProgress, undefined, 'tutor', currentStep);
@@ -144,157 +180,212 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
   };
 
   const handleSkip = () => {
-    console.log('Skipping tutor');
+    console.log('Skipping tutor, going to conclusion');
+    // Complete the tutor activity and go to conclusion
+    handleActivityComplete(lessonId, 90, undefined, 'tutor', currentStep);
+    const event = new CustomEvent('goToConclusion', { detail: { lessonId } });
+    window.dispatchEvent(event);
   };
+
+  const handleSendButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (inputValue.trim() === '') return;
+    console.log('Send button clicked in step 2, showing confetti');
+    setShowConfetti(true);
+  };
+
+  console.log('Current step:', currentStep, 'Show confetti:', showConfetti);
 
   return (
     <>
-      <Dialog open={showConfetti} onOpenChange={setShowConfetti}>
+      {/* Start Task Popup */}
+      <Dialog open={startDialogOpen} onOpenChange={setStartDialogOpen}>
         <DialogContent className="text-right max-w-md" dir="rtl">
-          <DialogHeader>
-            <DialogTitle>הצלחה!</DialogTitle>
+          <DialogHeader className="items-center text-center">
+            <DialogTitle className="w-full text-center">התחלת משימה</DialogTitle>
           </DialogHeader>
-          <div className="py-4 flex flex-col items-center justify-center text-center gap-6">
-            <div className="text-2xl font-bold mb-2">מעולה, עכשיו אתה יודע איך לשוחח עם קופיילוט.</div>
-            <div className="text-lg mb-4">בוא נמצא יחד את ספריית הפרומפטים</div>
-            <Button className="w-full mt-4" onClick={() => setShowConfetti(false)}>
-              המשך
+          <div className="py-4 flex flex-col items-center">
+            <p className="text-center">לפניך מדריך טכני שנועד לוודא שאתה יודע איך לבצע את מה שלמדנו בשיעור. כדי להתקדם, עליך ללחוץ על האזור הנכון בתמונה.</p>
+            <Button className="mt-6 w-40 mx-auto block" onClick={() => setStartDialogOpen(false)}>
+              התחל
             </Button>
           </div>
         </DialogContent>
       </Dialog>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>בוא נעשה זאת יחד</CardTitle>
-          <Button variant="outline" onClick={handleSkip}>
-            דלג
+
+      <ConfettiOverlay 
+        open={showConfetti} 
+        onClose={() => {
+          console.log('Confetti overlay closed');
+          setShowConfetti(false);
+          if (currentStep === 2) {
+            proceedToStep3();
+          } else if (currentStep === totalSteps) {
+            handleFinalCompletion();
+          }
+        }}
+      >
+        <div className="text-center" dir="rtl">
+          <h2 className="text-2xl font-bold mb-4">
+            {currentStep === 2 ? 'מעולה!' : 'כל הכבוד!'}
+          </h2>
+          <p className="text-lg mb-6">
+            {currentStep === 2 
+              ? 'עכשיו אתה יודע איך לשוחח עם קופיילוט. בוא נמצא יחד את ספריית הפרומפטים.'
+              : 'סיימת בהצלחה את כל השלבים! נעבור לסיכום השיעור.'
+            }
+          </p>
+          <Button 
+            className="mt-6 w-40 mx-auto block" 
+            onClick={() => {
+              console.log('Continue button clicked');
+              setShowConfetti(false);
+              if (currentStep === 2) {
+                proceedToStep3();
+              } else if (currentStep === totalSteps) {
+                handleFinalCompletion();
+              }
+            }}
+          >
+            {currentStep === 2 ? 'המשך' : 'סיום'}
           </Button>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="text-center">
-              <p className="text-lg mb-4">{currentStepConfig.instructions}</p>
-              <p className="text-sm text-gray-600">שלב {currentStep} מתוך {totalSteps}</p>
-            </div>
+        </div>
+      </ConfettiOverlay>
 
-            {/* Responsive aspect-ratio container for screenshot */}
-            <div
-              className="relative w-full max-w-2xl mx-auto aspect-[16/9] bg-transparent rounded-lg flex items-center justify-center overflow-hidden"
-              style={{ minHeight: '300px' }}
-              onClick={handleImageClick}
-              role="button"
-              aria-label="המשך לשלב הבא על ידי לחיצה על האזור המתאים"
-              tabIndex={0}
-              onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-                if (e.key === 'Enter' || e.key === ' ') handleImageClick(e as unknown as React.MouseEvent<HTMLDivElement, MouseEvent>);
+      <div className="p-8 max-w-4xl mx-auto">
+        {/* Centered Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-dark-gray mb-2">{currentStepConfig.instructions}</h1>
+        </div>
+
+        {/* Photo Section */}
+        <div className="mb-6">
+          <div
+            className="relative w-full max-w-3xl mx-auto aspect-[16/9] bg-transparent rounded-3xl flex items-center justify-center overflow-hidden shadow-soft"
+            style={{ minHeight: '400px' }}
+            onClick={handleImageClick}
+            role="button"
+            aria-label="המשך לשלב הבא על ידי לחיצה על האזור המתאים"
+            tabIndex={0}
+            onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+              if (e.key === 'Enter' || e.key === ' ') handleImageClick(e as unknown as React.MouseEvent<HTMLDivElement, MouseEvent>);
+            }}
+          >
+            <img
+              src={`/${currentStep === 2 ? step2Image : currentStepConfig.imageName}`}
+              alt={`Step ${currentStep}`}
+              className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+              onError={e => {
+                (e.currentTarget as HTMLImageElement).src = '/placeholder.svg';
               }}
-            >
-              <img
-                src={`/${currentStep === 2 ? step2Image : currentStepConfig.imageName}`}
-                alt={`Step ${currentStep}`}
-                className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
-                onError={e => {
-                  (e.currentTarget as HTMLImageElement).src = '/placeholder.svg';
+              draggable={false}
+            />
+            {/* Show the red hotspot for positioning, except on step 2 */}
+            {currentStep !== 2 && (
+              <div
+                className="absolute pointer-events-none"
+                style={{
+                  top: currentStepConfig.clickArea.top,
+                  left: currentStepConfig.clickArea.left,
+                  width: currentStepConfig.clickArea.width,
+                  height: currentStepConfig.clickArea.height
                 }}
-                draggable={false}
               />
-              {/* Show the red hotspot for positioning, except on step 2 */}
-              {currentStep !== 2 && (
-                <div
-                  className="absolute pointer-events-none"
+            )}
+            {/* Step 2: Overlay invisible input and send button */}
+            {currentStep === 2 && (
+              <>
+                <input
+                  type="text"
+                  dir="ltr"
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  placeholder={currentStepConfig.inputPlaceholder}
                   style={{
-                    top: currentStepConfig.clickArea.top,
-                    left: currentStepConfig.clickArea.left,
-                    width: currentStepConfig.clickArea.width,
-                    height: currentStepConfig.clickArea.height
+                    position: 'absolute',
+                    left: '29%',
+                    top: '36%',
+                    width: '65%',
+                    height: '9%',
+                    fontFamily: 'ginto',
+                    fontSize: '1em',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#333',
+                    caretColor: '#333',
+                    outline: 'none',
+                    padding: '0 8px',
+                    zIndex: 20,
+                    cursor: isInputFocused ? 'text' : 'pointer',
                   }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    setIsInputFocused(true);
+                  }}
+                  onBlur={() => setIsInputFocused(false)}
+                  autoFocus={false}
+                  onFocus={e => e.stopPropagation()}
+                  tabIndex={0}
                 />
-              )}
-              {/* Step 2: Overlay invisible input and send button */}
-              {currentStep === 2 && (
-                <>
-                  <input
-                    type="text"
-                    dir="ltr"
-                    value={inputValue}
-                    onChange={e => setInputValue(e.target.value)}
-                    placeholder={currentStepConfig.inputPlaceholder}
-                    style={{
-                      position: 'absolute',
-                      left: '29%',
-                      top: '36%',
-                      width: '65%',
-                      height: '9%',
-                      fontFamily: 'ginto',
-                      fontSize: '1em',
-                      background: 'transparent',
-                      border: 'none',
-                      color: '#333',
-                      caretColor: '#333',
-                      outline: 'none',
-                      padding: '0 8px',
-                      zIndex: 20,
-                      cursor: isInputFocused ? 'text' : 'pointer',
-                    }}
-                    onClick={e => {
-                      e.stopPropagation();
-                      setIsInputFocused(true);
-                    }}
-                    onBlur={() => setIsInputFocused(false)}
-                    autoFocus={false}
-                    onFocus={e => e.stopPropagation()}
-                    tabIndex={0}
-                  />
-                  <button
-                    type="button"
-                    style={{
-                      position: 'absolute',
-                      left: '88.5%',
-                      top: '45%',
-                      width: '4%',
-                      height: '6%',
-                      background: 'transparent',
-                      border: 'none',
-                      color: 'transparent',
-                      fontWeight: 600,
-                      fontSize: '1em',
-                      cursor: inputValue.trim() !== '' ? 'pointer' : 'not-allowed',
-                      opacity: 0,
-                      zIndex: 21,
-                    }}
-                    disabled={inputValue.trim() === ''}
-                    onClick={e => {
-                      e.stopPropagation();
-                      if (inputValue.trim() === '') return;
-                      setCurrentStep(currentStep + 1);
-                      setShowInput(false);
-                      setInputValue('');
-                      setIsInputFocused(false);
-                    }}
-                  >
-                    {/* No text */}
-                  </button>
-                </>
-              )}
-              {showInput && currentStepConfig.hasInput && currentStep !== 2 && (
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-                  <Input
-                    value={inputValue}
-                    onChange={e => setInputValue(e.target.value)}
-                    placeholder={currentStepConfig.inputPlaceholder}
-                    className="bg-white border-2 border-blue-500"
-                    autoFocus
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="text-center text-sm text-gray-500">
-              לחץ על האזור הנכון בתמונה כדי להמשיך
-            </div>
+                <button
+                  type="button"
+                  style={{
+                    position: 'absolute',
+                    left: '88.5%',
+                    top: '45%',
+                    width: '4%',
+                    height: '6%',
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'transparent',
+                    fontWeight: 600,
+                    fontSize: '1em',
+                    cursor: inputValue.trim() !== '' ? 'pointer' : 'not-allowed',
+                    opacity: 0,
+                    zIndex: 21,
+                  }}
+                  disabled={inputValue.trim() === ''}
+                  onClick={handleSendButtonClick}
+                >
+                  {/* No text */}
+                </button>
+              </>
+            )}
+            {showInput && currentStepConfig.hasInput && currentStep !== 2 && (
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                <Input
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  placeholder={currentStepConfig.inputPlaceholder}
+                  className="bg-white border-2 border-blue-500"
+                  autoFocus
+                />
+              </div>
+            )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Step Counter */}
+        <div className="text-center mb-4">
+          <p className="text-lg font-medium text-medium-gray">שלב {currentStep} מתוך {totalSteps}</p>
+        </div>
+
+        {/* Instructions */}
+        <div className="text-center mb-8">
+          <p className="text-xl font-medium text-dark-gray">לחץ על האזור הנכון בתמונה</p>
+        </div>
+
+        {/* Skip Button */}
+        <div className="text-center">
+          <Button 
+            variant="outline" 
+            onClick={handleSkip}
+            className="px-8 py-3 rounded-2xl border-2 border-primary-turquoise text-primary-turquoise hover:bg-primary-turquoise hover:text-white transition-all duration-300"
+          >
+            דלג לסיכום
+          </Button>
+        </div>
+      </div>
     </>
   );
 };

@@ -34,6 +34,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
   const [lessonState, setLessonState] = useState<{ lessonId: string; activityId: string }>({ lessonId: '', activityId: '' });
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const justTransitionedToFile = useRef(false);
 
   const moduleData = {
     basics: {
@@ -267,6 +268,28 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
     }
   }, [userId]);
 
+  const goToNext = () => {
+    const next = getNextActivity(lessonState.lessonId, lessonState.activityId);
+    if (next) {
+      if (next.lessonId !== lessonState.lessonId) {
+        setLessonAndDefaultActivity(next.lessonId);
+      } else {
+        // If transitioning from video to file, set the flag
+        const lesson = currentModule.lessons.find(l => l.id === lessonState.lessonId);
+        if (lesson) {
+          const actIdx = lesson.activities.findIndex(a => a.id === lessonState.activityId);
+          const nextAct = lesson.activities[actIdx + 1];
+          if (lesson.activities[actIdx].id === 'video' && nextAct && nextAct.id === 'file') {
+            justTransitionedToFile.current = true;
+          }
+        }
+        setLessonAndActivity(next.lessonId, next.activityId);
+      }
+    } else {
+      setLessonAndActivity('', '');
+    }
+  };
+
   const renderMainContent = () => {
     console.log('renderMainContent:', { lessonState, isLoading });
     
@@ -302,18 +325,8 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
       return <div className="text-red-500">שיעור לא נמצא: {lessonState.lessonId}</div>;
     }
 
-    const goToNext = () => {
-      const next = getNextActivity(lessonState.lessonId, lessonState.activityId);
-      if (next) {
-        if (next.lessonId !== lessonState.lessonId) {
-          setLessonAndDefaultActivity(next.lessonId);
-        } else {
-          setLessonAndActivity(next.lessonId, next.activityId);
-        }
-      } else {
-        setLessonAndActivity('', '');
-      }
-    };
+    const showStartDialog = justTransitionedToFile.current;
+    if (justTransitionedToFile.current) justTransitionedToFile.current = false;
 
     switch (lessonState.activityId) {
       case 'video':
@@ -332,7 +345,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
       case 'prompt':
         return <PromptTask lessonId={lessonState.lessonId} onNext={goToNext} handleActivityComplete={handleActivityComplete} />;
       case 'file':
-        return <FileTask lessonId={lessonState.lessonId} />;
+        return <FileTask lessonId={lessonState.lessonId} showStartDialog={showStartDialog} />;
       case 'conclusion':
         return <Conclusion lessonId={lessonState.lessonId} onConclusionComplete={handleConclusionComplete} />;
       default:

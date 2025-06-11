@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +16,7 @@ const VideoLesson = ({ videoUrl, videoTitle, lessonId, handleActivityComplete, o
   const [showRating, setShowRating] = useState(false);
   const [rating, setRating] = useState(0);
   const [progressSaved, setProgressSaved] = useState(false);
+  const [hoveredRating, setHoveredRating] = useState(0);
 
   useEffect(() => {
     if (!frameRef.current) return;
@@ -75,18 +75,28 @@ const VideoLesson = ({ videoUrl, videoTitle, lessonId, handleActivityComplete, o
               }}>
                 <div className="bg-white rounded-lg p-8 shadow-lg text-center">
                   <p className="text-lg mb-4">עד כמה הבנת את הנושא?</p>
-                  <div className="flex justify-center gap-2 mb-4">
+                  <div 
+                    className="flex justify-center gap-2 mb-4"
+                    onMouseLeave={() => setHoveredRating(0)}
+                  >
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         onClick={() => setRating(star)}
-                        className={`text-3xl ${rating >= star ? 'text-yellow-400' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
+                        onMouseEnter={() => setHoveredRating(star)}
+                        className={`text-3xl transition-colors ${((hoveredRating || rating) >= star) ? 'text-yellow-400' : 'text-gray-300'}`}
+                        style={{ 
+                          filter: ((hoveredRating || rating) >= star) ? 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' : 'none'
+                        }}
                       >
-                        ⭐
+                        {((hoveredRating || rating) >= star) ? '★' : '☆'}
                       </button>
                     ))}
                   </div>
-                  <Button onClick={() => setShowRating(false)} className="mt-4">
+                  {rating > 0 && (
+                    <p className="text-sm text-gray-600">דירוג נבחר: {rating} כוכבים</p>
+                  )}
+                  <Button onClick={handleNextClick} className="mt-4 w-full">
                     שלח דירוג
                   </Button>
                 </div>

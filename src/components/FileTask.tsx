@@ -22,15 +22,17 @@ import {
 
 interface FileTaskProps {
   lessonId: string;
+  showStartDialog?: boolean;
 }
 
-const FileTask = ({ lessonId }: FileTaskProps) => {
+const FileTask = ({ lessonId, showStartDialog = false }: FileTaskProps) => {
   const [currentCard, setCurrentCard] = useState(0);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
+  const [startDialogOpen, setStartDialogOpen] = useState(showStartDialog);
 
   // Slides content
   const cards = [
@@ -174,6 +176,21 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
   /* -------------------------------------------------- */
   return (
     <>
+      {/* Start Task Popup */}
+      <Dialog open={startDialogOpen}>
+        <DialogContent className="text-right max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>התחלת משימה</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>ברוך הבא למשימה הראשונה! כאן תוכל להוריד את קובץ התמלול, לקרוא הוראות, ולקבל טיפים לסיכום. לחץ על "התחל" כדי להתחיל.</p>
+            <Button className="mt-6 w-full" onClick={() => setStartDialogOpen(false)}>
+              התחל
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Card>
         <CardHeader>
           <CardTitle>משימת סיכום תמלול</CardTitle>

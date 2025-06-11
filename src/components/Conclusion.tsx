@@ -52,7 +52,7 @@ const Conclusion = ({ lessonId, onConclusionComplete }: ConclusionProps) => {
           {/* Rating section */}
           <div className="border-t pt-6">
             <div className="text-center space-y-4">
-              <p className="text-lg font-medium">עד כמה הבנת את הנושא? (אופציונלי)</p>
+              <p className="text-lg font-medium">עד כמה הבנת את הנושא?</p>
               <div 
                 className="flex justify-center gap-2"
                 onMouseLeave={() => setHoveredRating(0)}
@@ -76,7 +76,7 @@ const Conclusion = ({ lessonId, onConclusionComplete }: ConclusionProps) => {
               )}
               <Button 
                 onClick={handleRatingSubmit} 
-                className="mt-4 w-full"
+                className="mt-4 w-80"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'שולח...' : 'המשך לשיעור הבא'}

@@ -42,7 +42,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
     {
       stepNumber: 1,
       imageName: `1-3.png`,
-      instructions: 'נכנסנו לקופיילוט, בחר ב"עבודה"',
+      instructions: 'נתרגל את מה שלמדנו - נכנסנו לקופיילוט, בחר ב"עבודה"',
       clickArea: { top: '42%', left: '52%', width: '26%', height: '31%' }
     },
     {

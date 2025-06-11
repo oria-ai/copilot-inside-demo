@@ -160,7 +160,6 @@ const ModuleSidebar = ({
                         </div>
                         
                         <div className="flex items-center justify-center w-8 h-8">
-                          <CircularProgress value={progress} size={32} strokeWidth={6} />
                         </div>
                       </Button>
                     );

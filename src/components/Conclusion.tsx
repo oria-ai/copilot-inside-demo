@@ -30,7 +30,7 @@ const Conclusion = ({ lessonId, onConclusionComplete }: ConclusionProps) => {
   };
 
   return (
-    <Card>
+    <Card className="!mb-0 !pb-0">
       <CardHeader>
         <CardTitle>מה למדנו?</CardTitle>
       </CardHeader>

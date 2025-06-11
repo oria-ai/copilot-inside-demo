@@ -377,7 +377,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
         />
 
         <div className="flex-1 p-8">
-          <div className="bg-white rounded-3xl shadow-card min-h-[600px]">
+          <div className="bg-white rounded-3xl shadow-card">
             {renderMainContent()}
           </div>
         </div>

@@ -153,17 +153,22 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
   };
 
   return (
-    <Card>
+    <Card className="!mb-0 !pb-0">
       <CardHeader>
-        <CardTitle>משימת כתיבה</CardTitle>
+        <CardTitle>שיפור פרומפט</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
           {step === 'american' && (
             <div className="space-y-4">
-              <div className="block text-sm font-medium text-gray-700 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: `סיימת כעת פגישת Teams בהובלתך, בה החלטתם על יעדי הפיתוח לשבוע הקרוב.<br />אתה מעוניין לנסח מייל סיכום בעזרת קופיילוט, שיסכם את המשימות של כל אחד.<br />כתבת לקופיילוט את הפרומפט הבא, אבל קיבלת תוצאה כללית ומאכזבת.<br />מה לדעתך האלמנטים החסרים בפרומפט?` }} />
-              <div className="mb-2 font-medium text-gray-700">סמן את שני האלמנטים החסרים בפרומפט:</div>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-2">
+              <div className="block text-sm font-medium text-gray-700 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: `
+                כעת נתרגל ניסוח של פרומפט מפורט ואיכותי.<br />
+                נסה להיזכר במקרה שבו סיימת פגישה, ורצית לשלוח מייל סיכום למשתתפים או לבעלי תפקידים אחרים.<br />
+                (אם לא, נסה לדמיין מקרה כזה).<br />
+                כתבת לקופיילוט את הפרומפט הבא, אבל קיבלת תוצאה כללית ומאכזבת.<br />
+                `}} />
+              <div className="mb-2 font-medium text-gray-700">סמן את האלמנטים החסרים בפרומפט:</div>
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-2 w-3/5 text-right">
                 <div className="mt-2 text-gray-800">{INITIAL_PROMPT}</div>
               </div>
               <form className="space-y-2" onSubmit={e => { e.preventDefault(); handleAmericanSubmit(); }}>
@@ -186,18 +191,18 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
           {step === 'improve' && (
             <div className="space-y-4">
               <div className="mb-2 font-medium text-gray-700 flex items-center gap-2">
-                <span>שפר את הפרומפט כך שישיג תוצאה מיטבית</span>
+                <span>כתוב מחדש את הפרומפט, כך שישיג תוצאה מיטבית.</span>
               </div>
               {showHow && (
                 <div className="mt-2 text-gray-700 prose prose-sm max-w-none" dir="rtl">
-                  <b>הנחיות לשיפור:</b>
+                  <b>פרומפט מוצלח מורכב מ:</b>
                   <ul>
-                    <li>הוסף הקשר ומטרה לפרומפט</li>
-                    <li>פרט את התפקידים והמשימות</li>
-                    <li>השתמש במבנה רשימה</li>
-                    <li>הדגש תוצרים רצויים</li>
+                    <li>הגדרת מטרה ברורה</li>
+                    <li>הגדרת תפקיד לAI</li>
+                    <li>מתן הקשר</li>
+                    <li>פירוט התוצר הרצוי</li>
+                    <li>מקורות - אם יש צורך</li>
                   </ul>
-                  דוגמה: <b>"סכם את הפגישה תוך פירוט משימות לכל חבר צוות והצע פעולות המשך"</b>
                 </div>
               )}
               <div className="mt-2">
@@ -210,7 +215,7 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
                   </span>
                 ) : (
                   <span
-                    className="text-blue-600 underline cursor-pointer text-sm"
+                    className="text-blue-600 underline cursor-pointer text-md"
                     onClick={() => setShowHow(true)}
                   >
                     איך?
@@ -221,14 +226,14 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}
                 rows={4}
-                className="text-right"
+                className="text-right w-3/5"
               />
               <Button onClick={handlePromptSubmit} disabled={isLoading}>
                 {isLoading ? 'שולח...' : hasSubmitted ? 'שלח מחדש' : 'שלח'}
               </Button>
               {feedback && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">
-                  <h4 className="font-semibold mb-3 text-lg">משוב מה-AI:</h4>
+                  <h4 className="font-semibold mb-3 text-lg">משוב:</h4>
                   <div 
                     className="text-gray-700 prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900"
                     dangerouslySetInnerHTML={{ __html: feedback }}

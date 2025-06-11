@@ -38,7 +38,7 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
   const cards = [
     {
       title: 'רקע',
-      instructions: 'סיימנו עכשיו פגישת פתיחת שבוע ארוכה ועמוסה.<br />אתה מעוניין להפיק מסמך קצר שמסכם את המשימות של הצוות שלך - צוות הפיתוח.<br />הורד את הקובץ, ולחץ "הבא" להמשך ההנחיות.',
+      instructions: 'סיימנו עכשיו פגישת פתיחת שבוע ארוכה ועמוסה.<br />אתה מעוניין להפיק מתמלול השיחה מסמך קצר שמסכם את המשימות של הצוות שלך - צוות הפיתוח.<br />הורד את הקובץ, ולחץ "הבא" להמשך ההנחיות.',
       showDownload: true,
       showUpload: false
     },
@@ -219,10 +219,10 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
                 {cards[currentCard].showDownload && (
                   <Button
                     onClick={handleDownload}
-                    className="w-full max-w-xs mx-auto flex items-center gap-2"
+                    className="w-50 mx-auto flex items-center gap-2"
                   >
                     <Download size={20} />
-                    הורד קובץ תמלול
+                    הורד את קובץ התמלול
                   </Button>
                 )}
               </div>
@@ -239,7 +239,9 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
                     <ChevronRight className="h-4 w-4" />
                     הקודם
                   </Button>
-                ) : <div />}
+                ) : (
+                  <div className="w-[90px] h-10" />
+                )}
                 <div className="flex gap-2">
                   {cards.map((_, idx) => (
                     <div
@@ -259,7 +261,9 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
                     הבא
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                ) : <div />}
+                ) : (
+                  <div className="w-[90px] h-10" />
+                )}
               </div>
             </div>
 
@@ -301,11 +305,7 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Skip Button at the bottom */}
-      <div className="text-center mt-8">
+          <div className="text-center">
         <Button
           variant="outline"
           onClick={handleSkip}
@@ -314,6 +314,11 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
           דלג לסיכום
         </Button>
       </div>
+        </CardContent>
+      </Card>
+
+      {/* Skip Button at the bottom */}
+
 
       {/* Feedback popup */}
       <Dialog open={showPopup} onOpenChange={setShowPopup}>

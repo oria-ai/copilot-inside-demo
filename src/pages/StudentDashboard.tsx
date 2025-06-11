@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Clock, Trophy, ArrowLeft } from 'lucide-react';
+import { BookOpen, Clock, Trophy, ArrowLeft, FileText, MessageSquare } from 'lucide-react';
 
 interface StudentDashboardProps {
   userData: any;
@@ -41,6 +41,17 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
     }
   ];
 
+  const assignments = [
+    {
+      id: 'task2',
+      title: 'משימה 2: יצירת פונקציה עם AI',
+      prompt: 'צרו פונקציה שמחשבת את הממוצע של רשימת מספרים, תוך שימוש ב-Copilot',
+      feedback: 'הפתרון שלכם מצוין! הקוד נקי ויעיל. שימו לב לטיפול במקרי קיצון כמו רשימה ריקה.',
+      status: 'completed',
+      grade: 95
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-light" dir="rtl">
       {/* Header with gradient */}
@@ -50,7 +61,7 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
             <h1 className="text-3xl font-bold text-white mb-2">ברוכים הבאים לפלטפורמה</h1>
             <p className="text-white/90">קורס אינטראקטיבי ב-Copilot שמביא אתכם לעבודה מעשית עם AI</p>
           </div>
-          <div className="bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-4 text-white">
+          <div className="bg-white/20 backdrop-blur-sm rounded-3xl px-6 py-4 text-white">
             <div className="text-sm opacity-90">שלום,</div>
             <div className="font-semibold">{userData.email}</div>
             <div className="text-sm opacity-90">{userData.department}</div>
@@ -59,11 +70,111 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Stats Cards */}
+        {/* Top Section - My Assignments and My Courses */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* My Assignments - Left Side */}
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-dark-gray mb-2">המשימות שלי</h2>
+              <p className="text-medium-gray">משימות שהוגשו וקיבלו משובים</p>
+            </div>
+            
+            <div className="space-y-4">
+              {assignments.map((assignment) => (
+                <Card 
+                  key={assignment.id} 
+                  className="bg-gradient-card shadow-card rounded-3xl border-0 overflow-hidden"
+                >
+                  <CardHeader className="pb-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-gradient-turquoise w-12 h-12 rounded-2xl flex items-center justify-center">
+                          <FileText className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg font-bold text-dark-gray">{assignment.title}</CardTitle>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-sm text-medium-gray">ציון:</span>
+                            <span className="bg-green text-white px-2 py-1 rounded-xl text-sm font-semibold">
+                              {assignment.grade}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0 space-y-4">
+                    <div className="bg-light-gray rounded-2xl p-4">
+                      <h4 className="font-semibold text-dark-gray mb-2">הוראות המשימה:</h4>
+                      <p className="text-sm text-medium-gray leading-relaxed">{assignment.prompt}</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-2xl p-4 border-2 border-green/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <MessageSquare className="h-4 w-4 text-green" />
+                        <h4 className="font-semibold text-dark-gray">משוב AI:</h4>
+                      </div>
+                      <p className="text-sm text-medium-gray leading-relaxed">{assignment.feedback}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* My Courses - Right Side */}
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-dark-gray mb-2">הקורסים שלי</h2>
+              <p className="text-medium-gray">התחילו את המסע שלכם לעולם ה-AI</p>
+            </div>
+            
+            <div className="space-y-6">
+              {modules.map((module) => (
+                <Card 
+                  key={module.id} 
+                  className="bg-gradient-card shadow-card hover:shadow-xl transition-all duration-300 cursor-pointer rounded-3xl border-0 overflow-hidden group"
+                  onClick={() => onModuleClick(module.id)}
+                >
+                  <div className="h-32 bg-gradient-turquoise relative overflow-hidden">
+                    <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+                    <div className="absolute bottom-4 right-4">
+                      <div className="bg-white/20 rounded-2xl px-4 py-2">
+                        <span className="text-white font-semibold">{module.progress}%</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-xl font-bold text-dark-gray">{module.title}</CardTitle>
+                    <p className="text-medium-gray">{module.description}</p>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0">
+                    <div className="space-y-4">
+                      <div className="flex justify-between text-sm text-medium-gray">
+                        <span>{module.completedLessons}/{module.lessons} שיעורים</span>
+                        <span>{module.progress}% הושלם</span>
+                      </div>
+                      <Progress value={module.progress} className="h-3 rounded-full" />
+                      <Button className="w-full bg-gradient-turquoise hover:opacity-90 text-white rounded-3xl h-12 font-semibold shadow-soft transition-all duration-300 group-hover:scale-105">
+                        המשך לימוד
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Cards - Moved to Bottom */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Card className="bg-gradient-card shadow-card rounded-2xl border-0">
+          <Card className="bg-gradient-card shadow-card rounded-3xl border-0">
             <CardContent className="p-6 text-center">
-              <div className="bg-gradient-turquoise w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="bg-gradient-turquoise w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4">
                 <BookOpen className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-dark-gray mb-1">{totalLessons}</h3>
@@ -71,9 +182,9 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-card shadow-card rounded-2xl border-0">
+          <Card className="bg-gradient-card shadow-card rounded-3xl border-0">
             <CardContent className="p-6 text-center">
-              <div className="bg-green w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="bg-green w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4">
                 <Trophy className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-dark-gray mb-1">{completedLessons}</h3>
@@ -81,9 +192,9 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-card shadow-card rounded-2xl border-0">
+          <Card className="bg-gradient-card shadow-card rounded-3xl border-0">
             <CardContent className="p-6 text-center">
-              <div className="bg-gradient-turquoise w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="bg-gradient-turquoise w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4">
                 <Clock className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-dark-gray mb-1">{overallProgress}%</h3>
@@ -92,63 +203,7 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
           </Card>
         </div>
 
-        {/* My Courses Section */}
-        <div className="mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-dark-gray mb-4">הקורסים שלי</h2>
-            <p className="text-medium-gray text-lg">התחילו את המסע שלכם לעולם ה-AI</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {modules.map((module) => (
-              <Card 
-                key={module.id} 
-                className="bg-gradient-card shadow-card hover:shadow-xl transition-all duration-300 cursor-pointer rounded-3xl border-0 overflow-hidden group"
-                onClick={() => onModuleClick(module.id)}
-              >
-                <div className="h-32 bg-gradient-turquoise relative overflow-hidden">
-                  <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-                  <div className="absolute bottom-4 right-4">
-                    <div className="bg-white/20 rounded-xl px-3 py-1">
-                      <span className="text-white font-semibold text-sm">{module.progress}%</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-xl font-bold text-dark-gray">{module.title}</CardTitle>
-                  <p className="text-medium-gray">{module.description}</p>
-                </CardHeader>
-                
-                <CardContent className="pt-0">
-                  <div className="space-y-4">
-                    <div className="flex justify-between text-sm text-medium-gray">
-                      <span>{module.completedLessons}/{module.lessons} שיעורים</span>
-                      <span>{module.progress}% הושלם</span>
-                    </div>
-                    <Progress value={module.progress} className="h-3 rounded-full" />
-                    <Button className="w-full bg-gradient-turquoise hover:opacity-90 text-white rounded-2xl h-12 font-semibold shadow-soft transition-all duration-300 group-hover:scale-105">
-                      המשך לימוד
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Open Tasks Section */}
-        <div className="bg-white rounded-3xl shadow-card p-8">
-          <h3 className="text-2xl font-bold text-dark-gray mb-6 text-center">המשימות שלי</h3>
-          <div className="text-center text-medium-gray py-12">
-            <div className="bg-light-gray w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-4">
-              <Clock className="h-10 w-10 text-medium-gray" />
-            </div>
-            <p className="text-lg">אין משימות פעילות כרגע</p>
-            <p className="text-sm mt-2">השלימו שיעור כדי לקבל משימות חדשות</p>
-          </div>
-        </div>
+        {/* Open Tasks Section - Removed since assignments moved to top */}
       </div>
     </div>
   );

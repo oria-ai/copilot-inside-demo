@@ -43,6 +43,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
         {
           id: 'lesson1',
           title: 'היכרות עם קופיילוט',
+          sidebarTitle: 'שיעור ראשון - היכרות עם קופיילוט',
           video: 'https://player.vimeo.com/video/1086753235?badge=0&autopause=0&player_id=0&app_id=58479',
           videoTitle: 'Intro To Copilot',
           activities: [
@@ -54,6 +55,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
         {
           id: 'lesson2',
           title: 'הנדסת פרומפטים',
+          sidebarTitle: 'שיעור שני - הנדסת פרומפטים',
           video: 'https://player.vimeo.com/video/1088062270?badge=0&autopause=0&player_id=0&app_id=58479',
           videoTitle: 'Prompt Enigneering',
           activities: [
@@ -65,6 +67,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
         {
           id: 'lesson3',
           title: 'קופיילוט עם Word',
+          sidebarTitle: 'שיעור שלישי - קופיילוט עם Word',
           video: 'https://player.vimeo.com/video/1090416363?badge=0&autopause=0&player_id=0&app_id=58479',
           videoTitle: 'Word 1 Restored Final',
           activities: [

@@ -24,6 +24,7 @@ interface Lesson {
   video: string;
   videoTitle: string;
   activities: Activity[];
+  sidebarTitle?: string;
 }
 
 interface Module {
@@ -117,7 +118,7 @@ const ModuleSidebar = ({
                 onClick={(event) => handleLessonHeaderClick(lesson.id, event)}
               >
                 <div className="text-right flex-1">
-                  <div className="font-semibold text-dark-gray">{lesson.title}</div>
+                  <div className="font-semibold text-dark-gray">{lesson.sidebarTitle || lesson.title}</div>
                   <div className="flex items-center gap-2 mt-1">
                     <div className="text-sm text-medium-gray">
                       {Math.round(userProgress.find(p => p.lessonId === lesson.id)?.percent ?? 0)}% הושלם

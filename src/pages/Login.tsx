@@ -73,7 +73,7 @@ const Login = ({ onLogin }: LoginProps) => {
             {error && <div className="text-red-500 text-center mb-2">{error}</div>}
             <TabsContent value="signin">
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
+                <div className="space-y-2 text-right">
                   <Label htmlFor="email">אימייל</Label>
                   <Input
                     id="email"
@@ -84,7 +84,7 @@ const Login = ({ onLogin }: LoginProps) => {
                     className="text-right"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 text-right">
                   <Label htmlFor="password">סיסמה</Label>
                   <Input
                     id="password"
@@ -102,7 +102,7 @@ const Login = ({ onLogin }: LoginProps) => {
             </TabsContent>
             <TabsContent value="signup">
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
+                <div className="space-y-2 text-right">
                   <Label htmlFor="signup-email">אימייל</Label>
                   <Input
                     id="signup-email"
@@ -113,7 +113,7 @@ const Login = ({ onLogin }: LoginProps) => {
                     className="text-right"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 text-right">
                   <Label htmlFor="signup-password">סיסמה</Label>
                   <Input
                     id="signup-password"
@@ -124,7 +124,7 @@ const Login = ({ onLogin }: LoginProps) => {
                     className="text-right"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 text-right">
                   <Label htmlFor="name">שם</Label>
                   <Input
                     id="name"
@@ -135,7 +135,7 @@ const Login = ({ onLogin }: LoginProps) => {
                     className="text-right"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 text-right">
                   <Label htmlFor="department">מחלקה</Label>
                   <Select onValueChange={(value) => handleInputChange('department', value)}>
                     <SelectTrigger className="text-right">
@@ -148,7 +148,7 @@ const Login = ({ onLogin }: LoginProps) => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 text-right">
                   <Label htmlFor="copilot-language">שפת קופיילוט</Label>
                   <Select onValueChange={(value) => handleInputChange('copilotLanguage', value)}>
                     <SelectTrigger className="text-right">
@@ -160,7 +160,7 @@ const Login = ({ onLogin }: LoginProps) => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 text-right">
                   <Label htmlFor="studying-language">שפת לימוד</Label>
                   <Select onValueChange={(value) => handleInputChange('studyingLanguage', value)}>
                     <SelectTrigger className="text-right">
@@ -172,19 +172,7 @@ const Login = ({ onLogin }: LoginProps) => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="role">תפקיד</Label>
-                  <Select onValueChange={(value) => handleInputChange('role', value)}>
-                    <SelectTrigger className="text-right">
-                      <SelectValue placeholder="בחר תפקיד" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="student">סטודנט</SelectItem>
-                      <SelectItem value="manager">מנהל</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button type="submit" className="w-full bg-green-600 hover:bg-green-700">
+                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
                   הירשם
                 </Button>
               </form>

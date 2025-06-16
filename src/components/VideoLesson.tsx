@@ -222,7 +222,7 @@ const VideoLesson = ({ videoUrl, videoTitle, lessonId, handleActivityComplete, o
                 </Button>
               </div>
               
-              <div className="flex flex-wrap gap-2 justify-center">
+              <div className="flex flex-wrap gap-2 justify-start">
                 {chapters.map((chapter) => (
                   <button
                     key={chapter.index}

@@ -350,11 +350,17 @@ const ClickTutor = ({ lessonId, handleActivityComplete, copilotLanguage }: Click
           </Button>
         </div>
       </ConfettiOverlay>
-
       <div className="p-8 max-w-4xl mx-auto">
-        {/* Centered Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-dark-gray mb-2">{currentStepConfig.stepHeader}</h1>
+        {/* Step Counter and Centered Header in a Row */}
+        <div className="flex items-center justify-between mb-8">
+          {/* Right: Step Circle */}
+          <div className="w-12 h-12" />
+          {/* Center: Header */}
+          <h1 className="flex-1 text-center text-2xl font-bold text-dark-gray mb-0">{currentStepConfig.stepHeader}</h1>
+          {/* Left: Placeholder for centering */}
+          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 text-lg font-bold text-gray-700">
+            {currentStep}/{totalSteps}
+          </div>
         </div>
 
         {/* Photo Section */}
@@ -528,11 +534,6 @@ const ClickTutor = ({ lessonId, handleActivityComplete, copilotLanguage }: Click
               </div>
             )}
           </div>
-        </div>
-
-        {/* Step Counter */}
-        <div className="text-center mb-4">
-          <p className="text-lg font-medium text-medium-gray">שלב {currentStep} מתוך {totalSteps}</p>
         </div>
 
         {/* Instructions */}

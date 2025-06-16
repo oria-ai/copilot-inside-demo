@@ -65,7 +65,7 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
     },
     {
       title: 'הוראות עבודה',
-      instructions: 'פתח מסמך וורד חדש, ובקש מקופיילוט ליצור עבורך סיכום מהתמלול.<br />עבור על המסמך כדי להבין את ההקשר, והקפד לשלוח לקופיילוט פרומפט מלא ומפורט.',
+      instructions: 'שמור את הקובץ בענן, כך שקופיילוט יוכל לגשת אליו.<br />פתח מסמך וורד חדש, ובקש מקופיילוט ליצור עבורך סיכום מהתמלול.<br />עבור על המסמך כדי להבין את ההקשר, והקפד לשלוח לקופיילוט פרומפט מלא ומפורט.',
       showDownload: false,
       showUpload: false
     },
@@ -250,12 +250,12 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
 
             {/* Upload step */}
             {cards[currentCard].showUpload && (
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 mb-2">
-                    בחר קובץ להעלאה:
-                  </label>
-                  <div className="flex items-center gap-2">
+              <div className="space-y-4 flex flex-col items-center">
+                <div className="w-full flex flex-col items-center">
+                  {/* <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 mb-2 text-center">
+                    העלה את קובץ הסיכום
+                  </label> */}
+                  <div className="flex items-center gap-2 justify-center">
                     <label
                       htmlFor="file-upload"
                       className="cursor-pointer px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md font-medium text-sm flex items-center gap-2"
@@ -277,7 +277,7 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
                 </div>
                 <Button
                   onClick={handleSubmit}
-                  className="w-fit px-4"
+                  className="w-fit px-4 mx-auto"
                   disabled={!uploadedFile}
                 >
                   {isLoading ? 'שולח...' : 'שלח קובץ'}

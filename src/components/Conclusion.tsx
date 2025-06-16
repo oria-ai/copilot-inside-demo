@@ -7,6 +7,36 @@ interface ConclusionProps {
   onConclusionComplete: (lessonId: string, rating: number) => Promise<void>;
 }
 
+const conclusions = {
+  'lesson1': {
+    title: 'היכרות עם קופיילוט',
+    content: [
+      '* למדנו איפה למצוא את קופיילוט, ואיך אנחנו "מפעילים" אותו באמצעות פרומפט',
+      '* למדנו מה זה בכלל פרומפט',
+      '* תרגלנו איך למצוא את ספריית הפרומפטים, עם המון פרומפטים מוכנים לשימוש לפי תפקיד',
+      '* ראינו שימושים נוספים לקופיילוט כמו יצירת תמונות, ניתוח תמונות ועבודה עם מסמכים'
+    ]
+  },
+  'lesson2': {
+    title: 'הנדסת פרומפטים',
+    content: [
+      '* למדנו מה הם 5 המרכיבים של פרומפט איכותי.',
+      '* למדנו להשתמש בבינה מלאכותית ליצירה ושיפור של פרומפט.',
+      '* למדנו להשתמש במאמן הפרומפטים של קופיילוט.'
+    ]
+  },
+  'lesson3': {
+    title: 'סיכום הקורס',
+    content: [
+      '* הכרנו את סביבת העבודה של קופיילוט.',
+      '* למדנו איך לכתוב פרומפט איכותי כדי לקבל את התוצאה הרצויה.',
+      '* ראינו איך לגשת לקופיילוט מתוך Word.',
+      '* למדנו איך קופיילוט יכול לשמש אותנו ליצירת טיוטה מ0.',
+      '* למדנו איך לתת לקופיילוט קבצים אחרים להתייחסות או לסיכום.'
+    ]
+  }
+};
+
 const Conclusion = ({ lessonId, onConclusionComplete }: ConclusionProps) => {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -29,27 +59,26 @@ const Conclusion = ({ lessonId, onConclusionComplete }: ConclusionProps) => {
     return isFilled ? 'text-yellow-400' : 'text-gray-300';
   };
 
+  const currentConclusion = conclusions[lessonId as keyof typeof conclusions] || conclusions['lesson1'];
+
   return (
     <Card className="!mb-0 !pb-0">
       <CardHeader>
-        <CardTitle>מה למדנו?</CardTitle>
+        <CardTitle>{currentConclusion.title}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {/* Conclusion content placeholder */}
           <div className="prose max-w-none text-right">
-            <h3>היכרות עם קופיילוט</h3>
-            <p>למדנו איפה למצוא את קופיילוט, ואיך אנחנו "מפעילים" אותו באמצעות פרומפט.
-              <br />
-              למדנו מה זה בכלל פרומפט.
-              <br />
-              תרגלנו איך למצוא את ספריית הפרומפטים, עם המון פרומפטים מוכנים לשימוש לפי תפקיד.
-              <br />
-              ראינו שימושים נוספים לקופיילוט כמו יצירת תמונות, ניתוח תמונות ועבודה עם מסמכים.
-            </p>
+            <ul className="list-none space-y-2">
+              {currentConclusion.content.map((item, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <span className="text-blue-600">•</span>
+                  <span>{item.replace('* ', '')}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Rating section */}
           <div className="border-t pt-6">
             <div className="text-center space-y-4">
               <p className="text-lg font-medium">עד כמה הבנת את הנושא?</p>

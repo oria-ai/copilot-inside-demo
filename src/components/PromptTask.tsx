@@ -174,9 +174,8 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
           {step === 'american' && (
             <div className="space-y-4">
               <div className="block text-sm font-medium text-gray-700 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: `
-                כעת נתרגל ניסוח של פרומפט מפורט ואיכותי.<br />
-                נסה להיזכר במקרה שבו סיימת פגישה, ורצית לשלוח מייל סיכום למשתתפים או לבעלי תפקידים אחרים.<br />
-                (אם לא, נסה לדמיין מקרה כזה).<br />
+                <strong>רקע</strong><br />
+                בדיוק סיימת פגישה, ואתה רוצה לשלוח מייל סיכום למשתתפים עם פירוט המשימות של כל אחד.<br />
                 כתבת לקופיילוט את הפרומפט הבא, אבל קיבלת תוצאה כללית ומאכזבת:<br />
                 `}} />
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-2 w-3/5 text-right">

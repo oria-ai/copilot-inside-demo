@@ -368,7 +368,6 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-white">{currentModule.title}</h1>
-            <p className="text-white/90">יסודות השימוש ב-Copilot</p>
           </div>
         </div>
       </header>

@@ -96,7 +96,7 @@ const ModuleSidebar = ({
             <div className="flex flex-row justify-between items-center">
               {/* Right side: title and % */}
               <div className="flex flex-col items-start text-right">
-                <h3 className="text-xl font-bold mb-1">{currentModule.title}</h3>
+                <h3 className="text-xl font-bold mb-1">התקדמות בקורס</h3>
                 <span className="text-sm text-white/90">{Math.round(getModuleProgress())}% הושלם</span>
               </div>
               {/* Left side: circle */}

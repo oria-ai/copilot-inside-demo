@@ -339,6 +339,7 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
             handleActivityComplete={handleActivityComplete}
             onNext={goToNext}
             lessonDisplayName={lesson.title}
+            showChapters={true}
           />
         );
       case 'tutor':

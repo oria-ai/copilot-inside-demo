@@ -61,7 +61,7 @@ const Login = ({ onLogin }: LoginProps) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4" dir="rtl">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-800">פלטפורמה דיגיטלית</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-800">Copilot Inside</CardTitle>
           <p className="text-gray-600">התחברות למערכת הלמידה</p>
         </CardHeader>
         <CardContent>

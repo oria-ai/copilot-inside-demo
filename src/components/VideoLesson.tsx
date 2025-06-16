@@ -211,7 +211,7 @@ const VideoLesson = ({ videoUrl, videoTitle, lessonId, handleActivityComplete, o
           {showChapterNav && chapters.length > 0 && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-gray-800">פרקי הסרטון ({chapters.length})</h3>
+                <h3 className="font-semibold text-gray-800">פרקים ({chapters.length})</h3>
                 <Button
                   variant="ghost"
                   size="sm"

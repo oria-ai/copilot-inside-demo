@@ -39,7 +39,7 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
 
   const moduleData = {
     basics: {
-      title: 'יסודות',
+      title: 'יסודות השימוש בקופיילוט',
       lessons: [
         {
           id: 'lesson1',
@@ -49,7 +49,7 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
           videoTitle: 'Intro To Copilot',
           activities: [
             { id: 'video', title: 'מבוא', completed: true },
-            { id: 'tutor', title: 'הדרכה טכנית', completed: true },
+            { id: 'tutor', title: 'תרגול טכני', completed: true },
             { id: 'conclusion', title: 'סיכום', completed: false }
           ]
         },

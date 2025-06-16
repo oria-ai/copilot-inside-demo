@@ -35,7 +35,7 @@ const configH: StepConfig[] = [
     instructions: 'נכנסנו לקופיילוט, בחר ב"עבודה"',
     clickArea: { top: '42%', left: '52%', width: '26%', height: '31%' },
     bg: 'n',
-    stepHeader: 'בצע את ההוראה הבאה',
+    stepHeader: 'בכניסה לקופיילוט, בחר ב"עבודה"',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
   {
@@ -55,7 +55,7 @@ const configH: StepConfig[] = [
     instructions: 'לחץ "הראה עוד"',
     clickArea: { top: '73%', left: '8%', width: '9%', height: '6%' },
     bg: 'n',
-    stepHeader: 'לחץ "הראה עוד"',
+    stepHeader: 'עכשיו נמצא את ספריית הפרומפטים. לחץ "הצג יותר"',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
   {
@@ -73,7 +73,7 @@ const configH: StepConfig[] = [
     instructions: 'פתח את התפקיד ובחר מכירות',
     clickArea: { top: '30%', left: '47%', width: '19%', height: '5%' },
     bg: 'n',
-    stepHeader: 'פתח את "סוג משימה" ובחר "טכנולוגיית מידע"',
+    stepHeader: 'פתח את "סוג משימה" ובחר "טכנולוגיית מידע".',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
   {
@@ -82,7 +82,7 @@ const configH: StepConfig[] = [
     instructions: 'פתח את התפקיד ובחר מכירות',
     clickArea: { top: '59%', left: '48%', width: '18%', height: '5%' },
     bg: 'n',
-    stepHeader: 'פתח את "סוג משימה" ובחר "טכנולוגיית מידע"',
+    stepHeader: 'פתח את "סוג משימה" ובחר "טכנולוגיית מידע".',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   }
 ];
@@ -301,7 +301,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete, copilotLanguage }: Click
       <Dialog open={startDialogOpen} onOpenChange={setStartDialogOpen}>
         <DialogContent className="text-right max-w-md" dir="rtl">
           <DialogHeader className="items-center text-center">
-            <DialogTitle className="w-full text-center">התחלת משימה</DialogTitle>
+            <DialogTitle className="w-full text-center">הנחיות למשימה</DialogTitle>
           </DialogHeader>
           <div className="py-4 flex flex-col items-center">
             <p className="text-center">לפניך מדריך טכני שנועד לוודא שאתה יודע איך לבצע את מה שלמדנו בשיעור. כדי להתקדם, עליך ללחוץ על האזור הנכון בתמונה.</p>
@@ -330,7 +330,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete, copilotLanguage }: Click
           </h2>
           <p className="text-lg mb-6">
             {currentStep === 2 
-              ? 'עכשיו אתה יודע איך לשוחח עם קופיילוט. בוא נמצא יחד את ספריית הפרומפטים.'
+              ? 'עכשיו אתה יודע איך לשוחח עם קופיילוט. כעת נלמד למצוא את ספריית הפרומפטים.'
               : 'סיימת בהצלחה את כל השלבים! נעבור לסיכום השיעור.'
             }
           </p>

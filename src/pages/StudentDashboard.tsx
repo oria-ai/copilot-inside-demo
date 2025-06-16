@@ -56,9 +56,8 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
   const modules = [
     {
       id: 'basics',
-      title: 'יסודות',
+      title: 'יסודות השימוש בקופיילוט',
       progress: overallProgress,
-      description: 'יסודות השימוש בקופיילוט',
       lessons: totalLessons,
       completedLessons: completedLessons
     }
@@ -87,8 +86,8 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
       <header className="bg-gradient-turquoise shadow-soft border-b-0 px-6 py-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">ברוכים הבאים לקורס קופיילוט 2.0</h1>
-            <p className="text-white/90">קורס אינטראקטיבי ב-Copilot שמביא אתכם לעבודה מעשית עם AI</p>
+            <h1 className="text-3xl font-bold text-white mb-2">ברוכים הבאים לקורס Copilot Inside</h1>
+            <p className="text-white/90">קורס מבוסס AI על מייקרוסופט קופיילוט, שיעזור לכם להספיק 20% יותר בעבודה</p>
           </div>
           <div className="bg-white/20 backdrop-blur-sm rounded-3xl px-6 py-4 text-white flex items-center justify-between gap-4">
             <div className="flex-1">
@@ -115,7 +114,7 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
           <div className="flex-1 flex flex-col">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-dark-gray mb-2">הקורסים שלי</h2>
-              <p className="text-medium-gray">התחילו את המסע שלכם לעולם ה-AI</p>
+              <p className="text-medium-gray">התחילו את המסע שלכם בעולם ה-AI</p>
             </div>
             <div className="space-y-6 flex-1 flex flex-col">
               {modules.map((module) => (
@@ -160,8 +159,8 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
           {/* My Assignments - Left Side (now on the right) */}
           <div className="flex-1 flex flex-col">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-dark-gray mb-2">המשימות שלי</h2>
-              <p className="text-medium-gray">משימות שהוגשו וקיבלו משובים</p>
+              <h2 className="text-2xl font-bold text-dark-gray mb-2">ההגשות שלי</h2>
+              <p className="text-medium-gray">משימות שהוגשו וקיבלו משוב</p>
             </div>
             <div className="space-y-4 flex-1 flex flex-col">
               {assignments.map((assignment) => (
@@ -195,7 +194,7 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
                     <div className="bg-white rounded-2xl p-4 border-2 border-green/20 cursor-pointer" onClick={() => { setModalType('feedback'); setModalOpen(true); }}>
                       <div className="flex items-center gap-2 mb-2">
                         <MessageSquare className="h-4 w-4 text-green" />
-                        <h4 className="font-semibold text-dark-gray">משוב AI:</h4>
+                        <h4 className="font-semibold text-dark-gray">משוב :</h4>
                       </div>
                       <div className="text-sm text-medium-gray leading-relaxed">
                         {/* Render only a preview of the feedback (strip HTML tags for preview) */}
@@ -253,7 +252,7 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
           <div className="relative bg-white rounded-3xl shadow-xl max-w-lg w-full mx-auto p-8 z-50" dir="rtl">
             <button onClick={() => setModalOpen(false)} className="absolute left-4 top-4 text-gray-400 hover:text-gray-600 text-2xl">×</button>
             <h2 className="text-2xl font-bold mb-4 text-dark-gray">
-              {modalType === 'prompt' ? 'הוראות המשימה' : 'משוב AI'}
+              {modalType === 'prompt' ? 'הפרומפט שלי' : 'משוב AI על המשימה'}
             </h2>
             <div className="prose prose-sm max-w-none text-gray-700" style={{ direction: 'rtl' }}>
               {modalType === 'prompt' ? (

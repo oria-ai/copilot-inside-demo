@@ -53,10 +53,6 @@ const Conclusion = ({ lessonId, onConclusionComplete, onBack }: ConclusionProps)
       await onConclusionComplete(lessonId, rating);
       if (isLastLesson) {
         setShowConfetti(true);
-      } else {
-        // For non-last lessons, just continue to next lesson
-        const event = new CustomEvent('goToConclusion', { detail: { lessonId } });
-        window.dispatchEvent(event);
       }
     } catch (error) {
       console.error('Error completing conclusion:', error);

@@ -246,14 +246,14 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
   };
 
   const handleConclusionComplete = useCallback(async (lessonId: string, rating: number) => {
-    // Save progress first
+    // Save progress for the current lesson's conclusion
     await fetch(`${api}/progress`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, lessonId, percent: 100, lastActivity: 'conclusion', lastStep: 1 })
     });
     
-    // Then navigate to next lesson
+    // Then navigate to next lesson's video (not conclusion)
     const next = getNextActivity(lessonId, 'conclusion');
     if (next) {
       // Refresh progress and navigate
@@ -262,8 +262,7 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
         const data = await res.json();
         setUserProgress(data);
       }
-      
-      // Navigate to next lesson's video
+      // Always start at the video of the next lesson if moving to a new lesson
       if (next.lessonId !== lessonId) {
         setLessonAndDefaultActivity(next.lessonId);
       } else {

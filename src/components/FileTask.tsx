@@ -20,11 +20,31 @@ import {
   Loader2
 } from 'lucide-react';
 
+// Hardcoded feedback for the file task
+const HARDCODED_FEEDBACK = `
+<p class="mb-4"><b>פידבק על ההגשה – סיכום קובץ באמצעות Copilot:</b></p>
+<ul class="list-disc list-inside mb-4 space-y-1">
+  <li class="mb-1">✅ <b>חוזקות:</b></li>
+  <ul class="list-disc list-inside mb-4 space-y-1">
+    <li class="mb-1">שימוש מוצלח ב-Copilot להפקת סיכום תמציתי.</li>
+    <li class="mb-1">המבנה ברור והמעבר בין רעיונות הגיוני.</li>
+  </ul>
+  <li class="mb-1">⚠️ <b>נקודות לשיפור:</b></li>
+  <ul class="list-disc list-inside mb-4 space-y-1">
+    <li class="mb-1">הסיכום משמיט חלקים חשובים כמו המשימה של עידו, כנראה עקב תלות יתר בכלי.</li>
+    <li class="mb-1">חלק מהניסוחים כלליים מדי ולא מפרטים את עיקרי התוכן.</li>
+    <li class="mb-1">מופיעה חזרתיות קלה בסיום.</li>
+  </ul>
+</ul>
+<p class="mb-4">🛠️ <b>המלצה:</b><br>השתמש ב-Copilot כבסיס, אך הקפד לעבור ידנית ולוודא דיוק, עומק וייצוג מלא של הרעיונות המרכזיים.</p>
+`;
+
 interface FileTaskProps {
   lessonId: string;
+  handleActivityComplete?: (lessonId: string, progress: number) => void;
 }
 
-const FileTask = ({ lessonId }: FileTaskProps) => {
+const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
   const [currentCard, setCurrentCard] = useState(0);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [showPopup, setShowPopup] = useState(false);
@@ -33,6 +53,7 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
   const [systemPrompt, setSystemPrompt] = useState('');
   const [showHow1, setShowHow1] = useState(false);
   const [showHow2, setShowHow2] = useState(false);
+  const [showContinue, setShowContinue] = useState(false);
 
   // Slides content
   const cards = [
@@ -103,53 +124,17 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
   /*   Submit to Worker                                 */
   /* -------------------------------------------------- */
   const handleSubmit = async () => {
-    if (!uploadedFile) {
-      alert('אנא העלה קובץ');
-      return;
-    }
-    if (!systemPrompt) {
-      alert('שגיאה בטעינת המערכת. אנא רענן את העמוד.');
-      return;
-    }
-
     setIsLoading(true);
-    setShowPopup(true);
     setFeedback('');
-
-    try {
-      /* fetch the reference transcript as a Blob */
-      const referenceRes = await fetch('/task2reference.txt');
-      if (!referenceRes.ok) throw new Error('Failed to load reference transcript');
-      const referenceText = await referenceRes.text();
-      const referenceFile = new File([
-        new Blob([referenceText], { type: 'text/plain;charset=utf-8' })
-      ], 'task2reference.txt', { type: 'text/plain' });
-
-      /* build form‑data */
-      const formData = new FormData();
-      formData.append('systemPrompt', systemPrompt);
-      formData.append('userFile', uploadedFile);
-      formData.append('referenceFile', referenceFile);
-
-      const response = await fetch('https://copilot-file.oria-masas-ai.workers.dev/', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
-      const data = await response.json();
-      setFeedback(data.response || 'הקובץ נבדק בהצלחה');
-    } catch (err) {
-      console.error('Error uploading file:', err);
-      setFeedback('אירעה שגיאה בבדיקת הקובץ. אנא נסה שוב.');
-    } finally {
-      setIsLoading(false);
+    // Simulate a 2-second delay to show "sending" state
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setFeedback(HARDCODED_FEEDBACK);
+    setShowContinue(true);
+    setIsLoading(false);
+    // Mark the file task as complete (90% progress for file activities)
+    if (handleActivityComplete) {
+      handleActivityComplete(lessonId, 90);
     }
-  };
-
-  const handleResubmit = () => {
-    setShowPopup(false);
-    setFeedback('');
   };
 
   const handleSkip = useCallback(() => {
@@ -290,26 +275,37 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
                     )}
                   </div>
                 </div>
-
                 <Button
                   onClick={handleSubmit}
-                  className="w-full max-w-xs mx-auto"
+                  className="w-fit px-4"
                   disabled={!uploadedFile}
                 >
-                  שלח קובץ
+                  {isLoading ? 'שולח...' : 'שלח קובץ'}
                 </Button>
+                {feedback && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">
+                    <h4 className="font-semibold mb-3 text-lg">משוב:</h4>
+                    <div
+                      className="text-gray-700 prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900"
+                      dangerouslySetInnerHTML={{ __html: feedback }}
+                    />
+                    {showContinue && (
+                      <Button onClick={handleSkip} variant="outline" className="mt-4">המשך</Button>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
-          <div className="text-center">
-        <Button
-          variant="outline"
-          onClick={handleSkip}
-          className="px-8 py-3 rounded-2xl border-2 border-primary-turquoise text-primary-turquoise hover:bg-primary-turquoise hover:text-white transition-all duration-300 w-40 mx-auto"
-        >
-          דלג לסיכום
-        </Button>
-      </div>
+          <div className="text-center mt-8">
+            <Button
+              variant="outline"
+              onClick={handleSkip}
+              className="px-8 py-3 rounded-2xl border-2 border-primary-turquoise text-primary-turquoise hover:bg-primary-turquoise hover:text-white transition-all duration-300 w-fit"
+            >
+              דלג לסיכום
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
@@ -317,7 +313,7 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
 
 
       {/* Feedback popup */}
-      <Dialog open={showPopup} onOpenChange={setShowPopup}>
+      {/* <Dialog open={showPopup} onOpenChange={setShowPopup}>
         <DialogContent className="text-right max-w-md flex flex-col items-center" dir="rtl" style={{ maxHeight: '80vh' }}>
           <DialogHeader className="items-center w-full">
             <DialogTitle className="w-full text-center">תוצאות בדיקת הקובץ</DialogTitle>
@@ -347,7 +343,7 @@ const FileTask = ({ lessonId }: FileTaskProps) => {
             )}
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 };

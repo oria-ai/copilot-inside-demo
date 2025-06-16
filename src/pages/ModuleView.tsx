@@ -346,7 +346,7 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
       case 'prompt':
         return <PromptTask lessonId={lessonState.lessonId} onNext={goToNext} handleActivityComplete={handleActivityComplete} />;
       case 'file':
-        return <FileTask lessonId={lessonState.lessonId} />;
+        return <FileTask lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} />;
       case 'conclusion':
         return <Conclusion lessonId={lessonState.lessonId} onConclusionComplete={handleConclusionComplete} />;
       default:

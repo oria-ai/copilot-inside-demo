@@ -71,10 +71,11 @@ const ManagerDashboard = ({ userData, onBack }: ManagerDashboardProps) => {
   ];
 
   const workers = [
-    { id: '1', name: 'יוסי כהן', division: 'development' },
-    { id: '2', name: 'שרה לוי', division: 'management' },
-    { id: '3', name: 'דוד ישראלי', division: 'development' },
-    { id: '4', name: 'נועה דיגיטל', division: 'digital' }
+    { id: '1', name: 'ירון קרלינסקי', division: 'development' },
+    { id: '2', name: 'שיר אליגור', division: 'management' },
+    { id: '3', name: 'אוריה מסס', division: 'development' },
+    { id: '4', name: 'נועם לאון', division: 'digital' },
+    { id: '5', name: 'שקד הראל', division: 'digital' },
   ];
 
   const toggleModuleLock = (divisionId: string, moduleId: string) => {

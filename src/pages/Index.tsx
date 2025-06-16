@@ -3,13 +3,14 @@ import Login from './Login';
 import StudentDashboard from './StudentDashboard';
 import ManagerDashboard from './ManagerDashboard';
 import ModuleView from './ModuleView';
+import type { UserData } from './StudentDashboard';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<'login' | 'student' | 'manager' | 'module'>('login');
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [currentModule, setCurrentModule] = useState<string>('');
 
-  const handleLogin = (data: any) => {
+  const handleLogin = (data: UserData) => {
     setUserData(data);
     setCurrentView(data.role === 'manager' ? 'manager' : 'student');
   };
@@ -33,7 +34,7 @@ const Index = () => {
   }
 
   if (currentView === 'student') {
-    return <StudentDashboard userData={userData} onModuleClick={handleModuleClick} />;
+    return <StudentDashboard userData={userData} onModuleClick={handleModuleClick} onLogout={handleLogout} />;
   }
 
   if (currentView === 'manager') {
@@ -41,7 +42,7 @@ const Index = () => {
   }
 
   if (currentView === 'module') {
-    return <ModuleView moduleId={currentModule} userId={userData?.id || userData?.email} onBack={handleBackToDashboard} />;
+    return <ModuleView moduleId={currentModule} userId={userData?.id || userData?.email} copilotLanguage={userData?.copilotLanguage || 'hebrew'} onBack={handleBackToDashboard} />;
   }
 
   return null;

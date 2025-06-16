@@ -17,14 +17,136 @@ interface StepConfig {
   };
   hasInput?: boolean;
   inputPlaceholder?: string;
+  bg: 'y' | 'n';
+  stepHeader: string;
+  stepInstruction: string;
 }
 
 interface ClickTutorProps {
   lessonId: string;
   handleActivityComplete: (lessonId: string, progress: number, understandingRating?: number, lastActivity?: string, lastStep?: number) => void;
+  copilotLanguage: string;
 }
 
-const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
+const configH: StepConfig[] = [
+  {
+    stepNumber: 1,
+    imageName: `1-3.png`,
+    instructions: 'נכנסנו לקופיילוט, בחר ב"עבודה"',
+    clickArea: { top: '42%', left: '52%', width: '26%', height: '31%' },
+    bg: 'n',
+    stepHeader: 'בצע את ההוראה הבאה',
+    stepInstruction: 'לחץ על האזור הנכון בתמונה',
+  },
+  {
+    stepNumber: 2,
+    imageName: `1-4-h.png`,
+    instructions: 'כתוב לקופיילוט פרומפט קצר ושלח',
+    clickArea: { top: '36%', left: '28.5%', width: '65%', height: '9%' },
+    hasInput: true,
+    inputPlaceholder: '',
+    bg: 'n',
+    stepHeader: 'כתוב לקופיילוט פרומפט קצר ושלח',
+    stepInstruction: 'לחץ על האזור הנכון בתמונה',
+  },
+  {
+    stepNumber: 3,
+    imageName: `1-4-h.png`,
+    instructions: 'לחץ "הראה עוד"',
+    clickArea: { top: '73%', left: '8%', width: '9%', height: '6%' },
+    bg: 'n',
+    stepHeader: 'לחץ "הראה עוד"',
+    stepInstruction: 'לחץ על האזור הנכון בתמונה',
+  },
+  {
+    stepNumber: 4,
+    imageName: `1-6-h.png`,
+    instructions: 'לחץ "Prompt Gallery"',
+    clickArea: { top: '82.5%', left: '16%', width: '10%', height: '6%' },
+    bg: 'n',
+    stepHeader: 'לחץ "גלריית ההנחיות"',
+    stepInstruction: 'לחץ על האזור הנכון בתמונה',
+  },
+  {
+    stepNumber: 5,
+    imageName: `1-7-h.png`,
+    instructions: 'פתח את התפקיד ובחר מכירות',
+    clickArea: { top: '30%', left: '47%', width: '19%', height: '5%' },
+    bg: 'n',
+    stepHeader: 'פתח את "סוג משימה" ובחר "טכנולוגיית מידע"',
+    stepInstruction: 'לחץ על האזור הנכון בתמונה',
+  },
+  {
+    stepNumber: 6,
+    imageName: `1-8-h.png`,
+    instructions: 'פתח את התפקיד ובחר מכירות',
+    clickArea: { top: '59%', left: '48%', width: '18%', height: '5%' },
+    bg: 'n',
+    stepHeader: 'פתח את "סוג משימה" ובחר "טכנולוגיית מידע"',
+    stepInstruction: 'לחץ על האזור הנכון בתמונה',
+  }
+];
+
+const configE: StepConfig[] = [
+  {
+    stepNumber: 1,
+    imageName: `1-3.png`,
+    instructions: 'Entered Copilot, select "Work"',
+    clickArea: { top: '42%', left: '52%', width: '26%', height: '31%' },
+    bg: 'y',
+    stepHeader: 'Follow the instruction below',
+    stepInstruction: 'Click the correct area in the image',
+  },
+  {
+    stepNumber: 2,
+    imageName: `1-4-e.png`,
+    instructions: 'Write a short prompt to Copilot and send',
+    clickArea: { top: '36%', left: '28.5%', width: '65%', height: '9%' },
+    hasInput: true,
+    inputPlaceholder: '',
+    bg: 'n',
+    stepHeader: 'Follow the instruction below',
+    stepInstruction: 'Click the correct area in the image',
+  },
+  {
+    stepNumber: 3,
+    imageName: `1-4-e.png`,
+    instructions: 'Click "See more"',
+    clickArea: { top: '73%', left: '83%', width: '9%', height: '6%' },
+    bg: 'y',
+    stepHeader: 'בצע את ההוראה הבאה',
+    stepInstruction: 'לחץ על האזור הנכון בתמונה',
+  },
+  {
+    stepNumber: 4,
+    imageName: `1-6-e.png`,
+    instructions: 'Click "Prompt Gallery"',
+    clickArea: { top: '82%', left: '75%', width: '10%', height: '6%' },
+    bg: 'y',
+    stepHeader: 'בצע את ההוראה הבאה',
+    stepInstruction: 'לחץ על האזור הנכון בתמונה',
+  },
+  {
+    stepNumber: 5,
+    imageName: `1-7-e.png`,
+    instructions: 'Open the role and select Sales',
+    clickArea: { top: '30%', left: '34%', width: '19%', height: '5%' },
+    bg: 'y',
+    stepHeader: 'בצע את ההוראה הבאה',
+    stepInstruction: 'לחץ על האזור הנכון בתמונה',
+  },
+  {
+    stepNumber: 6,
+    imageName: `1-8-e.png`,
+    instructions: 'Open the role and select Sales',
+    clickArea: { top: '54%', left: '34%', width: '6%', height: '5%' },
+    bg: 'y',
+    stepHeader: 'בצע את ההוראה הבאה',
+    stepInstruction: 'לחץ על האזור הנכון בתמונה',
+  }
+];
+
+const ClickTutor = ({ lessonId, handleActivityComplete, copilotLanguage }: ClickTutorProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [inputValue, setInputValue] = useState('');
   const [showInput, setShowInput] = useState(false);
@@ -37,56 +159,21 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
   const baseProgress = 50; // After video
   const stepIncrement = 40 / totalSteps; // ≈6.67 per step
 
-  // ===== STEP CONFIGURATION - EDIT HERE =====
-  const stepConfigs: StepConfig[] = [
-    {
-      stepNumber: 1,
-      imageName: `1-3.png`,
-      instructions: 'נכנסנו לקופיילוט, בחר ב"עבודה"',
-      clickArea: { top: '42%', left: '52%', width: '26%', height: '31%' }
-    },
-    {
-      stepNumber: 2,
-      imageName: `1-4-e.png`,
-      instructions: 'כתוב לקופיילוט פרומפט קצר ושלח',
-      clickArea: { top: '36%', left: '28.5%', width: '65%', height: '9%' },
-      hasInput: true,
-      inputPlaceholder: ''
-    },
-    {
-      stepNumber: 3,
-      imageName: `1-4-e.png`,
-      instructions: 'לחץ "See more"',
-      clickArea: { top: '73%', left: '83%', width: '9%', height: '6%' }
-    },
-    {
-      stepNumber: 4,
-      imageName: `1-6-e.png`,
-      instructions: 'לחץ "Prompt Gallery"',
-      clickArea: { top: '82%', left: '75%', width: '10%', height: '6%' }
-    },
-    {
-      stepNumber: 5,
-      imageName: `1-7-e.png`,
-      instructions: 'פתח את התפקיד ובחר מכירות',
-      clickArea: { top: '30%', left: '34%', width: '19%', height: '5%' }
-    },
-    {
-      stepNumber: 6,
-      imageName: `1-8-e.png`,
-      instructions: 'פתח את התפקיד ובחר מכירות',
-      clickArea: { top: '54%', left: '34%', width: '6%', height: '5%' }
-    }
-  ];
-  // ===== END STEP CONFIGURATION =====
-
+  // Select config based on copilotLanguage
+  const stepConfigs = copilotLanguage === 'hebrew' ? configH : configE;
   const currentStepConfig = stepConfigs[currentStep - 1];
 
   // Helper to parse percentage string to number
   const percentToNumber = (percent: string) => parseFloat(percent.replace('%', '')) / 100;
 
   // For step 2, determine which image to show based on input focus or value
-  const step2Image = currentStep === 2 && (isInputFocused || inputValue.trim() !== '') ? '1-4-1-e.png' : currentStepConfig.imageName;
+  const step2Image = (() => {
+    if (currentStep === 2 && (isInputFocused || inputValue.trim() !== '')) {
+      if (copilotLanguage === 'hebrew') return '1-4-1-h.png';
+      return '1-4-1-e.png';
+    }
+    return currentStepConfig.imageName;
+  })();
 
   // Handle escape key to close confetti
   useEffect(() => {
@@ -125,6 +212,17 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
 
   // Handler for clicking anywhere on the image
   const handleImageClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    // In step 2, if input is focused or has text, do nothing (except for the send button, which is handled separately)
+    if (
+      currentStep === 2 &&
+      (isInputFocused || inputValue.trim() !== '')
+    ) {
+      return;
+    }
+    // In step 2, if input is empty, do nothing
+    if (currentStep === 2 && inputValue.trim() === '') {
+      return;
+    }
     // Get bounding rect of the image wrapper
     const wrapper = e.currentTarget;
     const rect = wrapper.getBoundingClientRect();
@@ -189,6 +287,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
 
   const handleSendButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // Only proceed if input is not empty
     if (inputValue.trim() === '') return;
     console.log('Send button clicked in step 2, showing confetti');
     setShowConfetti(true);
@@ -255,7 +354,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
       <div className="p-8 max-w-4xl mx-auto">
         {/* Centered Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-dark-gray mb-2">{currentStepConfig.instructions}</h1>
+          <h1 className="text-2xl font-bold text-dark-gray mb-2">{currentStepConfig.stepHeader}</h1>
         </div>
 
         {/* Photo Section */}
@@ -272,7 +371,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
             }}
           >
             <img
-              src={`/${currentStep === 2 ? step2Image : currentStepConfig.imageName}`}
+              src={step2Image}
               alt={`Step ${currentStep}`}
               className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
               onError={e => {
@@ -288,67 +387,133 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
                   top: currentStepConfig.clickArea.top,
                   left: currentStepConfig.clickArea.left,
                   width: currentStepConfig.clickArea.width,
-                  height: currentStepConfig.clickArea.height
+                  height: currentStepConfig.clickArea.height,
+                  background: currentStepConfig.bg === 'y' ? 'rgba(255,0,0,0.3)' : 'transparent',
+                  borderRadius: '8px',
+                  border: currentStepConfig.bg === 'y' ? '2px solid red' : 'none',
+                  zIndex: 10
                 }}
               />
             )}
             {/* Step 2: Overlay invisible input and send button */}
             {currentStep === 2 && (
               <>
-                <input
-                  type="text"
-                  dir="ltr"
-                  value={inputValue}
-                  onChange={e => setInputValue(e.target.value)}
-                  placeholder={currentStepConfig.inputPlaceholder}
-                  style={{
-                    position: 'absolute',
-                    left: '29%',
-                    top: '36%',
-                    width: '65%',
-                    height: '9%',
-                    fontFamily: 'ginto',
-                    fontSize: '1em',
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#333',
-                    caretColor: '#333',
-                    outline: 'none',
-                    padding: '0 8px',
-                    zIndex: 20,
-                    cursor: isInputFocused ? 'text' : 'pointer',
-                  }}
-                  onClick={e => {
-                    e.stopPropagation();
-                    setIsInputFocused(true);
-                  }}
-                  onBlur={() => setIsInputFocused(false)}
-                  autoFocus={false}
-                  onFocus={e => e.stopPropagation()}
-                  tabIndex={0}
-                />
-                <button
-                  type="button"
-                  style={{
-                    position: 'absolute',
-                    left: '88.5%',
-                    top: '45%',
-                    width: '4%',
-                    height: '6%',
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'transparent',
-                    fontWeight: 600,
-                    fontSize: '1em',
-                    cursor: inputValue.trim() !== '' ? 'pointer' : 'not-allowed',
-                    opacity: 0,
-                    zIndex: 21,
-                  }}
-                  disabled={inputValue.trim() === ''}
-                  onClick={handleSendButtonClick}
-                >
-                  {/* No text */}
-                </button>
+                {copilotLanguage === 'hebrew' ? (
+                  // ---- HEBREW INPUT POSITION: Edit style here for Hebrew ----
+                  <input
+                    type="text"
+                    dir="rtl"
+                    value={inputValue}
+                    onChange={e => setInputValue(e.target.value)}
+                    placeholder={currentStepConfig.inputPlaceholder}
+                    style={{
+                      position: 'absolute',
+                      left: '8%',
+                      top: '36%',
+                      width: '63%',
+                      height: '9%',
+                      fontFamily: 'ginto',
+                      fontSize: '1em',
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#333',
+                      caretColor: '#333',
+                      outline: 'none',
+                      padding: '0 8px',
+                      zIndex: 20,
+                      cursor: 'pointer',
+                    }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setIsInputFocused(true);
+                    }}
+                    onBlur={() => setIsInputFocused(false)}
+                    autoFocus={false}
+                    onFocus={e => e.stopPropagation()}
+                    tabIndex={0}
+                  />
+                ) : (
+                  // ---- ENGLISH INPUT POSITION: Edit style here for English ----
+                  <input
+                    type="text"
+                    dir="ltr"
+                    value={inputValue}
+                    onChange={e => setInputValue(e.target.value)}
+                    placeholder={currentStepConfig.inputPlaceholder}
+                    style={{
+                      position: 'absolute',
+                      left: '29%',
+                      top: '36%',
+                      width: '65%',
+                      height: '9%',
+                      fontFamily: 'ginto',
+                      fontSize: '1em',
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#333',
+                      caretColor: '#333',
+                      outline: 'none',
+                      padding: '0 8px',
+                      zIndex: 20,
+                      cursor: 'pointer',
+                    }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setIsInputFocused(true);
+                    }}
+                    onBlur={() => setIsInputFocused(false)}
+                    autoFocus={false}
+                    onFocus={e => e.stopPropagation()}
+                    tabIndex={0}
+                  />
+                )}
+                {copilotLanguage === 'hebrew' ? (
+                  // ---- HEBREW BUTTON POSITION: Edit style here for Hebrew ----
+                  <button
+                    type="button"
+                    style={{
+                      position: 'absolute',
+                      left: '8%',
+                      top: '45%',
+                      width: '4%',
+                      height: '6%',
+                      background: 'red',
+                      border: 'none',
+                      color: 'red',
+                      fontWeight: 600,
+                      fontSize: '1em',
+                      cursor: 'pointer',
+                      opacity: 0,
+                      zIndex: 21,
+                    }}
+                    onClick={handleSendButtonClick}
+                  >
+                    {/* No text */}
+                  </button>
+                ) : (
+                  // ---- ENGLISH BUTTON POSITION: Edit style here for English ----
+                  <button
+                    type="button"
+                    style={{
+                      position: 'absolute',
+                      left: '88.5%',
+                      top: '45%',
+                      width: '4%',
+                      height: '6%',
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'transparent',
+                      fontWeight: 600,
+                      fontSize: '1em',
+                      cursor: 'pointer',
+                      opacity: 0,
+                      zIndex: 21,
+                    }}
+                    onClick={handleSendButtonClick}
+                  >
+                    {/* No text */}
+                  </button>
+                )}
               </>
             )}
             {showInput && currentStepConfig.hasInput && currentStep !== 2 && (
@@ -372,7 +537,7 @@ const ClickTutor = ({ lessonId, handleActivityComplete }: ClickTutorProps) => {
 
         {/* Instructions */}
         <div className="text-center mb-8">
-          <p className="text-xl font-medium text-dark-gray">לחץ על האזור הנכון בתמונה</p>
+          <p className="text-xl font-medium text-dark-gray">{currentStepConfig.stepInstruction}</p>
         </div>
 
         {/* Skip Button */}

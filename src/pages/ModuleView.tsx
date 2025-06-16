@@ -14,6 +14,7 @@ interface ModuleViewProps {
   moduleId: string;
   userId: string;
   onBack: () => void;
+  copilotLanguage: string;
 }
 
 const api = 'http://localhost:4000';
@@ -30,7 +31,7 @@ interface UserProgress {
   activityProgress?: ActivityProgress;
 }
 
-const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
+const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewProps) => {
   const [lessonState, setLessonState] = useState<{ lessonId: string; activityId: string }>({ lessonId: '', activityId: '' });
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -341,7 +342,7 @@ const ModuleView = ({ moduleId, userId, onBack }: ModuleViewProps) => {
           />
         );
       case 'tutor':
-        return <ClickTutor lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} />;
+        return <ClickTutor lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} copilotLanguage={copilotLanguage} />;
       case 'prompt':
         return <PromptTask lessonId={lessonState.lessonId} onNext={goToNext} handleActivityComplete={handleActivityComplete} />;
       case 'file':

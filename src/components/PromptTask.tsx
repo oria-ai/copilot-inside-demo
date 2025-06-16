@@ -23,7 +23,7 @@ const INITIAL_PROMPT = 'תסכם לי בבקשה את הפגישה שאוכל ל
 const WORKER_URL = 'https://copilot-text.oria-masas-ai.workers.dev/';
 
 const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProps) => {
-  const [step, setStep] = useState<'american' | 'improve'>('american');
+  const [step, setStep] = useState<'american' | 'improve'>('improve');
   const [selected, setSelected] = useState<string[]>([]);
   const [americanError, setAmericanError] = useState('');
   const [prompt, setPrompt] = useState(INITIAL_PROMPT);

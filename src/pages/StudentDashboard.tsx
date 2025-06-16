@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Clock, Trophy, ArrowLeft, FileText, MessageSquare } from 'lucide-react';
+import { BookOpen, Clock, Trophy, ArrowLeft, FileText, MessageSquare, LogOut } from 'lucide-react';
 import { Dialog } from '@headlessui/react';
 
-interface UserData {
+export interface UserData {
   id?: string;
   email: string;
   department: string;
@@ -19,11 +19,12 @@ interface UserData {
 interface StudentDashboardProps {
   userData: UserData;
   onModuleClick: (moduleId: string) => void;
+  onLogout: () => void;
 }
 
 const api = 'http://localhost:4000';
 
-const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) => {
+const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboardProps) => {
   const [overallProgress, setOverallProgress] = useState(0);
   const [completedLessons, setCompletedLessons] = useState(0);
   const [totalLessons, setTotalLessons] = useState(3);
@@ -89,10 +90,20 @@ const StudentDashboard = ({ userData, onModuleClick }: StudentDashboardProps) =>
             <h1 className="text-3xl font-bold text-white mb-2">ברוכים הבאים לקורס קופיילוט 2.0</h1>
             <p className="text-white/90">קורס אינטראקטיבי ב-Copilot שמביא אתכם לעבודה מעשית עם AI</p>
           </div>
-          <div className="bg-white/20 backdrop-blur-sm rounded-3xl px-6 py-4 text-white">
-            <div className="text-sm opacity-90">שלום,</div>
-            <div className="font-semibold">{userData.email}</div>
-            <div className="text-sm opacity-90">{userData.department}</div>
+          <div className="bg-white/20 backdrop-blur-sm rounded-3xl px-6 py-4 text-white flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <div className="text-sm opacity-90">שלום,</div>
+              <div className="font-semibold">{userData.name}</div>
+              <div className="text-sm opacity-90">{userData.department}</div>
+            </div>
+            <button
+              className="p-2 rounded-full hover:bg-white/30 transition-colors"
+              title="התנתק"
+              onClick={onLogout}
+              type="button"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </header>

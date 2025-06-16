@@ -1,9 +1,19 @@
+
 import React, { useState } from 'react';
 import Login from './Login';
 import StudentDashboard from './StudentDashboard';
 import ManagerDashboard from './ManagerDashboard';
 import ModuleView from './ModuleView';
-import type { UserData } from './StudentDashboard';
+
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  copilotLanguage: string;
+  studyingLanguage: string;
+  role: string;
+}
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<'login' | 'student' | 'manager' | 'module'>('login');
@@ -33,8 +43,8 @@ const Index = () => {
     return <Login onLogin={handleLogin} />;
   }
 
-  if (currentView === 'student') {
-    return <StudentDashboard userData={userData} onModuleClick={handleModuleClick} onLogout={handleLogout} />;
+  if (currentView === 'student' && userData) {
+    return <StudentDashboard user={userData} onLogout={handleLogout} />;
   }
 
   if (currentView === 'manager') {

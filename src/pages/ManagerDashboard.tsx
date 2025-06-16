@@ -108,7 +108,7 @@ const ManagerDashboard = ({ userData, onBack }: ManagerDashboardProps) => {
 
   const renderContentManagement = () => (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">ניהול תוכן</h2>
+      <h2 className="text-2xl font-bold">הקצאת תכנים למחלקות</h2>
       <div className="grid gap-4">
         {divisions.map((division) => {
           const listedModules = divisionModulesState[division.id] || [];

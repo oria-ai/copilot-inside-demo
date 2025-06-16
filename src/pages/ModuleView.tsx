@@ -349,7 +349,7 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
       case 'file':
         return <FileTask lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} />;
       case 'conclusion':
-        return <Conclusion lessonId={lessonState.lessonId} onConclusionComplete={handleConclusionComplete} />;
+        return <Conclusion lessonId={lessonState.lessonId} onConclusionComplete={handleConclusionComplete} onBack={onBack} />;
       default:
         return <div>פעילות לא נמצאה</div>;
     }

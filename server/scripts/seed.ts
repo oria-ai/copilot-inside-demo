@@ -13,7 +13,7 @@ async function main() {
   });
 
   // Create lessons (as lessonId strings)
-  const lessonIds = ['lesson1', 'lesson2', 'lesson3', 'lesson4', 'lesson5'];
+  const lessonIds = ['lesson1', 'lesson2', 'lesson3'];
 
   // Create progress
   for (const userId of ['user1', 'user2', 'user3']) {

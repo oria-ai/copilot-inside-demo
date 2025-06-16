@@ -65,7 +65,7 @@ const Login = ({ onLogin }: LoginProps) => {
           <Card className="w-full max-w-md shadow-xl">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-gray-800">Copilot Inside</CardTitle>
-              <p className="text-gray-600">התחברות למערכת הלמידה</p>
+              {/* <p className="text-gray-600">התחברות למערכת הלמידה</p> */}
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="signin" value={tab} onValueChange={v => setTab(v as any)} className="w-full">
@@ -151,29 +151,31 @@ const Login = ({ onLogin }: LoginProps) => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2 text-right">
-                      <Label htmlFor="copilot-language">שפת קופיילוט</Label>
-                      <Select onValueChange={(value) => handleInputChange('copilotLanguage', value)}>
-                        <SelectTrigger className="text-right">
-                          <SelectValue placeholder="בחר שפה" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="hebrew">עברית</SelectItem>
-                          <SelectItem value="english">אנגלית</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2 text-right">
-                      <Label htmlFor="studying-language">שפת לימוד</Label>
-                      <Select onValueChange={(value) => handleInputChange('studyingLanguage', value)}>
-                        <SelectTrigger className="text-right">
-                          <SelectValue placeholder="בחר שפה" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="hebrew">עברית</SelectItem>
-                          <SelectItem value="english">אנגלית</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="flex gap-4">
+                      <div className="flex-1 space-y-2 text-right">
+                        <Label htmlFor="copilot-language">שפת קופיילוט</Label>
+                        <Select onValueChange={(value) => handleInputChange('copilotLanguage', value)}>
+                          <SelectTrigger className="text-right">
+                            <SelectValue placeholder="בחר שפה" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="hebrew">עברית</SelectItem>
+                            <SelectItem value="english">אנגלית</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex-1 space-y-2 text-right">
+                        <Label htmlFor="studying-language">שפת לימוד</Label>
+                        <Select onValueChange={(value) => handleInputChange('studyingLanguage', value)}>
+                          <SelectTrigger className="text-right">
+                            <SelectValue placeholder="בחר שפה" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="hebrew">עברית</SelectItem>
+                            <SelectItem value="english">אנגלית</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
                       הירשם

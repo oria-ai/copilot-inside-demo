@@ -54,6 +54,7 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
   const [showHow1, setShowHow1] = useState(false);
   const [showHow2, setShowHow2] = useState(false);
   const [showContinue, setShowContinue] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   // Slides content
   const cards = [
@@ -117,7 +118,10 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setUploadedFile(file);
+    if (file) {
+      setUploadedFile(file);
+      setHasSubmitted(false);
+    }
   };
 
   /* -------------------------------------------------- */
@@ -131,6 +135,7 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
     setFeedback(HARDCODED_FEEDBACK);
     setShowContinue(true);
     setIsLoading(false);
+    setHasSubmitted(true);
     // Mark the file task as complete (90% progress for file activities)
     if (handleActivityComplete) {
       handleActivityComplete(lessonId, 90);
@@ -280,7 +285,7 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
                   className="w-fit px-4 mx-auto"
                   disabled={!uploadedFile}
                 >
-                  {isLoading ? 'שולח...' : 'שלח קובץ'}
+                  {isLoading ? 'שולח...' : hasSubmitted ? 'שלח מחדש' : 'שלח קובץ'}
                 </Button>
                 {feedback && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">

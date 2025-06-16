@@ -70,39 +70,10 @@ const Login = ({ onLogin }: LoginProps) => {
             <CardContent>
               <Tabs defaultValue="signin" value={tab} onValueChange={v => setTab(v as any)} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="signin">התחברות</TabsTrigger>
                   <TabsTrigger value="signup">הרשמה</TabsTrigger>
+                  <TabsTrigger value="signin">התחברות</TabsTrigger>
                 </TabsList>
                 {error && <div className="text-red-500 text-center mb-2">{error}</div>}
-                <TabsContent value="signin">
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2 text-right">
-                      <Label htmlFor="email">אימייל</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                        required
-                        className="text-right"
-                      />
-                    </div>
-                    <div className="space-y-2 text-right">
-                      <Label htmlFor="password">סיסמה</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) => handleInputChange('password', e.target.value)}
-                        required
-                        className="text-right"
-                      />
-                    </div>
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-                      התחבר
-                    </Button>
-                  </form>
-                </TabsContent>
                 <TabsContent value="signup">
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2 text-right">
@@ -152,8 +123,8 @@ const Login = ({ onLogin }: LoginProps) => {
                       </Select>
                     </div>
                     <div className="flex gap-4">
-                      <div className="flex-1 space-y-2 text-right">
-                        <Label htmlFor="copilot-language">שפת קופיילוט</Label>
+                      <div className="flex-1 space-y-2 text-right dir-rtl">
+                        <Label htmlFor="copilot-language">הקופיילוט שלך ב</Label>
                         <Select onValueChange={(value) => handleInputChange('copilotLanguage', value)}>
                           <SelectTrigger className="text-right">
                             <SelectValue placeholder="בחר שפה" />
@@ -179,6 +150,35 @@ const Login = ({ onLogin }: LoginProps) => {
                     </div>
                     <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
                       הירשם
+                    </Button>
+                  </form>
+                </TabsContent>
+                <TabsContent value="signin">
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2 text-right">
+                      <Label htmlFor="email">אימייל</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        required
+                        className="text-right"
+                      />
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <Label htmlFor="password">סיסמה</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={(e) => handleInputChange('password', e.target.value)}
+                        required
+                        className="text-right"
+                      />
+                    </div>
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+                      התחבר
                     </Button>
                   </form>
                 </TabsContent>

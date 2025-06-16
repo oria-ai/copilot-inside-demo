@@ -143,8 +143,8 @@ const Login = ({ onLogin }: LoginProps) => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="development">פיתוח</SelectItem>
-                      <SelectItem value="digital">ניהול דיגיטלי</SelectItem>
-                      <SelectItem value="finance">כספים</SelectItem>
+                      <SelectItem value="digital">מנהלים</SelectItem>
+                      <SelectItem value="finance">דיגיטל</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

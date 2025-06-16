@@ -1,269 +1,221 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { BookOpen, Clock, Trophy, ArrowLeft, FileText, MessageSquare, LogOut } from 'lucide-react';
-import { Dialog } from '@headlessui/react';
 
-export interface UserData {
-  id?: string;
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { BookOpen, Clock, Trophy, Target, ChevronRight, Play } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useModuleProgress } from '@/hooks/useModuleProgress';
+
+interface User {
+  id: string;
+  name: string;
   email: string;
   department: string;
   copilotLanguage: string;
   studyingLanguage: string;
   role: string;
-  name: string;
-  password?: string;
 }
 
 interface StudentDashboardProps {
-  userData: UserData;
-  onModuleClick: (moduleId: string) => void;
+  user: User;
   onLogout: () => void;
 }
 
-const api = 'http://localhost:4000';
+// Mock data for modules
+const modules = [
+  {
+    id: '1',
+    title: 'מודול 1: יסודות הקופיילוט',
+    progress: 75,
+    lessons: 8,
+    completedLessons: 6
+  },
+  {
+    id: '2', 
+    title: 'מודול 2: שיטות עבודה מתקדמות',
+    progress: 30,
+    lessons: 10,
+    completedLessons: 3
+  },
+  {
+    id: '3',
+    title: 'מודול 3: אופטימיזציה וביצועים',
+    progress: 0,
+    lessons: 6,
+    completedLessons: 0
+  }
+];
 
-const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboardProps) => {
-  const [overallProgress, setOverallProgress] = useState(0);
-  const [completedLessons, setCompletedLessons] = useState(0);
-  const [totalLessons, setTotalLessons] = useState(3);
-
-  // To control the space between the cards, change the value of 'centerSpaceWidth' below
-  /** Adjust this number to control the space between the cards (in pixels) */
-  const centerSpaceWidth = 90; // <--- CHANGE THIS NUMBER FOR SPACING
-
-  // Modal state
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<'prompt' | 'feedback' | null>(null);
-
-  // Feedback HTML (from user)
-  const feedbackHtml = `<p class="mb-4">היי, הנה משוב על הפרומפט שלך:</p><ul class="list-disc list-inside mb-4 space-y-1"><li class="mb-1"><strong>תפקיד:</strong> חסר. הפרומפט לא מציין מי אמור לסכם את הפגישה.</li><li class="mb-1"><strong>מטרה:</strong> קיימת, אך כללית מאוד - "שאוכל לשלוח מייל לכולם".</li><li class="mb-1"><strong>הקשר:</strong> חסר לחלוטין. אין שום מידע על הפגישה עצמה (נושא, משתתפים, החלטות שהתקבלו וכו').</li><li class="mb-1"><strong>תוצר רצוי:</strong> חסר פירוט. "סיכום" זה כללי מדי. מה בדיוק צריך לכלול הסיכום? מה אורך הסיכום הרצוי?</li></ul><p class="mb-4">המלצות לשיפור:</p><ul class="list-disc list-inside mb-4 space-y-1"><li class="mb-1">הוסף תפקיד: לדוגמה, "בתור עוזר/ת אישי/ת...".</li><li class="mb-1">פרט את ההקשר: ציין את נושא הפגישה, תאריך, משתתפים מרכזיים, מטרת הפגישה.</li><li class="mb-1">הגדר את התוצר הרצוי בצורה מפורטת: לדוגמה, "סיכום תמציתי של עיקרי הדברים, החלטות שהתקבלו ופעולות המשך נדרשות, באורך של עד 200 מילים".</li><li class="mb-1">חדד את המטרה: פרט למה הסיכום ישמש, לדוגמה "כדי ליידע את כל המשתתפים על ההחלטות שהתקבלו ולתאם את המשך הפעילות".</li></ul>`;
+const StudentDashboard = ({ user, onLogout }: StudentDashboardProps) => {
+  const navigate = useNavigate();
+  const { getModuleProgress } = useModuleProgress();
+  const [moduleProgress, setModuleProgress] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchProgress = async () => {
-      const res = await fetch(`${api}/progress/${userData.id || userData.email}`);
-      if (res.ok) {
-        const data = await res.json();
-        const total = data.reduce((sum, p) => sum + (p.percent || 0), 0);
-        setCompletedLessons(data.filter(p => p.percent === 100).length);
-        setOverallProgress(Math.round((total / (totalLessons * 100)) * 100));
-      }
+    // Load progress for all modules
+    const loadProgress = async () => {
+      const progressData = await Promise.all(
+        modules.map(async (module) => {
+          const progress = await getModuleProgress(module.id);
+          return {
+            ...module,
+            progress: progress?.completionPercentage || 0,
+            completedLessons: progress?.completedLessons || 0
+          };
+        })
+      );
+      setModuleProgress(progressData);
     };
-    fetchProgress();
-  }, [userData, totalLessons]);
+    
+    loadProgress();
+  }, [getModuleProgress]);
 
-  const modules = [
-    {
-      id: 'basics',
-      title: 'יסודות השימוש בקופיילוט',
-      progress: overallProgress,
-      lessons: totalLessons,
-      completedLessons: completedLessons
-    }
-  ];
-
-  const assignments = [
-    {
-      id: 'task2',
-      title: 'משימה 2 - שיפור פרומפט',
-      prompt: 'כתוב לי בבקשה סיכום של הפגישה שהייתה שאוכל לשלוח',
-      feedback: feedbackHtml,
-      status: 'completed',
-      grade: 95
-    }
-  ];
-
-  // Helper to truncate text
-  const truncateText = (text: string, maxLength: number) => {
-    if (!text) return '';
-    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+  const handleModuleClick = (moduleId: string) => {
+    navigate(`/module/${moduleId}`);
   };
 
+  const totalProgress = moduleProgress.length > 0 
+    ? Math.round(moduleProgress.reduce((sum, module) => sum + module.progress, 0) / moduleProgress.length)
+    : 0;
+
+  const totalLessons = moduleProgress.reduce((sum, module) => sum + module.lessons, 0);
+  const totalCompleted = moduleProgress.reduce((sum, module) => sum + module.completedLessons, 0);
+
   return (
-    <div className="min-h-screen bg-gradient-light" dir="rtl">
-      {/* Header with gradient */}
-      <header className="bg-gradient-turquoise shadow-soft border-b-0 px-6 py-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">ברוכים הבאים לקורס Copilot Inside</h1>
-            <p className="text-white/90">קורס מבוסס AI על מייקרוסופט קופיילוט, שיעזור לכם להספיק 20% יותר בעבודה</p>
-          </div>
-          <div className="bg-white/20 backdrop-blur-sm rounded-3xl px-6 py-4 text-white flex items-center justify-between gap-4">
-            <div className="flex-1">
-              <div className="text-sm opacity-90">שלום,</div>
-              <div className="font-semibold">{userData.name}</div>
-              <div className="text-sm opacity-90">{userData.department}</div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100" dir="rtl">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4 space-x-reverse">
+              <img src="/squarelogo.png" alt="Copilot Inside" className="h-8 w-8" />
+              <h1 className="text-xl font-semibold text-gray-900">Copilot Inside</h1>
             </div>
-            <button
-              className="p-2 rounded-full hover:bg-white/30 transition-colors"
-              title="התנתק"
-              onClick={onLogout}
-              type="button"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
+            <div className="flex items-center space-x-4 space-x-reverse">
+              <span className="text-sm text-gray-600">שלום, {user.name}</span>
+              <Button variant="outline" onClick={onLogout}>
+                התנתק
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Top Section - My Assignments and My Courses */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 lg:flex lg:flex-row lg:gap-0">
-          {/* My Courses - Right Side (now on the left) */}
-          <div className="flex-1 flex flex-col">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-dark-gray mb-2">הקורסים שלי</h2>
-              <p className="text-medium-gray">התחילו את המסע שלכם בעולם ה-AI</p>
-            </div>
-            <div className="space-y-6 flex-1 flex flex-col">
-              {modules.map((module) => (
-                <Card 
-                  key={module.id} 
-                  className="bg-gradient-card shadow-card hover:shadow-xl transition-all duration-300 cursor-pointer rounded-3xl border-0 overflow-hidden group flex flex-col h-full"
-                  onClick={() => onModuleClick(module.id)}
-                >
-                  <div className="h-32 bg-gradient-turquoise relative overflow-hidden flex flex-col justify-between">
-                    <div className="absolute inset-0 bg-white/10 backdrop-blur-sm z-0"></div>
-                    <div className="relative z-10 p-6 pb-0">
-                      <h3 className="text-xl font-bold text-white drop-shadow mb-2">{module.title}</h3>
-                    </div>
-                    <div className="absolute bottom-4 right-4 z-10">
-                      <div className="bg-white/20 rounded-2xl px-4 py-2">
-                        <span className="text-white font-semibold">{module.progress}%</span>
-                      </div>
-                    </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">ברוך הבא, {user.name}!</h2>
+          <p className="text-lg text-gray-600">המשך במסע הלמידה שלך עם בינה מלאכותית</p>
+        </div>
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Target className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="mr-4">
+                  <p className="text-2xl font-bold text-gray-900">{totalProgress}%</p>
+                  <p className="text-sm text-gray-600">התקדמות כוללת</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <BookOpen className="h-6 w-6 text-green-600" />
+                </div>
+                <div className="mr-4">
+                  <p className="text-2xl font-bold text-gray-900">{totalCompleted}</p>
+                  <p className="text-sm text-gray-600">שיעורים הושלמו</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-yellow-100 rounded-lg">
+                  <Clock className="h-6 w-6 text-yellow-600" />
+                </div>
+                <div className="mr-4">
+                  <p className="text-2xl font-bold text-gray-900">{totalLessons - totalCompleted}</p>
+                  <p className="text-sm text-gray-600">שיעורים נותרו</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Trophy className="h-6 w-6 text-purple-600" />
+                </div>
+                <div className="mr-4">
+                  <p className="text-2xl font-bold text-gray-900">{moduleProgress.filter(m => m.progress === 100).length}</p>
+                  <p className="text-sm text-gray-600">מודולים הושלמו</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Modules Grid */}
+        <div className="space-y-6">
+          <h3 className="text-2xl font-bold text-gray-900">המודולים שלי</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {(moduleProgress.length > 0 ? moduleProgress : modules).map((module) => (
+              <Card key={module.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg">{module.title}</CardTitle>
+                    <Badge variant={module.progress === 100 ? "default" : module.progress > 0 ? "secondary" : "outline"}>
+                      {module.progress === 100 ? "הושלם" : module.progress > 0 ? "בתהליך" : "לא התחיל"}
+                    </Badge>
                   </div>
-                  <CardHeader className="pb-4">
-                  <p className="text-medium-gray mt-2">{module.description}</p>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm text-medium-gray" dir="rtl">
-                        <span>{module.completedLessons}/{module.lessons} שיעורים</span>
-                        <span>{module.progress}% הושלם</span>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>התקדמות</span>
+                        <span>{module.progress}%</span>
                       </div>
-                      <Progress value={module.progress} className="h-3 rounded-full" dir="rtl" />
+                      <Progress value={module.progress} className="h-2" />
                     </div>
-                  </CardHeader>
-                  <CardContent className="pt-0 mt-auto">
-                    <Button className="w-full bg-gradient-turquoise hover:opacity-90 text-white rounded-3xl h-12 font-semibold shadow-soft transition-all duration-300 group-hover:scale-105">
-                      המשך לימוד
-                      <ArrowLeft className="mr-2 h-4 w-4" />
+                    
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>{module.completedLessons} מתוך {module.lessons} שיעורים</span>
+                      <div className="flex items-center">
+                        <Play className="h-4 w-4 ml-1" />
+                        <span>המשך</span>
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      className="w-full" 
+                      onClick={() => handleModuleClick(module.id)}
+                      variant={module.progress > 0 ? "default" : "outline"}
+                    >
+                      {module.progress === 0 ? "התחל מודול" : "המשך לימוד"}
+                      <ChevronRight className="h-4 w-4 mr-2" />
                     </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-          {/* Center space for large screens (no divider) */}
-          <div className="hidden lg:block" style={{ minWidth: centerSpaceWidth }} />
-          {/* My Assignments - Left Side (now on the right) */}
-          <div className="flex-1 flex flex-col">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-dark-gray mb-2">ההגשות שלי</h2>
-              <p className="text-medium-gray">משימות שהוגשו וקיבלו משוב</p>
-            </div>
-            <div className="space-y-4 flex-1 flex flex-col">
-              {assignments.map((assignment) => (
-                <Card 
-                  key={assignment.id} 
-                  className="bg-gradient-card shadow-card rounded-3xl border-0 overflow-hidden flex flex-col h-full"
-                >
-                  <CardHeader className="pb-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-gradient-turquoise w-12 h-12 rounded-2xl flex items-center justify-center">
-                          <FileText className="h-6 w-6 text-white" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg font-bold text-dark-gray">{assignment.title}</CardTitle>
-                          <div className="flex items-center gap-2 mt-1">
-
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-0 space-y-4 mt-auto">
-                    <div className="bg-light-gray rounded-2xl p-4 cursor-pointer" onClick={() => { setModalType('prompt'); setModalOpen(true); }}>
-                      <h4 className="font-semibold text-dark-gray mb-2">הפרומפט שלי:</h4>
-                      <p className="text-sm text-medium-gray leading-relaxed">
-                        {truncateText(assignment.prompt, 40)}
-                        {assignment.prompt.length > 40 && <span className="text-blue-500"> קרא עוד</span>}
-                      </p>
-                    </div>
-                    <div className="bg-white rounded-2xl p-4 border-2 border-green/20 cursor-pointer" onClick={() => { setModalType('feedback'); setModalOpen(true); }}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <MessageSquare className="h-4 w-4 text-green" />
-                        <h4 className="font-semibold text-dark-gray">משוב :</h4>
-                      </div>
-                      <div className="text-sm text-medium-gray leading-relaxed">
-                        {/* Render only a preview of the feedback (strip HTML tags for preview) */}
-                        {truncateText(assignment.feedback.replace(/<[^>]+>/g, ''), 40)}
-                        {assignment.feedback.replace(/<[^>]+>/g, '').length > 40 && <span className="text-blue-500"> קרא עוד</span>}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
-
-        {/* Stats Cards - Moved to Bottom */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Card className="bg-gradient-card shadow-card rounded-3xl border-0">
-            <CardContent className="p-6 text-center">
-              <div className="bg-gradient-turquoise w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-dark-gray mb-1">{totalLessons}</h3>
-              <p className="text-medium-gray">שיעורים זמינים</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-card shadow-card rounded-3xl border-0">
-            <CardContent className="p-6 text-center">
-              <div className="bg-green w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                <Trophy className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-dark-gray mb-1">{completedLessons}</h3>
-              <p className="text-medium-gray">שיעורים הושלמו</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-card shadow-card rounded-3xl border-0">
-            <CardContent className="p-6 text-center">
-              <div className="bg-gradient-turquoise w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4">
-                <Clock className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-dark-gray mb-1">{overallProgress}%</h3>
-              <p className="text-medium-gray">התקדמות כללית</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Open Tasks Section - Removed since assignments moved to top */}
       </div>
-
-      {/* Modal for full prompt/feedback */}
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
-        <div className="flex items-center justify-center min-h-screen px-4">
-          <div className="fixed inset-0 bg-black opacity-30 z-40" />
-          <div className="relative bg-white rounded-3xl shadow-xl max-w-lg w-full mx-auto p-8 z-50" dir="rtl">
-            <button onClick={() => setModalOpen(false)} className="absolute left-4 top-4 text-gray-400 hover:text-gray-600 text-2xl">×</button>
-            <h2 className="text-2xl font-bold mb-4 text-dark-gray">
-              {modalType === 'prompt' ? 'הפרומפט שלי' : 'משוב AI על המשימה'}
-            </h2>
-            <div className="prose prose-sm max-w-none text-gray-700" style={{ direction: 'rtl' }}>
-              {modalType === 'prompt' ? (
-                <div>{assignments[0].prompt}</div>
-              ) : (
-                <div dangerouslySetInnerHTML={{ __html: assignments[0].feedback }} />
-              )}
-            </div>
-          </div>
-        </div>
-      </Dialog>
     </div>
   );
 };

@@ -64,7 +64,7 @@ const Login = ({ onLogin }: LoginProps) => {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 to-slate-800 items-center justify-center p-12">
         <div className="text-center">
           <img 
-            src="/lovable-uploads/267b6b5c-2558-4d35-b19d-9543b8e58e3f.png" 
+            src="/squarelogo.png" 
             alt="Copilot Inside by HandsOnAI" 
             className="max-w-md mx-auto mb-8"
           />

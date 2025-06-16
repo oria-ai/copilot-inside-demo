@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface LoginProps {
   onLogin: (userData: any) => void;
@@ -58,128 +58,141 @@ const Login = ({ onLogin }: LoginProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4" dir="rtl">
-      <Card className="w-full max-w-md shadow-xl">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-800">Copilot Inside</CardTitle>
-          <p className="text-gray-600">התחברות למערכת הלמידה</p>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="signin" value={tab} onValueChange={v => setTab(v as any)} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="signin">התחברות</TabsTrigger>
-              <TabsTrigger value="signup">הרשמה</TabsTrigger>
-            </TabsList>
-            {error && <div className="text-red-500 text-center mb-2">{error}</div>}
-            <TabsContent value="signin">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2 text-right">
-                  <Label htmlFor="email">אימייל</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    required
-                    className="text-right"
-                  />
-                </div>
-                <div className="space-y-2 text-right">
-                  <Label htmlFor="password">סיסמה</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
-                    required
-                    className="text-right"
-                  />
-                </div>
-                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-                  התחבר
-                </Button>
-              </form>
-            </TabsContent>
-            <TabsContent value="signup">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2 text-right">
-                  <Label htmlFor="signup-email">אימייל</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    required
-                    className="text-right"
-                  />
-                </div>
-                <div className="space-y-2 text-right">
-                  <Label htmlFor="signup-password">סיסמה</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
-                    required
-                    className="text-right"
-                  />
-                </div>
-                <div className="space-y-2 text-right">
-                  <Label htmlFor="name">שם</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    required
-                    className="text-right"
-                  />
-                </div>
-                <div className="space-y-2 text-right">
-                  <Label htmlFor="department">מחלקה</Label>
-                  <Select onValueChange={(value) => handleInputChange('department', value)}>
-                    <SelectTrigger className="text-right">
-                      <SelectValue placeholder="בחר מחלקה" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="development">פיתוח</SelectItem>
-                      <SelectItem value="digital">מנהלים</SelectItem>
-                      <SelectItem value="finance">דיגיטל</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2 text-right">
-                  <Label htmlFor="copilot-language">שפת קופיילוט</Label>
-                  <Select onValueChange={(value) => handleInputChange('copilotLanguage', value)}>
-                    <SelectTrigger className="text-right">
-                      <SelectValue placeholder="בחר שפה" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hebrew">עברית</SelectItem>
-                      <SelectItem value="english">אנגלית</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2 text-right">
-                  <Label htmlFor="studying-language">שפת לימוד</Label>
-                  <Select onValueChange={(value) => handleInputChange('studyingLanguage', value)}>
-                    <SelectTrigger className="text-right">
-                      <SelectValue placeholder="בחר שפה" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hebrew">עברית</SelectItem>
-                      <SelectItem value="english">אנגלית</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-                  הירשם
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-blue-50 to-indigo-100" dir="rtl">
+      {/* Left Side - Card Form (centered) */}
+      <div className="flex w-full md:w-1/2 justify-center items-center min-h-[50vh] md:min-h-screen">
+        <div className="w-full max-w-md">
+          <Card className="w-full max-w-md shadow-xl">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-bold text-gray-800">Copilot Inside</CardTitle>
+              <p className="text-gray-600">התחברות למערכת הלמידה</p>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="signin" value={tab} onValueChange={v => setTab(v as any)} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="signin">התחברות</TabsTrigger>
+                  <TabsTrigger value="signup">הרשמה</TabsTrigger>
+                </TabsList>
+                {error && <div className="text-red-500 text-center mb-2">{error}</div>}
+                <TabsContent value="signin">
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2 text-right">
+                      <Label htmlFor="email">אימייל</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        required
+                        className="text-right"
+                      />
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <Label htmlFor="password">סיסמה</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={(e) => handleInputChange('password', e.target.value)}
+                        required
+                        className="text-right"
+                      />
+                    </div>
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+                      התחבר
+                    </Button>
+                  </form>
+                </TabsContent>
+                <TabsContent value="signup">
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2 text-right">
+                      <Label htmlFor="signup-email">אימייל</Label>
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        required
+                        className="text-right"
+                      />
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <Label htmlFor="signup-password">סיסמה</Label>
+                      <Input
+                        id="signup-password"
+                        type="password"
+                        value={formData.password}
+                        onChange={(e) => handleInputChange('password', e.target.value)}
+                        required
+                        className="text-right"
+                      />
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <Label htmlFor="name">שם</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        required
+                        className="text-right"
+                      />
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <Label htmlFor="department">מחלקה</Label>
+                      <Select onValueChange={(value) => handleInputChange('department', value)}>
+                        <SelectTrigger className="text-right">
+                          <SelectValue placeholder="בחר מחלקה" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="development">פיתוח</SelectItem>
+                          <SelectItem value="digital">מנהלים</SelectItem>
+                          <SelectItem value="finance">דיגיטל</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <Label htmlFor="copilot-language">שפת קופיילוט</Label>
+                      <Select onValueChange={(value) => handleInputChange('copilotLanguage', value)}>
+                        <SelectTrigger className="text-right">
+                          <SelectValue placeholder="בחר שפה" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hebrew">עברית</SelectItem>
+                          <SelectItem value="english">אנגלית</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2 text-right">
+                      <Label htmlFor="studying-language">שפת לימוד</Label>
+                      <Select onValueChange={(value) => handleInputChange('studyingLanguage', value)}>
+                        <SelectTrigger className="text-right">
+                          <SelectValue placeholder="בחר שפה" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hebrew">עברית</SelectItem>
+                          <SelectItem value="english">אנגלית</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+                      הירשם
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      {/* Right Side - Image as background, 50% width */}
+      <div className="w-full md:w-1/2 h-[40vh] md:h-screen flex items-center justify-center">
+        <img
+          src="/squarelogo.png"
+          alt="Copilot Inside Logo"
+          className="w-full h-full object-cover object-center"
+        />
+      </div>
     </div>
   );
 };

@@ -20,8 +20,18 @@ import {
   Loader2
 } from 'lucide-react';
 
-// Hardcoded feedback for the file task
-const HARDCODED_FEEDBACK = `
+// Hardcoded feedback for the initial file upload (first card)
+const INITIAL_UPLOAD_FEEDBACK = `
+<p class="mb-4"><b>פידבק ראשוני על הקובץ:</b></p>
+<ul class="list-disc list-inside mb-4 space-y-1">
+  <li class="mb-1">✅ הקובץ בפורמט וורד תקין.</li>
+  <li class="mb-1">✅ תוכל להתקדם לשלב הבא ולקבל הנחיות כיצד לסכם אותו בעזרת קופיילוט.</li>
+  <li class="mb-1">✅ שים לב! הקובץ שלך כולל מידע בנושאים שונים, הקפד למקד את קופיילוט מה בדיוק לסכם.</li>
+</ul>
+`;
+
+// Hardcoded feedback for the final submission (last card)
+const FINAL_SUBMISSION_FEEDBACK = `
 <p class="mb-4"><b>פידבק על ההגשה – סיכום קובץ באמצעות Copilot:</b></p>
 <ul class="list-disc list-inside mb-4 space-y-1">
   <li class="mb-1">✅ <b>חוזקות:</b></li>
@@ -39,6 +49,14 @@ const HARDCODED_FEEDBACK = `
 <p class="mb-4">🛠️ <b>המלצה:</b><br>השתמש ב-Copilot כבסיס, אך הקפד לעבור ידנית ולוודא דיוק, עומק וייצוג מלא של הרעיונות המרכזיים.</p>
 `;
 
+interface CardType {
+  title: string;
+  instructions: string;
+  showDownload: boolean;
+  showUpload: boolean;
+  isInitialUpload?: boolean;
+}
+
 interface FileTaskProps {
   lessonId: string;
   handleActivityComplete?: (lessonId: string, progress: number) => void;
@@ -46,23 +64,28 @@ interface FileTaskProps {
 
 const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
   const [currentCard, setCurrentCard] = useState(0);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [showPopup, setShowPopup] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [feedback, setFeedback] = useState('');
+  const [initialUploadFile, setInitialUploadFile] = useState<File | null>(null);
+  const [finalUploadFile, setFinalUploadFile] = useState<File | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(false);
+  const [isFinalLoading, setIsFinalLoading] = useState(false);
+  const [initialFeedback, setInitialFeedback] = useState('');
+  const [finalFeedback, setFinalFeedback] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
   const [showHow1, setShowHow1] = useState(false);
   const [showHow2, setShowHow2] = useState(false);
   const [showContinue, setShowContinue] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [selectedPath, setSelectedPath] = useState<'left' | 'right' | null>(null);
+  const [initialUploadComplete, setInitialUploadComplete] = useState(false);
 
-  // Slides content
-  const cards = [
+  // Slides content for both paths
+  const leftPathCards: CardType[] = [
     {
       title: 'רקע',
       instructions: 'סיימנו עכשיו פגישת פתיחת שבוע ארוכה ועמוסה.<br />אתה מעוניין להפיק מתמלול השיחה מסמך קצר שמסכם את המשימות של הצוות שלך - צוות הפיתוח.<br />הורד את הקובץ, ולחץ "הבא" להמשך ההנחיות.',
       showDownload: true,
-      showUpload: false
+      showUpload: false,
+      isInitialUpload: false
     },
     {
       title: 'הוראות עבודה',
@@ -83,6 +106,37 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
       showUpload: true
     }
   ];
+
+  const rightPathCards: CardType[] = [
+    {
+      title: 'העלה את הקובץ לבדיקה',
+      instructions: 'העלה את הקובץ לכאן.',
+      showDownload: false,
+      showUpload: true,
+      isInitialUpload: true
+    },
+    {
+      title: 'הוראות עבודה',
+      instructions: 'שמור את הקובץ בענן, כך שקופיילוט יוכל לגשת אליו.<br />פתח מסמך וורד חדש, ובקש מקופיילוט ליצור עבורך סיכום מהקובץ.<br />עבור על המסמך כדי להבין את ההקשר, והקפד לשלוח לקופיילוט פרומפט מלא ומפורט.',
+      showDownload: false,
+      showUpload: false
+    },
+    {
+      title: 'הוראות עבודה',
+      instructions: "בדוק את התוצאה, ובמידת הצורך תן לקופיילוט הנחיות לתיקון. <br />אל תשאיר הכל בידי המכונה! תמיד טוב לעבור על הטקסט, ולתת קצת טאצ' אישי.",
+      showDownload: false,
+      showUpload: false
+    },
+    {
+      title: 'העלאת קובץ',
+      instructions: 'העלה את הקובץ המסוכם שיצרת לטובת קבלת משוב.',
+      showDownload: false,
+      showUpload: true,
+      isInitialUpload: false
+    }
+  ];
+
+  const cards = selectedPath === 'right' ? rightPathCards : leftPathCards;
 
   /* -------------------------------------------------- */
   /*   Load system instruction from /task2.txt          */
@@ -119,7 +173,7 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setUploadedFile(file);
+      setFinalUploadFile(file);
       setHasSubmitted(false);
     }
   };
@@ -128,13 +182,13 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
   /*   Submit to Worker                                 */
   /* -------------------------------------------------- */
   const handleSubmit = async () => {
-    setIsLoading(true);
-    setFeedback('');
-    // Simulate a 2-second delay to show "sending" state
+    setIsFinalLoading(true);
+    setFinalFeedback('');
+    // Simulate a 2-second delay
     await new Promise(resolve => setTimeout(resolve, 2000));
-    setFeedback(HARDCODED_FEEDBACK);
+    setFinalFeedback(FINAL_SUBMISSION_FEEDBACK);
     setShowContinue(true);
-    setIsLoading(false);
+    setIsFinalLoading(false);
     setHasSubmitted(true);
     // Mark the file task as complete (90% progress for file activities)
     if (handleActivityComplete) {
@@ -148,6 +202,20 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
     window.dispatchEvent(event);
   }, [lessonId]);
 
+  // Initial file upload handler
+  const handleInitialFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setInitialUploadFile(file);
+      setIsInitialLoading(true);
+      // Simulate a 2-second delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setInitialFeedback(INITIAL_UPLOAD_FEEDBACK);
+      setIsInitialLoading(false);
+      setInitialUploadComplete(true);
+    }
+  };
+
   /* -------------------------------------------------- */
   /*   Render                                           */
   /* -------------------------------------------------- */
@@ -155,153 +223,204 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>משימת סיכום תמלול</CardTitle>
+          <CardTitle>משימת סיכום קובץ</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
-            {/* Carousel */}
-            <div className="relative">
-              <div className="bg-gray-50 rounded-lg p-6 min-h-[200px]">
-                <h3 className="text-xl font-semibold mb-4">{cards[currentCard].title}</h3>
-                <div className="text-gray-700 mb-6 prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900" dangerouslySetInnerHTML={{ __html: cards[currentCard].instructions }} />
-                {/* How link for card 1 and 2 */}
-                {(currentCard === 1 || currentCard === 2) && (
-                  <>
-                    {/* Extra instructions for card 1 and 2 */}
-                    {currentCard === 1 && showHow1 && (
-                      <div className="mt-2 text-gray-700 prose prose-sm max-w-none" dir="rtl">
-                        <ul><li>לאחר שתפתח קובץ וורד חדש, תראה שורת שיחה עם קופיילוט בראש הקובץ.</li><li>לחץ על המקש "/", וכך תוכל לבחור קובץ מהמחשב להתייחסות. בחר את קובץ התמלול.</li><li>כתוב פרומפט מפורט שמסביר מה זה קובץ התמלול ומה על קופיילוט לעשות.</li></ul>
-                      </div>
-                    )}
-                    {currentCard === 2 && showHow2 && (
-                      <div className="mt-2 text-gray-700 prose prose-sm max-w-none" dir="rtl">
-                        לאחר יצירת הסיכום, קופיילוט יפתח עבורך חלון צ'אט בתחתית המסך לטובת הנחיות לתיקון.
-                        <br />
-                        תמיד תוכל להמשיך לבקש מקופיילוט עריכות על המסמך, באמצעות לחיצה על סימן הקופיילוט - 
-                        <br />
-                        הוא מופיע תמיד ליד השורה בה אתה כותב.
-                      </div>
-                    )}
-                    {/* Clickable text below extra instructions or below main instructions */}
-                    <div className="mt-2">
-                      {((currentCard === 1 && showHow1) || (currentCard === 2 && showHow2)) ? (
-                        <span
-                          className="text-blue-600 underline cursor-pointer text-md"
-                          onClick={() => currentCard === 1 ? setShowHow1(false) : setShowHow2(false)}
-                        >
-                          הצג פחות
-                        </span>
-                      ) : (
-                        <span
-                          className="text-blue-600 underline cursor-pointer text-md"
-                          onClick={() => currentCard === 1 ? setShowHow1(true) : setShowHow2(true)}
-                        >
-                          איך בדיוק?
-                        </span>
-                      )}
-                    </div>
-                  </>
-                )}
-                {cards[currentCard].showDownload && (
-                  <Button
-                    onClick={handleDownload}
-                    className="w-50 mx-auto flex items-center gap-2"
-                  >
-                    <Download size={20} />
-                    הורד את קובץ התמלול
-                  </Button>
-                )}
+          {!selectedPath ? (
+            // Initial selection screen
+            <div className="space-y-6">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold mb-4">בחר את המסלול שלך</h2>
+                <p className="text-gray-600">כעת נסכם קובץ בעזרת קופיילוט. בחר האם יש לך קובץ שתהיה מעוניין לסכם, או שתרצה לתרגל על קובץ לדוגמא.</p>
               </div>
-
-              {/* Nav buttons + dots */}
-              <div className="flex justify-between items-center mt-4">
-                {/* Show prev except on first card, next except on last card */}
-                {currentCard !== 0 ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentCard(Math.max(0, currentCard - 1))}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                    הקודם
-                  </Button>
-                ) : (
-                  <div className="w-[90px] h-10" />
-                )}
-                <div className="flex gap-2">
-                  {cards.map((_, idx) => (
-                    <div
-                      key={idx}
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        idx === currentCard ? 'bg-blue-500' : 'bg-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-                {currentCard !== cards.length - 1 ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentCard(Math.min(cards.length - 1, currentCard + 1))}
-                  >
-                    הבא
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                ) : (
-                  <div className="w-[90px] h-10" />
-                )}
+              <div className="grid grid-cols-2 gap-6">
+                <Card 
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => setSelectedPath('left')}
+                >
+                  <CardHeader>
+                    <CardTitle>תרגול על קובץ לדוגמא</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>סכם בעזרת קופיילוט קובץ לדוגמא שהכנו עבורך.</p>
+                  </CardContent>
+                </Card>
+                <Card 
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => setSelectedPath('right')}
+                >
+                  <CardHeader>
+                    <CardTitle>תרגול על קובץ שלי</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>בחר קובץ שברצונך לסכם בעזרת קופיילוט, ואנחנו נדריך אותך איך.</p>
+                  </CardContent>
+                </Card>
               </div>
             </div>
+          ) : (
+            // Main task content
+            <div className="space-y-6">
+              {/* Carousel */}
+              <div className="relative">
+                <div className="bg-gray-50 rounded-lg p-6 min-h-[200px]">
+                  <h3 className="text-xl font-semibold mb-4">{cards[currentCard].title}</h3>
+                  <div className="text-gray-700 mb-6 prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900" dangerouslySetInnerHTML={{ __html: cards[currentCard].instructions }} />
+                  
+                  {/* First card special handling */}
+                  {currentCard === 0 && selectedPath === 'right' && (
+                    <div className="space-y-4 flex flex-col items-center">
+                      <div className="w-full flex flex-col items-center">
+                        <div className="flex items-center gap-2 justify-center">
+                          <label
+                            htmlFor="initial-file-upload"
+                            className="cursor-pointer px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md font-medium text-sm flex items-center gap-2"
+                          >
+                            <Upload size={16} />
+                            בחר קובץ
+                            <input
+                              id="initial-file-upload"
+                              type="file"
+                              onChange={handleInitialFileUpload}
+                              className="hidden"
+                              accept=".txt,.doc,.docx"
+                              disabled={isInitialLoading}
+                            />
+                          </label>
+                          {initialUploadFile && (
+                            <p className="text-sm text-green-600">נבחר: {initialUploadFile.name}</p>
+                          )}
+                        </div>
+                      </div>
+                      {isInitialLoading && (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="animate-spin" size={20} />
+                          <span>מעבד את הקובץ...</span>
+                        </div>
+                      )}
+                      {initialFeedback && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">
+                          <div
+                            className="text-gray-700 prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{ __html: initialFeedback }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
 
-            {/* Upload step */}
-            {cards[currentCard].showUpload && (
-              <div className="space-y-4 flex flex-col items-center">
-                <div className="w-full flex flex-col items-center">
-                  {/* <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 mb-2 text-center">
-                    העלה את קובץ הסיכום
-                  </label> */}
-                  <div className="flex items-center gap-2 justify-center">
-                    <label
-                      htmlFor="file-upload"
-                      className="cursor-pointer px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md font-medium text-sm flex items-center gap-2"
+                  {/* Regular download button for left path */}
+                  {cards[currentCard].showDownload && (
+                    <Button
+                      onClick={handleDownload}
+                      className="w-50 mx-auto flex items-center gap-2"
                     >
-                      <Upload size={16} />
-                      בחר קובץ
-                      <input
-                        id="file-upload"
-                        type="file"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        accept=".txt,.doc,.docx"
-                      />
-                    </label>
-                    {uploadedFile && (
-                      <p className="text-sm text-green-600">נבחר: {uploadedFile.name}</p>
-                    )}
-                  </div>
+                      <Download size={20} />
+                      הורד את קובץ התמלול
+                    </Button>
+                  )}
+
+                  {/* Final upload step */}
+                  {cards[currentCard].showUpload && !cards[currentCard].isInitialUpload && (
+                    <div className="space-y-4 flex flex-col items-center">
+                      <div className="w-full flex flex-col items-center">
+                        <div className="flex items-center gap-2 justify-center">
+                          <label
+                            htmlFor="final-file-upload"
+                            className="cursor-pointer px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-md font-medium text-sm flex items-center gap-2"
+                          >
+                            <Upload size={16} />
+                            בחר קובץ
+                            <input
+                              id="final-file-upload"
+                              type="file"
+                              onChange={handleFileUpload}
+                              className="hidden"
+                              accept=".txt,.doc,.docx"
+                            />
+                          </label>
+                          {finalUploadFile && (
+                            <p className="text-sm text-green-600">נבחר: {finalUploadFile.name}</p>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        onClick={handleSubmit}
+                        className="w-fit px-4 mx-auto"
+                        disabled={!finalUploadFile}
+                      >
+                        {isFinalLoading ? 'שולח...' : hasSubmitted ? 'שלח מחדש' : 'שלח קובץ'}
+                      </Button>
+                      {finalFeedback && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">
+                          <h4 className="font-semibold mb-3 text-lg">משוב:</h4>
+                          <div
+                            className="text-gray-700 prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900"
+                            dangerouslySetInnerHTML={{ __html: finalFeedback }}
+                          />
+                          {showContinue && (
+                            <div className="flex justify-center mt-6">
+                              <Button 
+                                onClick={handleSkip} 
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-8"
+                              >
+                                המשך
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <Button
-                  onClick={handleSubmit}
-                  className="w-fit px-4 mx-auto"
-                  disabled={!uploadedFile}
-                >
-                  {isLoading ? 'שולח...' : hasSubmitted ? 'שלח מחדש' : 'שלח קובץ'}
-                </Button>
-                {feedback && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">
-                    <h4 className="font-semibold mb-3 text-lg">משוב:</h4>
-                    <div
-                      className="text-gray-700 prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900"
-                      dangerouslySetInnerHTML={{ __html: feedback }}
-                    />
-                    {showContinue && (
-                      <Button onClick={handleSkip} variant="outline" className="mt-4">המשך</Button>
-                    )}
+
+                {/* Nav buttons + dots */}
+                <div className="flex justify-between items-center mt-4">
+                  {currentCard !== 0 ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentCard(Math.max(0, currentCard - 1))}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                      הקודם
+                    </Button>
+                  ) : (
+                    <div className="w-[90px] h-10" />
+                  )}
+                  <div className="flex gap-2">
+                    {cards.map((_, idx) => (
+                      <div
+                        key={idx}
+                        className={`w-2 h-2 rounded-full transition-colors ${
+                          idx === currentCard ? 'bg-blue-500' : 'bg-gray-300'
+                        }`}
+                      />
+                    ))}
                   </div>
-                )}
+                  {currentCard !== cards.length - 1 ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        // Only allow proceeding if initial upload is complete for right path first card
+                        if (selectedPath === 'right' && currentCard === 0 && !initialUploadComplete) {
+                          return;
+                        }
+                        setCurrentCard(Math.min(cards.length - 1, currentCard + 1));
+                      }}
+                      disabled={selectedPath === 'right' && currentCard === 0 && !initialUploadComplete}
+                    >
+                      הבא
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <div className="w-[90px] h-10" />
+                  )}
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
           <div className="text-center mt-8">
             <Button
               variant="outline"
@@ -313,42 +432,6 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Skip Button at the bottom */}
-
-
-      {/* Feedback popup */}
-      {/* <Dialog open={showPopup} onOpenChange={setShowPopup}>
-        <DialogContent className="text-right max-w-md flex flex-col items-center" dir="rtl" style={{ maxHeight: '80vh' }}>
-          <DialogHeader className="items-center w-full">
-            <DialogTitle className="w-full text-center">תוצאות בדיקת הקובץ</DialogTitle>
-          </DialogHeader>
-          <div className="py-4 flex flex-col flex-1 min-h-0 w-full">
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center flex-1 text-center">
-                <Loader2 className="h-12 w-12 animate-spin mb-4 mx-auto" />
-                <p className="text-center w-full">בודק את הקובץ שלך.</p>
-              </div>
-            ) : (
-              <div className="space-y-4 flex-1 min-h-0 flex flex-col">
-                <div
-                  className="text-gray-700 prose prose-sm max-w-none flex-1 min-h-0 overflow-auto [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900"
-                  style={{ maxHeight: '30vh' }}
-                  dangerouslySetInnerHTML={{ __html: feedback }}
-                />
-                <div className="flex gap-3 justify-center pt-4">
-                  <Button onClick={handleResubmit} variant="outline">
-                    הגש מחדש
-                  </Button>
-                  <Button onClick={handleSkip} className="w-40">
-                    המשך
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog> */}
     </>
   );
 };

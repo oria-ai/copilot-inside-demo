@@ -28,6 +28,7 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
   const [overallProgress, setOverallProgress] = useState(0);
   const [completedLessons, setCompletedLessons] = useState(0);
   const [totalLessons, setTotalLessons] = useState(3);
+  const [lesson2Progress, setLesson2Progress] = useState<number | null>(null);
 
   // To control the space between the cards, change the value of 'centerSpaceWidth' below
   /** Adjust this number to control the space between the cards (in pixels) */
@@ -44,10 +45,14 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
     const fetchProgress = async () => {
       const res = await fetch(`${api}/progress/${userData.id || userData.email}`);
       if (res.ok) {
-        const data = await res.json();
+        type ProgressData = { lessonId: string; percent: number };
+        const data: ProgressData[] = await res.json();
         const total = data.reduce((sum, p) => sum + (p.percent || 0), 0);
         setCompletedLessons(data.filter(p => p.percent === 100).length);
         setOverallProgress(Math.round((total / (totalLessons * 100)) * 100));
+        // Find lesson2 progress
+        const lesson2 = data.find((p) => p.lessonId === 'lesson2');
+        setLesson2Progress(lesson2 ? lesson2.percent : 0);
       }
     };
     fetchProgress();
@@ -135,7 +140,6 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
                     </div>
                   </div>
                   <CardHeader className="pb-4">
-                  <p className="text-medium-gray mt-2">{module.description}</p>
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm text-medium-gray" dir="rtl">
                         <span>{module.completedLessons}/{module.lessons} שיעורים</span>
@@ -163,7 +167,13 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
               <p className="text-medium-gray">משימות שהוגשו וקיבלו משוב</p>
             </div>
             <div className="space-y-4 flex-1 flex flex-col">
-              {assignments.map((assignment) => (
+              {/* Conditional rendering for lesson2 progress */}
+              {lesson2Progress === 0 && (
+                <div className="bg-white rounded-3xl shadow-card border-0 p-8 text-center text-xl text-medium-gray font-semibold">
+                  עדיין לא הוגשו משימות
+                </div>
+              )}
+              {lesson2Progress === 100 && assignments.map((assignment) => (
                 <Card 
                   key={assignment.id} 
                   className="bg-gradient-card shadow-card rounded-3xl border-0 overflow-hidden flex flex-col h-full"

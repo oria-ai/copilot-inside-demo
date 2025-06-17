@@ -8,7 +8,11 @@ import { ChartContainer } from '@/components/ui/chart';
 import * as RechartsPrimitive from 'recharts';
 
 interface ManagerDashboardProps {
-  userData: any;
+  userData: {
+    id: string;
+    name: string;
+    role: string;
+  };
   onBack: () => void;
 }
 
@@ -268,39 +272,71 @@ const ManagerDashboard = ({ userData, onBack }: ManagerDashboardProps) => {
           </SelectContent>
         </Select>
       </div>
-      {/* Worker divisions */}
+      {/* Worker courses */}
       {selectedWorker && (
         <div className="grid gap-4">
-          {divisions.map((division) => (
-            <Card key={division.id} className="p-4">
-              <h3 className="text-lg font-semibold mb-4">{division.title}</h3>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-blue-600">75%</div>
-                  <div className="text-sm text-gray-600">התקדמות</div>
+          {allModules.map((course) => {
+            // Course-specific feedback content
+            const feedbackContent = {
+              'basics': {
+                progress: "העובד מציג התקדמות מרשימה בהבנת מושגי היסוד. השלים 85% מהמשימות הבסיסיות, כולל תרגילי חשיבה מורכבים. מקפיד על הגשת מטלות בזמן ומראה מוטיבציה גבוהה ללמידה",
+                understanding: "מפגין הבנה מעמיקה של עקרונות הבסיס. מצליח לקשר בין מושגים שונים ולהסביר אותם בצורה ברורה. יכולת אנליטית גבוהה בפתרון בעיות",
+                recommendations: "להעמיק בנושאי אוטומציה בסיסית ולהתחיל להתנסות בכלים מתקדמים. מומלץ להתחיל בקורס האקסל כשלב הבא בהתפתחות המקצועית"
+              },
+              'excel': {
+                progress: "התקדמות מהירה ויסודית בלימוד אקסל מתקדם. השלים בהצלחה 90% מתרגילי ה-Pivot Tables ו-75% מתרגילי ה-Power Query. מראה יכולת גבוהה בבניית מודלים מורכבים",
+                understanding: "שולט היטב בפונקציות מתקדמות ובניתוח נתונים. מצליח לבנות דוחות מורכבים ולאתר תובנות משמעותיות. עדיין יש מקום לשיפור בנושאי VBA ו-Macros",
+                recommendations: "להתמקד בפיתוח מיומנויות אוטומציה מתקדמות: VBA, Power Query, ו-Power Pivot. כדאי להתנסות בבניית פתרונות אוטומטיים לתהליכים חוזרים"
+              },
+              'reports': {
+                progress: "מראה שליטה מצוינת בבניית דוחות מורכבים. השלים 95% מהמשימות בציונים גבוהים. מצטיין במיוחד בעיצוב ויזואלי של נתונים ובהצגת תובנות עסקיות",
+                understanding: "הבנה מעמיקה של עקרונות הדיווח והניתוח העסקי. יכולת גבוהה בזיהוי מגמות ובהצגת תובנות באופן ברור ומשכנע. מצטיין בהתאמת הדוחות לצרכי המשתמש",
+                recommendations: "להתמקד בפיתוח דשבורדים אינטראקטיביים ומתקדמים. מומלץ להעמיק בטכניקות ויזואליזציה מתקדמות ובשילוב מקורות מידע מרובים. כדאי להתנסות בכלי BI נוספים"
+              }
+            };
+
+            return (
+              <Card key={course.id} className="p-4">
+                <h3 className="text-lg font-semibold mb-4">{course.title}</h3>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-blue-600">75%</div>
+                    <div className="text-sm text-gray-600">התקדמות</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-yellow-600">4.2</div>
+                    <div className="text-sm text-gray-600">דירוג הבנה</div>
+                  </div>
+                  <div>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">משוב</Button>
+                      </DialogTrigger>
+                      <DialogContent className="text-right" dir="rtl">
+                        <DialogHeader>
+                          <DialogTitle>משוב עובד - {course.title}</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 p-4">
+                          <div className="border-b pb-2">
+                            <h4 className="font-semibold mb-2">התקדמות</h4>
+                            <p className="text-sm text-gray-600">{feedbackContent[course.id].progress}</p>
+                          </div>
+                          <div className="border-b pb-2">
+                            <h4 className="font-semibold mb-2">הבנה</h4>
+                            <p className="text-sm text-gray-600">{feedbackContent[course.id].understanding}</p>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold mb-2">המלצות</h4>
+                            <p className="text-sm text-gray-600">{feedbackContent[course.id].recommendations}</p>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-600">טוב</div>
-                  <div className="text-sm text-gray-600">קצב</div>
-                </div>
-                <div>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm">משוב</Button>
-                    </DialogTrigger>
-                    <DialogContent className="text-right" dir="rtl">
-                      <DialogHeader>
-                        <DialogTitle>משוב עובד</DialogTitle>
-                      </DialogHeader>
-                      <div className="p-4">
-                        <p>כאן יוצג משוב מפורט על העובד - placeholder</p>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

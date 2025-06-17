@@ -58,13 +58,24 @@ const Login = ({ onLogin }: LoginProps) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-blue-50 to-indigo-100" dir="rtl">
-      {/* Left Side - Card Form (centered) */}
-      <div className="flex w-full md:w-1/2 justify-center items-center min-h-[50vh] md:min-h-screen">
+    <div className="min-h-screen flex flex-col md:flex-row relative" dir="rtl">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: 'url(/background.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: '0.8',
+          filter: 'brightness(1.2)'
+        }}
+      />
+      {/* Content Container - Now with relative positioning to appear above background */}
+      <div className="relative z-10 flex w-full md:w-1/2 justify-center items-center min-h-[50vh] md:min-h-screen">
         <div className="w-full max-w-md">
           <Card className="w-full max-w-md shadow-xl">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold text-gray-800">Copilot Inside</CardTitle>
+              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-[#00A3D5] to-[#00C49A] bg-clip-text text-transparent">Copilot Inside</CardTitle>
               {/* <p className="text-gray-600">התחברות למערכת הלמידה</p> */}
             </CardHeader>
             <CardContent>
@@ -148,9 +159,11 @@ const Login = ({ onLogin }: LoginProps) => {
                         </Select>
                       </div>
                     </div>
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-                      הירשם
-                    </Button>
+                    <div className="flex justify-center">
+                      <Button type="submit" className="w-[60%] bg-blue-600 hover:bg-blue-700">
+                        הירשם
+                      </Button>
+                    </div>
                   </form>
                 </TabsContent>
                 <TabsContent value="signin">
@@ -177,9 +190,11 @@ const Login = ({ onLogin }: LoginProps) => {
                         className="text-right"
                       />
                     </div>
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-                      התחבר
-                    </Button>
+                    <div className="flex justify-center">
+                      <Button type="submit" className="w-[60%] bg-blue-600 hover:bg-blue-700">
+                        התחבר
+                      </Button>
+                    </div>
                   </form>
                 </TabsContent>
               </Tabs>
@@ -188,7 +203,7 @@ const Login = ({ onLogin }: LoginProps) => {
         </div>
       </div>
       {/* Right Side - Image as background, 50% width */}
-      <div className="w-full md:w-1/2 h-[40vh] md:h-screen flex items-center justify-center">
+      <div className="relative z-10 w-full md:w-1/2 h-[40vh] md:h-screen flex items-center justify-center">
         <img
           src="/squarelogo.png"
           alt="Copilot Inside Logo"

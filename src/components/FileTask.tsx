@@ -138,7 +138,7 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
     },
     {
       title: 'הוראות עבודה',
-      instructions: 'שמור את הקובץ בענן, כך שקופיילוט יוכל לגשת אליו.<br />פתח מסמך וורד חדש, ובקש מקופיילוט ליצור עבורך סיכום מהקובץ.<br />עבור על המסמך כדי לוודא מה אתה רוצה לסכם, והקפד לשלוח לקופיילוט פרומפט מלא ומפורט.',
+      instructions: 'שמור את הקובץ בענן, כך שקופיילוט יוכל לגשת אליו.<br />פתח במחשב שלך מסמך וורד חדש, ובקש מקופיילוט ליצור עבורך סיכום מהקובץ.<br />עבור על המסמך כדי לוודא מה אתה רוצה לסכם, והקפד לשלוח לקופיילוט פרומפט מלא ומפורט.',
       showDownload: false,
       showUpload: false
     },
@@ -318,22 +318,22 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
               </div>
               <div className="grid grid-cols-2 gap-6">
                 <Card 
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                  className="cursor-pointer hover:shadow-lg transition-shadow bg-blue-50"
                   onClick={() => setSelectedPath('left')}
                 >
-                  <CardHeader>
-                    <CardTitle>תרגול על קובץ לדוגמא</CardTitle>
+                  <CardHeader className="text-center pb-2">
+                    <CardTitle className="text-xl">תרגול על קובץ לדוגמא</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p>סכם בעזרת קופיילוט קובץ לדוגמא שהכנו עבורך.</p>
                   </CardContent>
                 </Card>
                 <Card 
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                  className="cursor-pointer hover:shadow-lg transition-shadow bg-blue-50"
                   onClick={() => setSelectedPath('right')}
                 >
-                  <CardHeader>
-                    <CardTitle>תרגול על קובץ שלי</CardTitle>
+                  <CardHeader className="text-center pb-2">
+                    <CardTitle className="text-xl">תרגול על קובץ שלי</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p>בחר קובץ שברצונך לסכם בעזרת קופיילוט, ואנחנו נדריך אותך איך לעשות זאת.</p>

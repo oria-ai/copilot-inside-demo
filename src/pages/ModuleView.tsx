@@ -73,7 +73,7 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
           videoTitle: 'Word 1 Restored Final',
           activities: [
             { id: 'video', title: 'קופיילוט עם Word', completed: false },
-            { id: 'file', title: 'תרגול חי', completed: false },
+            { id: 'file', title: 'תרגול משולחן העבודה', completed: false },
             { id: 'conclusion', title: 'סיכום', completed: false }
           ]
         }

@@ -30,8 +30,8 @@ const INITIAL_UPLOAD_FEEDBACK = `
 </ul>
 `;
 
-// Hardcoded feedback for the final submission (last card)
-const FINAL_SUBMISSION_FEEDBACK = `
+// Hardcoded feedback for the final submission - LEFT PATH (example file)
+const FINAL_SUBMISSION_FEEDBACK_LEFT = `
 <p class="mb-4"><b>פידבק על ההגשה – סיכום קובץ באמצעות Copilot:</b></p>
 <ul class="list-disc list-inside mb-4 space-y-1">
   <li class="mb-1">✅ <b>חוזקות:</b></li>
@@ -47,6 +47,25 @@ const FINAL_SUBMISSION_FEEDBACK = `
   </ul>
 </ul>
 <p class="mb-4">🛠️ <b>המלצה:</b><br>השתמש ב-Copilot כבסיס, אך הקפד לעבור ידנית ולוודא דיוק, עומק וייצוג מלא של הרעיונות המרכזיים.</p>
+`;
+
+// Hardcoded feedback for the final submission - RIGHT PATH (user's own file)
+const FINAL_SUBMISSION_FEEDBACK_RIGHT = `
+<p class="mb-4"><b>פידבק על ההגשה – סיכום קובץ באמצעות Copilot:</b></p>
+<ul class="list-disc list-inside mb-4 space-y-1">
+  <li class="mb-1">✅ <b>חוזקות:</b></li>
+  <ul class="list-disc list-inside mb-4 space-y-1">
+    <li class="mb-1">שימוש יעיל ב-Copilot ליצירת סיכום מובנה.</li>
+    <li class="mb-1">הצלחת לחלץ את הנקודות המרכזיות מהקובץ שלך.</li>
+  </ul>
+  <li class="mb-1">⚠️ <b>נקודות לשיפור:</b></li>
+  <ul class="list-disc list-inside mb-4 space-y-1">
+    <li class="mb-1">כדאי לוודא שהסיכום כולל את כל הנושאים הרלוונטיים מהקובץ המקורי.</li>
+    <li class="mb-1">מומלץ לעבור על הטקסט ולהוסיף פרטים ספציפיים שחשובים לך.</li>
+    <li class="mb-1">שקול להוסיף מבנה ברור יותר עם כותרות לנושאים שונים.</li>
+  </ul>
+</ul>
+<p class="mb-4">🛠️ <b>המלצה:</b><br>המשך להשתמש ב-Copilot כנקודת התחלה, אך תמיד הוסף את המגע האישי שלך לוודא שהסיכום משקף בדיוק את מה שחשוב לך.</p>
 `;
 
 interface CardType {
@@ -71,8 +90,10 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
   const [initialFeedback, setInitialFeedback] = useState('');
   const [finalFeedback, setFinalFeedback] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
-  const [showHow1, setShowHow1] = useState(false);
-  const [showHow2, setShowHow2] = useState(false);
+  const [showHow1Left, setShowHow1Left] = useState(false);
+  const [showHow2Left, setShowHow2Left] = useState(false);
+  const [showHow1Right, setShowHow1Right] = useState(false);
+  const [showHow2Right, setShowHow2Right] = useState(false);
   const [showContinue, setShowContinue] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [selectedPath, setSelectedPath] = useState<'left' | 'right' | null>(null);
@@ -110,14 +131,14 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
   const rightPathCards: CardType[] = [
     {
       title: 'העלה את הקובץ לבדיקה',
-      instructions: 'העלה את הקובץ לכאן.',
+      instructions: 'העלה את הקובץ על מנת שנבדוק שאכן ניתן לסכם אותו באמצעות קופיילוט, ומה הדגשים לעבודה.',
       showDownload: false,
       showUpload: true,
       isInitialUpload: true
     },
     {
       title: 'הוראות עבודה',
-      instructions: 'שמור את הקובץ בענן, כך שקופיילוט יוכל לגשת אליו.<br />פתח מסמך וורד חדש, ובקש מקופיילוט ליצור עבורך סיכום מהקובץ.<br />עבור על המסמך כדי להבין את ההקשר, והקפד לשלוח לקופיילוט פרומפט מלא ומפורט.',
+      instructions: 'שמור את הקובץ בענן, כך שקופיילוט יוכל לגשת אליו.<br />פתח מסמך וורד חדש, ובקש מקופיילוט ליצור עבורך סיכום מהקובץ.<br />עבור על המסמך כדי לוודא מה אתה רוצה לסכם, והקפד לשלוח לקופיילוט פרומפט מלא ומפורט.',
       showDownload: false,
       showUpload: false
     },
@@ -186,7 +207,11 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
     setFinalFeedback('');
     // Simulate a 2-second delay
     await new Promise(resolve => setTimeout(resolve, 2000));
-    setFinalFeedback(FINAL_SUBMISSION_FEEDBACK);
+    
+    // Use different feedback based on selected path
+    const feedbackToUse = selectedPath === 'left' ? FINAL_SUBMISSION_FEEDBACK_LEFT : FINAL_SUBMISSION_FEEDBACK_RIGHT;
+    setFinalFeedback(feedbackToUse);
+    
     setShowContinue(true);
     setIsFinalLoading(false);
     setHasSubmitted(true);
@@ -216,6 +241,64 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
     }
   };
 
+  // Helper function to get current "how exactly" state
+  const getCurrentShowHow = () => {
+    if (selectedPath === 'left') {
+      return currentCard === 1 ? showHow1Left : showHow2Left;
+    } else {
+      return currentCard === 1 ? showHow1Right : showHow2Right;
+    }
+  };
+
+  // Helper function to set current "how exactly" state
+  const setCurrentShowHow = (value: boolean) => {
+    if (selectedPath === 'left') {
+      if (currentCard === 1) setShowHow1Left(value);
+      else setShowHow2Left(value);
+    } else {
+      if (currentCard === 1) setShowHow1Right(value);
+      else setShowHow2Right(value);
+    }
+  };
+
+  // Helper function to get extra instructions for current card
+  const getExtraInstructions = () => {
+    if (selectedPath === 'left') {
+      if (currentCard === 1) {
+        return (
+          <ul><li>לאחר שתפתח קובץ וורד חדש, תראה שורת שיחה עם קופיילוט בראש הקובץ.</li><li>לחץ על המקש "/", וכך תוכל לבחור קובץ מהמחשב להתייחסות. בחר את קובץ התמלול.</li><li>כתוב פרומפט מפורט שמסביר מה זה קובץ התמלול ומה על קופיילוט לעשות.</li></ul>
+        );
+      } else if (currentCard === 2) {
+        return (
+          <>
+            לאחר יצירת הסיכום, קופיילוט יפתח עבורך חלון צ'אט בתחתית המסך לטובת הנחיות לתיקון.
+            <br />
+            תמיד תוכל להמשיך לבקש מקופיילוט עריכות על המסמך, באמצעות לחיצה על סימן הקופיילוט - 
+            <br />
+            הוא מופיע תמיד ליד השורה בה אתה כותב.
+          </>
+        );
+      }
+    } else {
+      if (currentCard === 1) {
+        return (
+          <ul><li>לאחר שתפתח קובץ וורד חדש, תראה שורת שיחה עם קופיילוט בראש הקובץ.</li><li>לחץ על המקש "/", וכך תוכל לבחור קובץ מהמחשב להתייחסות. בחר את הקובץ שלך.</li><li>כתוב פרומפט מפורט שמסביר מה זה הקובץ שלך ומה על קופיילוט לעשות.</li></ul>
+        );
+      } else if (currentCard === 2) {
+        return (
+          <>
+            לאחר יצירת הסיכום, קופיילוט יפתח עבורך חלון צ'אט בתחתית המסך לטובת הנחיות לתיקון.
+            <br />
+            תמיד תוכל להמשיך לבקש מקופיילוט עריכות על המסמך, באמצעות לחיצה על סימן הקופיילוט - 
+            <br />
+            הוא מופיע תמיד ליד השורה בה אתה כותב.
+          </>
+        );
+      }
+    }
+    return null;
+  };
+
   /* -------------------------------------------------- */
   /*   Render                                           */
   /* -------------------------------------------------- */
@@ -231,7 +314,7 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
             <div className="space-y-6">
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold mb-4">בחר את המסלול שלך</h2>
-                <p className="text-gray-600">כעת נסכם קובץ בעזרת קופיילוט. בחר האם יש לך קובץ שתהיה מעוניין לסכם, או שתרצה לתרגל על קובץ לדוגמא.</p>
+                <p className="text-gray-600">כעת נתרגל סיכום קובץ בעזרת קופיילוט. בחר אם תרצה לתרגל על קובץ שלך, או על קובץ דוגמא מוכן.</p>
               </div>
               <div className="grid grid-cols-2 gap-6">
                 <Card 
@@ -253,7 +336,7 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
                     <CardTitle>תרגול על קובץ שלי</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p>בחר קובץ שברצונך לסכם בעזרת קופיילוט, ואנחנו נדריך אותך איך.</p>
+                    <p>בחר קובץ שברצונך לסכם בעזרת קופיילוט, ואנחנו נדריך אותך איך לעשות זאת.</p>
                   </CardContent>
                 </Card>
               </div>
@@ -267,6 +350,27 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
                   <h3 className="text-xl font-semibold mb-4">{cards[currentCard].title}</h3>
                   <div className="text-gray-700 mb-6 prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900" dangerouslySetInnerHTML={{ __html: cards[currentCard].instructions }} />
                   
+                  {/* How link for card 1 and 2 */}
+                  {(currentCard === 1 || currentCard === 2) && (
+                    <>
+                      {/* Extra instructions for card 1 and 2 */}
+                      {getCurrentShowHow() && (
+                        <div className="mt-2 text-gray-700 prose prose-sm max-w-none" dir="rtl">
+                          {getExtraInstructions()}
+                        </div>
+                      )}
+                      {/* Clickable text below extra instructions or below main instructions */}
+                      <div className="mt-2">
+                        <span
+                          className="text-blue-600 underline cursor-pointer text-md"
+                          onClick={() => setCurrentShowHow(!getCurrentShowHow())}
+                        >
+                          {getCurrentShowHow() ? 'הצג פחות' : 'איך בדיוק?'}
+                        </span>
+                      </div>
+                    </>
+                  )}
+
                   {/* First card special handling */}
                   {currentCard === 0 && selectedPath === 'right' && (
                     <div className="space-y-4 flex flex-col items-center">

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface PromptTaskProps {
   lessonId: string;
@@ -33,6 +34,9 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
   const [systemPrompt, setSystemPrompt] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [showHow, setShowHow] = useState(false);
+  const [showWellDone, setShowWellDone] = useState(false);
+
+  const promptTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Load system prompt from file
   useEffect(() => {
@@ -66,6 +70,14 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
     setShowHow(false);
   }, [lessonId]);
 
+  // In the PromptTask component, add this effect to auto-resize the textarea
+  useEffect(() => {
+    if (promptTextareaRef.current) {
+      promptTextareaRef.current.style.height = 'auto';
+      promptTextareaRef.current.style.height = `${promptTextareaRef.current.scrollHeight}px`;
+    }
+  }, [prompt]);
+
   // American question logic
   const handleCheckbox = (answer: string) => {
     setSelected((prev) =>
@@ -92,11 +104,16 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
     const isCorrect = correctSelections >= 2 && correctSelections <= 3;
     
     if (isCorrect) {
-      setStep('improve');
+      setShowWellDone(true);
       setAmericanError('');
     } else {
       setAmericanError('נסה שנית');
     }
+  };
+
+  const handleWellDoneContinue = () => {
+    setShowWellDone(false);
+    setStep('improve');
   };
 
   // Prompt improvement logic
@@ -166,6 +183,17 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
 
   return (
     <Card className="!mb-0 !pb-0">
+      {/* Well Done Dialog */}
+      <Dialog open={showWellDone} onOpenChange={setShowWellDone}>
+        <DialogContent dir="rtl" className="text-right">
+          <DialogHeader className="items-center text-center">
+            <DialogTitle className="w-full text-center">כל הכבוד!</DialogTitle>
+          </DialogHeader>
+          <div className="text-center my-4 text-lg">ענית נכון! אפשר להמשיך לשלב הבא.</div>
+          <Button onClick={handleWellDoneContinue} className="w-full mt-2">המשך</Button>
+        </DialogContent>
+      </Dialog>
+      {/* End Well Done Dialog */}
       <CardHeader>
         <CardTitle>שיפור פרומפט</CardTitle>
       </CardHeader>
@@ -173,7 +201,7 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
         <div className="space-y-6">
           {step === 'american' && (
             <div className="space-y-4">
-              <div className="block text-sm font-medium text-gray-700 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: `
+              <div className="block text-md font-medium text-gray-700 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: `
                 <strong>רקע</strong><br />
                 בדיוק סיימת פגישה, ואתה רוצה לשלוח מייל סיכום למשתתפים עם פירוט המשימות של כל אחד.<br />
                 כתבת לקופיילוט את הפרומפט הבא, אבל קיבלת תוצאה כללית ומאכזבת:<br />
@@ -235,10 +263,12 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
                 )}
               </div>
               <Textarea
+                ref={promptTextareaRef}
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}
                 rows={4}
                 className="text-right w-3/5"
+                style={{ maxHeight: '60vh', overflow: 'auto', resize: 'none' }}
               />
               <Button onClick={handlePromptSubmit} disabled={isLoading}>
                 {isLoading ? 'שולח...' : hasSubmitted ? 'שלח מחדש' : 'שלח'}

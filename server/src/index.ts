@@ -105,4 +105,5 @@ app.get("/health", (req: Request, res: Response) => {
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () =>
-  console.log(`
+  console.log(`💾  API ready on port ${PORT}`)
+);

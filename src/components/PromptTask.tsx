@@ -230,9 +230,8 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
 
           {step === 'improve' && (
             <div className="space-y-4">
-              <div className="mb-2 font-medium text-gray-700 flex flex-col gap-2">
+              <div className="mb-2 font-medium text-gray-700 flex items-center gap-2">
                 <span>כתוב מחדש את הפרומפט, כך שישיג תוצאה מיטבית.</span>
-                <span>תוכל לחשוב על פגישה אמיתית שביצעת כדי להכניס תוכן לפרומפט.</span>
               </div>
               {showHow && (
                 <div className="mt-2 text-gray-700 prose prose-sm max-w-none" dir="rtl">

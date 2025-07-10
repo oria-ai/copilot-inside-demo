@@ -5,12 +5,34 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { userStorage } from '@/lib/localStorage';
 
 interface LoginProps {
   onLogin: (userData: any) => void;
 }
 
 const api = 'http://localhost:4000';
+
+// Default users for demo purposes 
+const DEFAULT_USERS = {
+  student: {
+    id: 'default-student',
+    email: 'oria@gmail.com', 
+    password: '1234',
+    name: 'אוריה',
+    department: 'פיתוח',
+    copilotLanguage: 'hebrew',
+    studyingLanguage: 'hebrew',
+    role: 'student'
+  },
+  manager: {
+    id: 'default-manager',
+    email: 'manager@gmail.com',
+    password: '1234', 
+    name: 'מנהל',
+    role: 'manager'
+  }
+};
 
 const Login = ({ onLogin }: LoginProps) => {
   const [formData, setFormData] = useState({
@@ -30,6 +52,7 @@ const Login = ({ onLogin }: LoginProps) => {
     setError(null);
     try {
       if (tab === 'signup') {
+        // Create new user and save to database
         const res = await fetch(`${api}/users`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -37,8 +60,22 @@ const Login = ({ onLogin }: LoginProps) => {
         });
         if (!res.ok) throw new Error('Signup failed');
         const user = await res.json();
+        
+        // Save user to localStorage
+        userStorage.saveCurrentUser(user);
         onLogin(user);
       } else {
+        // Check if it's a default user
+        const defaultUser = Object.values(DEFAULT_USERS).find(
+          user => user.email === formData.email && user.password === formData.password
+        );
+        if (defaultUser) {
+          userStorage.saveCurrentUser(defaultUser);
+          onLogin(defaultUser);
+          return;
+        }
+        
+        // Try to login with API
         const res = await fetch(`${api}/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -46,6 +83,9 @@ const Login = ({ onLogin }: LoginProps) => {
         });
         if (!res.ok) throw new Error('Login failed');
         const user = await res.json();
+        
+        // Save user to localStorage
+        userStorage.saveCurrentUser(user);
         onLogin(user);
       }
     } catch (err: any) {

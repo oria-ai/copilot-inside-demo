@@ -4,6 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Clock, Trophy, ArrowLeft, FileText, MessageSquare, LogOut } from 'lucide-react';
 import { Dialog } from '@headlessui/react';
+import { progressStorage } from '@/lib/localStorage';
 
 export interface UserData {
   id?: string;
@@ -42,18 +43,15 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
   const feedbackHtml = `<p class="mb-4">היי, הנה משוב על הפרומפט שלך:</p><ul class="list-disc list-inside mb-4 space-y-1"><li class="mb-1"><strong>תפקיד:</strong> חסר. הפרומפט לא מציין מי אמור לסכם את הפגישה.</li><li class="mb-1"><strong>מטרה:</strong> קיימת, אך כללית מאוד - "שאוכל לשלוח מייל לכולם".</li><li class="mb-1"><strong>הקשר:</strong> חסר לחלוטין. אין שום מידע על הפגישה עצמה (נושא, משתתפים, החלטות שהתקבלו וכו').</li><li class="mb-1"><strong>תוצר רצוי:</strong> חסר פירוט. "סיכום" זה כללי מדי. מה בדיוק צריך לכלול הסיכום? מה אורך הסיכום הרצוי?</li></ul><p class="mb-4">המלצות לשיפור:</p><ul class="list-disc list-inside mb-4 space-y-1"><li class="mb-1">הוסף תפקיד: לדוגמה, "בתור עוזר/ת אישי/ת...".</li><li class="mb-1">פרט את ההקשר: ציין את נושא הפגישה, תאריך, משתתפים מרכזיים, מטרת הפגישה.</li><li class="mb-1">הגדר את התוצר הרצוי בצורה מפורטת: לדוגמה, "סיכום תמציתי של עיקרי הדברים, החלטות שהתקבלו ופעולות המשך נדרשות, באורך של עד 200 מילים".</li><li class="mb-1">חדד את המטרה: פרט למה הסיכום ישמש, לדוגמה "כדי ליידע את כל המשתתפים על ההחלטות שהתקבלו ולתאם את המשך הפעילות".</li></ul>`;
 
   useEffect(() => {
-    const fetchProgress = async () => {
-      const res = await fetch(`${api}/progress/${userData.id || userData.email}`);
-      if (res.ok) {
-        type ProgressData = { lessonId: string; percent: number };
-        const data: ProgressData[] = await res.json();
-        const total = data.reduce((sum, p) => sum + (p.percent || 0), 0);
-        setCompletedLessons(data.filter(p => p.percent === 100).length);
-        setOverallProgress(Math.round((total / (totalLessons * 100)) * 100));
-        // Find lesson2 progress
-        const lesson2 = data.find((p) => p.lessonId === 'lesson2');
-        setLesson2Progress(lesson2 ? lesson2.percent : 0);
-      }
+    const fetchProgress = () => {
+      // Get progress from localStorage instead of API
+      const data = progressStorage.getProgress(userData.id || userData.email);
+      const total = data.reduce((sum, p) => sum + (p.percent || 0), 0);
+      setCompletedLessons(data.filter(p => p.percent === 100).length);
+      setOverallProgress(Math.round((total / (totalLessons * 100)) * 100));
+      // Find lesson2 progress
+      const lesson2 = data.find((p) => p.lessonId === 'lesson2');
+      setLesson2Progress(lesson2 ? lesson2.percent : 0);
     };
     fetchProgress();
   }, [userData, totalLessons]);

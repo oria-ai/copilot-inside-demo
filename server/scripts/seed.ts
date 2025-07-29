@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -6,7 +7,16 @@ async function main() {
   // Create users
   await prisma.user.createMany({
     data: [
-      { id: 'user1', email: 'oria@gmail.com', password: '1234', department: 'development', copilotLanguage: 'hebrew', studyingLanguage: 'hebrew', role: 'student', name: 'Oria' },
+      { 
+        id: 'user1', 
+        email: 'oria@gmail.com', 
+        password: await bcrypt.hash('1234', 10), // hash the password
+        department: 'development', 
+        copilotLanguage: 'hebrew', 
+        studyingLanguage: 'hebrew', 
+        role: 'student', 
+        name: 'Oria' 
+      },
       { id: 'user2', email: 'user2@example.com', password: 'pass2', department: 'digital', copilotLanguage: 'english', studyingLanguage: 'english', role: 'student', name: 'User Two' },
       { id: 'user3', email: 'user3@example.com', password: 'pass3', department: 'finance', copilotLanguage: 'hebrew', studyingLanguage: 'english', role: 'manager', name: 'User Three' },
     ]
@@ -60,4 +70,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
-  }); 
+  });

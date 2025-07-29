@@ -9,6 +9,7 @@ import PromptTask from '@/components/PromptTask';
 import FileTask from '@/components/FileTask';
 import Conclusion from '@/components/Conclusion';
 import ModuleSidebar from '@/components/ModuleSidebar';
+import { progressStorage, type UserProgress, type ActivityProgress } from '@/lib/localStorage';
 
 interface ModuleViewProps {
   moduleId: string;
@@ -18,18 +19,6 @@ interface ModuleViewProps {
 }
 
 const api = 'http://localhost:4000';
-
-// 1. Define a type for user progress
-interface ActivityProgress {
-  [activityId: string]: boolean | number[]; // boolean for simple complete, number[] for steps/cards
-}
-interface UserProgress {
-  lessonId: string;
-  percent: number;
-  lastActivity?: string;
-  lastStep?: number;
-  activityProgress?: ActivityProgress;
-}
 
 const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewProps) => {
   const [lessonState, setLessonState] = useState<{ lessonId: string; activityId: string }>({ lessonId: '', activityId: '' });
@@ -45,7 +34,7 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
           id: 'lesson1',
           title: 'היכרות עם קופיילוט',
           sidebarTitle: 'שיעור ראשון - היכרות עם קופיילוט',
-          video: 'https://player.vimeo.com/video/1086753235?badge=0&autopause=0&player_id=0&app_id=58479',
+          video: 'https://player.vimeo.com/video/1086753235?h=dcea357886&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479',
           videoTitle: 'Intro To Copilot',
           activities: [
             { id: 'video', title: 'מבוא', completed: true },
@@ -57,7 +46,7 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
           id: 'lesson2',
           title: 'הנדסת פרומפטים',
           sidebarTitle: 'שיעור שני - הנדסת פרומפטים',
-          video: 'https://player.vimeo.com/video/1088062270?badge=0&autopause=0&player_id=0&app_id=58479',
+          video: 'https://player.vimeo.com/video/1088062270?h=16b48a61a6&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479',
           videoTitle: 'Prompt Enigneering',
           activities: [
             { id: 'video', title: 'הנדסת פרומפטים', completed: false },
@@ -109,46 +98,50 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
         activityProgress[activityId] = true;
       }
     }
-    await fetch(`${api}/progress`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, lessonId, percent: progress, lastActivity: activityId, lastStep: step, activityProgress })
-    });
-    // Refresh progress
-    const res = await fetch(`${api}/progress/${userId}`);
-    if (res.ok) {
-      const data = await res.json();
-      setUserProgress(data);
-    }
+    
+    // Save to localStorage instead of API
+    const lessonProgress: UserProgress = {
+      lessonId,
+      percent: progress,
+      lastActivity: activityId,
+      lastStep: step,
+      activityProgress
+    };
+    
+    progressStorage.saveProgress(userId, lessonProgress);
+    
+    // Update local state
+    const updatedProgress = progressStorage.getProgress(userId);
+    setUserProgress(updatedProgress);
   }, [userId, userProgress]);
 
   useEffect(() => {
     const fetchProgress = async () => {
       setIsLoading(true);
-      const res = await fetch(`${api}/progress/${userId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setUserProgress(data);
-        
-        // Find last position from progress data
-        const progressWithActivity = data.find(p => p.lastActivity && p.lastActivity !== '');
-        if (progressWithActivity) {
-          // Resume from last position
-          setLessonState({ 
-            lessonId: progressWithActivity.lessonId, 
-            activityId: progressWithActivity.lastActivity 
-          });
+      
+      // Get progress from localStorage instead of API
+      const data = progressStorage.getProgress(userId);
+      setUserProgress(data);
+      
+      // Find last position from progress data
+      const progressWithActivity = data.find(p => p.lastActivity && p.lastActivity !== '');
+      if (progressWithActivity) {
+        // Resume from last position
+        setLessonState({ 
+          lessonId: progressWithActivity.lessonId, 
+          activityId: progressWithActivity.lastActivity 
+        });
+      } else {
+        // No saved position, start at first lesson's video
+        const firstLesson = currentModule.lessons[0];
+        const videoActivity = firstLesson.activities.find(a => a.id === 'video');
+        if (videoActivity) {
+          setLessonState({ lessonId: firstLesson.id, activityId: 'video' });
         } else {
-          // No saved position, start at first lesson's video
-          const firstLesson = currentModule.lessons[0];
-          const videoActivity = firstLesson.activities.find(a => a.id === 'video');
-          if (videoActivity) {
-            setLessonState({ lessonId: firstLesson.id, activityId: 'video' });
-          } else {
-            setLessonState({ lessonId: firstLesson.id, activityId: firstLesson.activities[0].id });
-          }
+          setLessonState({ lessonId: firstLesson.id, activityId: firstLesson.activities[0].id });
         }
       }
+      
       setIsLoading(false);
     };
     fetchProgress();
@@ -223,18 +216,17 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
   useEffect(() => {
     if (!lessonState.lessonId || !lessonState.activityId || isLoading) return;
     
-    const savePosition = async () => {
-      await fetch(`${api}/progress`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          userId, 
-          lessonId: lessonState.lessonId, 
-          percent: userProgress.find(p => p.lessonId === lessonState.lessonId)?.percent || 0,
-          lastActivity: lessonState.activityId,
-          lastStep: 1 
-        })
-      });
+    const savePosition = () => {
+      const currentProgress = userProgress.find(p => p.lessonId === lessonState.lessonId);
+      const lessonProgress: UserProgress = {
+        lessonId: lessonState.lessonId,
+        percent: currentProgress?.percent || 0,
+        lastActivity: lessonState.activityId,
+        lastStep: 1,
+        activityProgress: currentProgress?.activityProgress || {}
+      };
+      
+      progressStorage.saveProgress(userId, lessonProgress);
     };
     
     savePosition();
@@ -246,30 +238,47 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
   };
 
   const handleConclusionComplete = useCallback(async (lessonId: string, rating: number) => {
-    // Save progress for the current lesson's conclusion
-    await fetch(`${api}/progress`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, lessonId, percent: 100, lastActivity: 'conclusion', lastStep: 1 })
-    });
+    // Save progress for the current lesson's conclusion to localStorage
+    const currentProgress = userProgress.find(p => p.lessonId === lessonId);
+    const activityProgress = currentProgress?.activityProgress || {};
+    activityProgress['conclusion'] = true;
+    
+    const lessonProgress: UserProgress = {
+      lessonId,
+      percent: 100,
+      lastActivity: 'conclusion',
+      lastStep: 1,
+      activityProgress
+    };
+    
+    progressStorage.saveProgress(userId, lessonProgress);
     
     // Then navigate to next lesson's video (not conclusion)
     const next = getNextActivity(lessonId, 'conclusion');
     if (next) {
-      // Refresh progress and navigate
-      const res = await fetch(`${api}/progress/${userId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setUserProgress(data);
-      }
-      // Always start at the video of the next lesson if moving to a new lesson
-      if (next.lessonId !== lessonId) {
-        setLessonAndDefaultActivity(next.lessonId);
-      } else {
-        setLessonAndActivity(next.lessonId, next.activityId);
-      }
+      // Get existing progress for the next lesson
+      const nextProgress = userProgress.find(p => p.lessonId === next.lessonId);
+      const nextActivityProgress = nextProgress?.activityProgress || {};
+      
+      // Merge activity progress from current lesson into next lesson
+      const mergedActivityProgress = { ...activityProgress, ...nextActivityProgress };
+      
+      const updatedProgress: UserProgress = {
+        lessonId: next.lessonId,
+        percent: 0, // Reset percent for new lesson
+        lastActivity: next.activityId,
+        lastStep: 1,
+        activityProgress: mergedActivityProgress
+      };
+      
+      // Save merged progress and navigate
+      progressStorage.saveProgress(userId, updatedProgress);
+      const data = progressStorage.getProgress(userId);
+      setUserProgress(data);
+      
+      setLessonAndActivity(next.lessonId, next.activityId);
     }
-  }, [userId]);
+  }, [userId, userProgress]);
 
   const goToNext = () => {
     const next = getNextActivity(lessonState.lessonId, lessonState.activityId);

@@ -4,7 +4,13 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 const app = express();
-app.use(cors());
+
+// Configure CORS for production
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  credentials: true
+}));
+
 app.use(express.json());
 
 /* ---------- Users ---------- */
@@ -38,6 +44,7 @@ app.post("/progress", async (req: Request, res: Response) => {
   });
   res.json(prog);
 });
+
 app.get("/progress/:userId", async (req: Request, res: Response) => {
   const list = await prisma.progress.findMany({
     where: { userId: req.params.userId },
@@ -91,6 +98,12 @@ app.post("/login", async (req: Request, res: Response) => {
   res.json(user);
 });
 
-app.listen(4000, () =>
-  console.log("💾  API ready on http://localhost:4000"),
+// Health check endpoint
+app.get("/health", (req: Request, res: Response) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () =>
+  console.log(`💾  API ready on port ${PORT}`)
 );

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Bot, User, Play, MessageSquare, ArrowRight, Video } from 'lucide-react';
+import { Send, Bot, User, Play, MessageSquare, ArrowRight, Video, Download } from 'lucide-react';
 
 interface ChatTaskProps {
   lessonId: string;
@@ -32,7 +32,7 @@ interface ToolCall {
 }
 
 // OpenAI API configuration - PUT YOUR API KEY HERE
-const OPENAI_API_KEY = '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'; // Replace with your actual API key
+const OPENAI_API_KEY = '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';
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 
 const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) => {
@@ -126,7 +126,7 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
     {
       type: "function",
       name: "go_to_clicktutor",
-      description: "Navigate to the ClickTutor interactive tutorial",
+      description: "Navigate to the ClickTutor interactive tutorial when user needs technical practice",
       parameters: {
         type: "object",
         properties: {
@@ -143,7 +143,7 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
     {
       type: "function", 
       name: "give_feedback",
-      description: "Provide feedback to the user about their progress or understanding",
+      description: "Provide feedback to the user about their progress after completing practice",
       parameters: {
         type: "object",
         properties: {
@@ -163,17 +163,17 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
     },
     {
       type: "function",
-      name: "move_on",
-      description: "Move to the next activity or lesson",
+      name: "move_to_2nd",
+      description: "Move to the advanced lesson when user completed current lesson",
       parameters: {
         type: "object", 
         properties: {
-          next_activity: {
+          next_lesson: {
             type: "string",
-            description: "The next activity to move to"
+            description: "The advanced lesson to move to"
           }
         },
-        required: ["next_activity"],
+        required: ["next_lesson"],
         additionalProperties: false
       },
       strict: false
@@ -181,7 +181,7 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
     {
       type: "function",
       name: "show_video",
-      description: "Show a relevant video to the user",
+      description: "Show a relevant video to help explain a topic or demonstrate a process",
       parameters: {
         type: "object",
         properties: {
@@ -191,6 +191,23 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
           }
         },
         required: ["video_topic"],
+        additionalProperties: false
+      },
+      strict: false
+    },
+    {
+      type: "function",
+      name: "show_file",
+      description: "Provide download link for the practice file when user needs the ready-made practice file",
+      parameters: {
+        type: "object",
+        properties: {
+          file_description: {
+            type: "string",
+            description: "Description of the file being offered for download"
+          }
+        },
+        required: ["file_description"],
         additionalProperties: false
       },
       strict: false
@@ -269,81 +286,98 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
            // Skip empty lines
            if (!line) continue;
            
-           // Parse Server-Sent Events format
-           if (line.startsWith('event:')) {
-             const eventType = line.substring(6).trim();
-             
-             // Get the next line which should be the data
-             if (i + 1 < lines.length && lines[i + 1].startsWith('data:')) {
-               const dataLine = lines[i + 1].substring(5).trim();
-               i++; // Skip the data line in next iteration
-               
-               if (!dataLine || dataLine === '[DONE]') continue;
-               
-                                try {
-                   const data = JSON.parse(dataLine);
+                            // Parse Server-Sent Events format
+                 if (line.startsWith('event:')) {
+                   const eventType = line.substring(6).trim();
                    
-                   // Debug logging
-                   console.log('Event:', eventType, 'Data:', data);
-                   
-                   // Capture response ID for conversation continuity
-                   if (eventType === 'response.created' || eventType === 'response.completed') {
-                     if (data.response?.id) {
-                       responseId = data.response.id;
-                       console.log('Captured response ID:', responseId);
-                     }
-                   }
-                   
-                   // Handle text deltas
-                   if (eventType === 'response.output_text.delta' && data.delta) {
-                     console.log('Adding delta:', data.delta);
+                   // Get the next line which should be the data
+                   if (i + 1 < lines.length && lines[i + 1].startsWith('data:')) {
+                     const dataLine = lines[i + 1].substring(5).trim();
+                     i++; // Skip the data line in next iteration
                      
-                                            setMessages(prev => {
-                         const newMessages = [...prev];
-                         
-                         // If streaming hasn't started, create the bot message
-                         if (!streamingStartedRef.current) {
-                           const botMessage: ChatMessage = {
-                             id: generateMessageId(),
-                             content: data.delta,
-                             sender: 'bot',
-                             timestamp: new Date()
-                           };
-                           streamingStartedRef.current = true;
-                           return [...newMessages, botMessage];
+                     if (!dataLine || dataLine === '[DONE]') continue;
+                     
+                     try {
+                       const data = JSON.parse(dataLine);
+                       
+                       // Debug logging
+                       console.log('Event:', eventType, 'Data:', data);
+                       
+                       // Capture response ID for conversation continuity
+                       if (eventType === 'response.created' || eventType === 'response.completed') {
+                         if (data.response?.id) {
+                           responseId = data.response.id;
+                           console.log('Captured response ID:', responseId);
                          }
+                       }
+                       
+                       // Handle text deltas
+                       if (eventType === 'response.output_text.delta' && data.delta) {
+                         console.log('Adding delta:', data.delta);
                          
-                         // Otherwise, append to the last bot message
-                         const lastMessage = newMessages[newMessages.length - 1];
-                         if (lastMessage.sender === 'bot') {
-                           lastMessage.content += data.delta;
-                         }
-                         return newMessages;
-                       });
-                   }
-                 // Handle function calls
-                 else if (eventType === 'response.function_call.delta' && data.name) {
-                   const toolCall: ToolCall = {
-                     id: data.id || generateMessageId(),
-                     name: data.name,
-                     arguments: data.arguments || {}
-                   };
+                         setMessages(prev => {
+                           const newMessages = [...prev];
+                           
+                           // If streaming hasn't started, create the bot message
+                           if (!streamingStartedRef.current) {
+                             const botMessage: ChatMessage = {
+                               id: generateMessageId(),
+                               content: data.delta,
+                               sender: 'bot',
+                               timestamp: new Date()
+                             };
+                             streamingStartedRef.current = true;
+                             return [...newMessages, botMessage];
+                           }
+                           
+                           // Otherwise, append to the last bot message
+                           const lastMessage = newMessages[newMessages.length - 1];
+                           if (lastMessage.sender === 'bot') {
+                             lastMessage.content += data.delta;
+                           }
+                           return newMessages;
+                         });
+                       }
+                       // Handle function call completion
+                       else if (eventType === 'response.output_item.done' && data.item?.type === 'function_call') {
+                         console.log('Function call completed:', data.item);
+                         
+                         const toolCall: ToolCall = {
+                           id: data.item.id || generateMessageId(),
+                           name: data.item.name,
+                           arguments: JSON.parse(data.item.arguments || '{}')
+                         };
 
-                   setMessages(prev => {
-                     const newMessages = [...prev];
-                     const lastMessage = newMessages[newMessages.length - 1];
-                     if (lastMessage.sender === 'bot') {
-                       lastMessage.toolCalls = lastMessage.toolCalls || [];
-                       lastMessage.toolCalls.push(toolCall);
+                         setMessages(prev => {
+                           const newMessages = [...prev];
+                           
+                           // If no streaming started, create bot message with tool call
+                           if (!streamingStartedRef.current) {
+                             const botMessage: ChatMessage = {
+                               id: generateMessageId(),
+                               content: '',
+                               sender: 'bot',
+                               timestamp: new Date(),
+                               toolCalls: [toolCall]
+                             };
+                             streamingStartedRef.current = true;
+                             return [...newMessages, botMessage];
+                           }
+                           
+                           // Otherwise add to existing message
+                           const lastMessage = newMessages[newMessages.length - 1];
+                           if (lastMessage.sender === 'bot') {
+                             lastMessage.toolCalls = lastMessage.toolCalls || [];
+                             lastMessage.toolCalls.push(toolCall);
+                           }
+                           return newMessages;
+                         });
+                       }
+                     } catch (error) {
+                       console.error('Error parsing SSE data:', error, dataLine);
                      }
-                     return newMessages;
-                   });
+                   }
                  }
-               } catch (error) {
-                 console.error('Error parsing SSE data:', error, dataLine);
-               }
-             }
-           }
            // Handle standalone data lines (fallback)
            else if (line.startsWith('data:')) {
              const dataLine = line.substring(5).trim();
@@ -373,23 +407,26 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
        // Update conversation state with the complete conversation and response ID
        // Only update if streaming actually started (we have a bot message)
        if (streamingStartedRef.current) {
-         setMessages(currentMessages => {
-           const botResponseMessage = currentMessages[currentMessages.length - 1];
-           const finalMessages = [
-             ...updatedMessages,
-             botResponseMessage
-           ];
+         // Use setTimeout to ensure state updates are processed
+         setTimeout(() => {
+           setMessages(currentMessages => {
+             const botResponseMessage = currentMessages[currentMessages.length - 1];
+             const finalMessages = [
+               ...updatedMessages,
+               botResponseMessage
+             ];
 
-           setConversationState(prev => ({
-             ...prev,
-             messages: finalMessages,
-             lastResponseId: responseId || prev.lastResponseId,
-             updatedAt: Date.now()
-           }));
+             setConversationState(prev => ({
+               ...prev,
+               messages: finalMessages,
+               lastResponseId: responseId || prev.lastResponseId,
+               updatedAt: Date.now()
+             }));
 
-           console.log('Updated conversation state with response ID:', responseId);
-           return currentMessages;
-         });
+             console.log('Updated conversation state with response ID:', responseId);
+             return currentMessages;
+           });
+         }, 100);
        }
 
      } catch (error) {
@@ -415,29 +452,43 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
     }
   };
 
-     const handleToolCall = (toolCall: ToolCall) => {
-     console.log('Tool called:', toolCall.name, toolCall.arguments);
-     
-     switch (toolCall.name) {
-       case 'go_to_clicktutor':
-         alert(`נווט ל-ClickTutor: ${toolCall.arguments.reason as string}`);
-         break;
-       case 'give_feedback':
-         if (toolCall.arguments.save_flag) {
-           alert(`משוב נשמר: ${toolCall.arguments.feedback as string}`);
-         } else {
-           alert(`משוב: ${toolCall.arguments.feedback as string}`);
-         }
-         break;
-       case 'move_on':
-         alert(`עבור לפעילות הבאה: ${toolCall.arguments.next_activity as string}`);
-         if (onNext) onNext();
-         break;
-       case 'show_video':
-         alert(`הצג וידאו: ${toolCall.arguments.video_topic as string}`);
-         break;
-     }
-   };
+       const handleToolCall = (toolCall: ToolCall) => {
+    console.log('Tool called:', toolCall.name, toolCall.arguments);
+    
+    switch (toolCall.name) {
+      case 'go_to_clicktutor':
+        console.log(`Navigate to ClickTutor: ${toolCall.arguments.reason as string}`);
+        // Will implement navigation later
+        break;
+      case 'give_feedback':
+        console.log(`Feedback: ${toolCall.arguments.feedback as string}`, 'Save:', toolCall.arguments.save_flag);
+        // Feedback is already displayed in chat, just log for now
+        break;
+      case 'move_to_2nd':
+        console.log(`Move to advanced lesson: ${toolCall.arguments.next_lesson as string}`);
+        if (onNext) onNext();
+        break;
+      case 'show_video':
+        console.log(`Show video: ${toolCall.arguments.video_topic as string}`);
+        // Will implement video display later
+        break;
+      case 'show_file':
+        console.log(`Download file: ${toolCall.arguments.file_description as string}`);
+        handleFileDownload();
+        break;
+    }
+  };
+
+  const handleFileDownload = () => {
+    // Download the same file as in FileTask.tsx
+    const url = '/תמלול.docx';
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'תמלול.docx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const getToolIcon = (toolName: string) => {
     switch (toolName) {
@@ -445,12 +496,31 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
         return <Play className="w-4 h-4" />;
       case 'give_feedback':
         return <MessageSquare className="w-4 h-4" />;
-      case 'move_on':
+      case 'move_to_2nd':
         return <ArrowRight className="w-4 h-4" />;
       case 'show_video':
         return <Video className="w-4 h-4" />;
+      case 'show_file':
+        return <Download className="w-4 h-4" />;
       default:
         return <Bot className="w-4 h-4" />;
+    }
+  };
+
+  const getToolButtonText = (toolName: string) => {
+    switch (toolName) {
+      case 'go_to_clicktutor':
+        return 'מעבר לתרגול טכני';
+      case 'give_feedback':
+        return 'צפה במשוב';
+      case 'move_to_2nd':
+        return 'המשך לשיעור המתקדם';
+      case 'show_video':
+        return 'צפה בוידאו';
+      case 'show_file':
+        return 'הורד קובץ תרגול';
+      default:
+        return toolName.replace(/_/g, ' ');
     }
   };
 
@@ -554,7 +624,7 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
                          className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center gap-2"
                        >
                          {getToolIcon(toolCall.name)}
-                         {toolCall.name.replace(/_/g, ' ')}
+                         {getToolButtonText(toolCall.name)}
                        </Button>
                      ))}
                    </div>
@@ -575,7 +645,21 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
             </div>
           ))}
           
-          
+          {/* Loading indicator - only show before streaming starts */}
+          {isLoading && !streamingStartedRef.current && (
+            <div className="flex items-start gap-3 justify-end">
+              <div className="bg-gradient-turquoise rounded-2xl px-4 py-3">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-gradient-turquoise flex items-center justify-center flex-shrink-0">
+                <Bot className="w-4 h-4 text-white" />
+              </div>
+            </div>
+          )}
           
           <div ref={messagesEndRef} />
         </div>

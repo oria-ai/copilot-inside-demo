@@ -65,15 +65,15 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
       completedLessons: completedLessons
     },
     {
-      id: 'excel',
-      title: 'קופיילוט באקסל',
+      id: 'word',
+      title: 'קופיילוט בוורד',
       progress: 0,
       lessons: 2,
       completedLessons: 0
     },
     {
-      id: 'word',
-      title: 'קופיילוט בוורד',
+      id: 'excel',
+      title: 'קופיילוט באקסל',
       progress: 0,
       lessons: 2,
       completedLessons: 0
@@ -133,17 +133,17 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
               <h2 className="text-2xl font-bold text-dark-gray mb-2">הקורסים שלי</h2>
               <p className="text-medium-gray">התחילו את המסע שלכם בעולם ה-AI</p>
             </div>
-            <div className="space-y-6 flex-1 flex flex-col">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
               {modules.map((module) => (
                 <Card 
                   key={module.id} 
-                  className="bg-gradient-card shadow-card hover:shadow-xl transition-all duration-300 cursor-pointer rounded-3xl border-0 overflow-hidden group flex flex-col h-full"
+                  className="bg-gradient-card shadow-card hover:shadow-xl transition-all duration-300 cursor-pointer rounded-3xl border-0 overflow-hidden group flex flex-col h-full max-w-sm"
                   onClick={() => onModuleClick(module.id)}
                 >
-                  <div className="h-32 bg-gradient-turquoise relative overflow-hidden flex flex-col justify-between">
+                  <div className="h-24 bg-gradient-turquoise relative overflow-hidden flex flex-col justify-between">
                     <div className="absolute inset-0 bg-white/10 backdrop-blur-sm z-0"></div>
-                    <div className="relative z-10 p-6 pb-0">
-                      <h3 className="text-xl font-bold text-white drop-shadow mb-2">{module.title}</h3>
+                    <div className="relative z-10 p-4 pb-0">
+                      <h3 className="text-lg font-bold text-white drop-shadow mb-2">{module.title}</h3>
                     </div>
                     <div className="absolute bottom-4 right-4 z-10">
                       <div className="bg-white/20 rounded-2xl px-4 py-2">

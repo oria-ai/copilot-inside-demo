@@ -8,6 +8,7 @@ import ClickTutor from '@/components/ClickTutor';
 import ClickTutor2 from '@/components/ClickTutor2';
 import PromptTask from '@/components/PromptTask';
 import FileTask from '@/components/FileTask';
+import ChatTask from '@/components/ChatTask';
 import Conclusion from '@/components/Conclusion';
 import ModuleSidebar from '@/components/ModuleSidebar';
 import { progressStorage, type UserProgress, type ActivityProgress } from '@/lib/localStorage';
@@ -56,6 +57,34 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
         }
       ]
     },
+    word: {
+      title: 'קופיילוט בוורד',
+      lessons: [
+        {
+          id: 'lesson1',
+          title: 'קופיילוט עם Word',
+          sidebarTitle: 'קופיילוט עם Word',
+          video: 'https://player.vimeo.com/video/1090416363?badge=0&autopause=0&player_id=0&app_id=58479',
+          videoTitle: 'Word 1 Restored Final',
+          activities: [
+            { id: 'video', title: 'קופיילוט עם Word', completed: false },
+            { id: 'tutor2', title: 'תרגול מתקדם', completed: false },
+            { id: 'chat', title: 'שיחה עם קופיילוט', completed: false }
+          ]
+        },
+        {
+          id: 'lesson2',
+          title: 'העמקה בוורד',
+          sidebarTitle: 'העמקה בוורד',
+          video: 'PLACEHOLDER_VIDEO_URL_FOR_LESSON2',
+          videoTitle: 'Word Advanced',
+          activities: [
+            { id: 'video', title: 'וידאו מתקדם', completed: false },
+            { id: 'file', title: 'תרגול משולחן העבודה', completed: false }
+          ]
+        }
+      ]
+    },
     excel: {
       title: 'קופיילוט באקסל',
       lessons: [
@@ -79,35 +108,6 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
           activities: [
             { id: 'video', title: 'הנדסת פרומפטים', completed: false },
             { id: 'prompt', title: 'שיפור פרומפט', completed: false },
-            { id: 'conclusion', title: 'סיכום', completed: false }
-          ]
-        }
-      ]
-    },
-    word: {
-      title: 'קופיילוט בוורד',
-      lessons: [
-        {
-          id: 'lesson1',
-          title: 'קופיילוט עם Word',
-          sidebarTitle: 'ראשון - קופיילוט עם Word',
-          video: 'https://player.vimeo.com/video/1090416363?badge=0&autopause=0&player_id=0&app_id=58479',
-          videoTitle: 'Word 1 Restored Final',
-          activities: [
-            { id: 'video', title: 'קופיילוט עם Word', completed: false },
-            { id: 'file', title: 'תרגול משולחן העבודה', completed: false }
-          ]
-        },
-        {
-          id: 'lesson2',
-          title: 'העמקה בוורד',
-          sidebarTitle: 'שני - העמקה בוורד',
-          video: 'PLACEHOLDER_VIDEO_URL',
-          videoTitle: 'Word Advanced',
-          activities: [
-            { id: 'video', title: 'וידאו מתקדם', completed: false },
-            { id: 'tutor2', title: 'תרגול מתקדם', completed: false },
-            { id: 'chat', title: 'שיחה עם קופיילוט', completed: false },
             { id: 'conclusion', title: 'סיכום', completed: false }
           ]
         }
@@ -405,11 +405,7 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
       case 'file':
         return <FileTask lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} />;
       case 'chat':
-        return <div className="p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">שיחה עם קופיילוט</h2>
-          <p className="text-lg mb-6">רכיב השיחה יווצר בקרוב...</p>
-          <Button onClick={goToNext}>המשך</Button>
-        </div>;
+        return <ChatTask lessonId={lessonState.lessonId} onNext={goToNext} handleActivityComplete={handleActivityComplete} />;
       case 'conclusion':
         return <Conclusion lessonId={lessonState.lessonId} onConclusionComplete={handleConclusionComplete} onBack={onBack} />;
       default:

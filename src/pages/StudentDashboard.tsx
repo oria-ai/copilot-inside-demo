@@ -28,7 +28,7 @@ const api = 'http://localhost:4000';
 const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboardProps) => {
   const [overallProgress, setOverallProgress] = useState(0);
   const [completedLessons, setCompletedLessons] = useState(0);
-  const [totalLessons, setTotalLessons] = useState(3);
+  const [totalLessons, setTotalLessons] = useState(6);
   const [lesson2Progress, setLesson2Progress] = useState<number | null>(null);
 
   // To control the space between the cards, change the value of 'centerSpaceWidth' below
@@ -61,8 +61,22 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
       id: 'basics',
       title: 'יסודות השימוש בקופיילוט',
       progress: overallProgress,
-      lessons: totalLessons,
+      lessons: 2,
       completedLessons: completedLessons
+    },
+    {
+      id: 'excel',
+      title: 'קופיילוט באקסל',
+      progress: 0,
+      lessons: 2,
+      completedLessons: 0
+    },
+    {
+      id: 'word',
+      title: 'קופיילוט בוורד',
+      progress: 0,
+      lessons: 2,
+      completedLessons: 0
     }
   ];
 

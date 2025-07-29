@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, ArrowLeft, BookOpen } from 'lucide-react';
 import VideoLesson from '@/components/VideoLesson';
 import ClickTutor from '@/components/ClickTutor';
+import ClickTutor2 from '@/components/ClickTutor2';
 import PromptTask from '@/components/PromptTask';
 import FileTask from '@/components/FileTask';
 import Conclusion from '@/components/Conclusion';
@@ -33,19 +34,18 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
         {
           id: 'lesson1',
           title: 'היכרות עם קופיילוט',
-          sidebarTitle: 'שיעור ראשון - היכרות עם קופיילוט',
+          sidebarTitle: 'היכרות עם קופיילוט',
           video: 'https://player.vimeo.com/video/1086753235?h=dcea357886&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479',
           videoTitle: 'Intro To Copilot',
           activities: [
             { id: 'video', title: 'מבוא', completed: true },
-            { id: 'tutor', title: 'תרגול טכני', completed: true },
-            { id: 'conclusion', title: 'סיכום', completed: false }
+            { id: 'tutor', title: 'תרגול טכני', completed: true }
           ]
         },
         {
           id: 'lesson2',
           title: 'הנדסת פרומפטים',
-          sidebarTitle: 'שיעור שני - הנדסת פרומפטים',
+          sidebarTitle: 'הנדסת פרומפטים',
           video: 'https://player.vimeo.com/video/1088062270?h=16b48a61a6&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479',
           videoTitle: 'Prompt Enigneering',
           activities: [
@@ -53,16 +53,61 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
             { id: 'prompt', title: 'שיפור פרומפט', completed: false },
             { id: 'conclusion', title: 'סיכום', completed: false }
           ]
+        }
+      ]
+    },
+    excel: {
+      title: 'קופיילוט באקסל',
+      lessons: [
+        {
+          id: 'lesson1',
+          title: 'היכרות עם קופיילוט',
+          sidebarTitle: 'ראשון - היכרות עם קופיילוט',
+          video: 'https://player.vimeo.com/video/1086753235?h=dcea357886&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479',
+          videoTitle: 'Intro To Copilot',
+          activities: [
+            { id: 'video', title: 'מבוא', completed: true },
+            { id: 'tutor', title: 'תרגול טכני', completed: true }
+          ]
         },
         {
-          id: 'lesson3',
+          id: 'lesson2',
+          title: 'הנדסת פרומפטים',
+          sidebarTitle: 'שני - הנדסת פרומפטים',
+          video: 'https://player.vimeo.com/video/1088062270?h=16b48a61a6&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479',
+          videoTitle: 'Prompt Enigneering',
+          activities: [
+            { id: 'video', title: 'הנדסת פרומפטים', completed: false },
+            { id: 'prompt', title: 'שיפור פרומפט', completed: false },
+            { id: 'conclusion', title: 'סיכום', completed: false }
+          ]
+        }
+      ]
+    },
+    word: {
+      title: 'קופיילוט בוורד',
+      lessons: [
+        {
+          id: 'lesson1',
           title: 'קופיילוט עם Word',
-          sidebarTitle: 'שיעור שלישי - קופיילוט עם Word',
+          sidebarTitle: 'ראשון - קופיילוט עם Word',
           video: 'https://player.vimeo.com/video/1090416363?badge=0&autopause=0&player_id=0&app_id=58479',
           videoTitle: 'Word 1 Restored Final',
           activities: [
             { id: 'video', title: 'קופיילוט עם Word', completed: false },
-            { id: 'file', title: 'תרגול משולחן העבודה', completed: false },
+            { id: 'file', title: 'תרגול משולחן העבודה', completed: false }
+          ]
+        },
+        {
+          id: 'lesson2',
+          title: 'העמקה בוורד',
+          sidebarTitle: 'שני - העמקה בוורד',
+          video: 'PLACEHOLDER_VIDEO_URL',
+          videoTitle: 'Word Advanced',
+          activities: [
+            { id: 'video', title: 'וידאו מתקדם', completed: false },
+            { id: 'tutor2', title: 'תרגול מתקדם', completed: false },
+            { id: 'chat', title: 'שיחה עם קופיילוט', completed: false },
             { id: 'conclusion', title: 'סיכום', completed: false }
           ]
         }
@@ -83,7 +128,7 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
     const prev = userProgress.find(p => p.lessonId === lessonId);
     const activityProgress: ActivityProgress = prev?.activityProgress ? { ...prev.activityProgress } : {};
     if (activityId) {
-      if (activityId === 'tutor') {
+      if (activityId === 'tutor' || activityId === 'tutor2') {
         // Mark step as completed in array
         const steps = Array.isArray(activityProgress[activityId]) ? [...(activityProgress[activityId] as number[])] : [];
         if (step && !steps.includes(step)) steps.push(step);
@@ -151,8 +196,8 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
     const progressObj = userProgress.find((p) => p.lessonId === lessonId);
     const activityProgress = progressObj?.activityProgress || {};
     if (activityId === 'video') return activityProgress['video'] ? 100 : 0;
-    if (activityId === 'tutor') {
-      const steps = Array.isArray(activityProgress['tutor']) ? activityProgress['tutor'].length : 0;
+    if (activityId === 'tutor' || activityId === 'tutor2') {
+      const steps = Array.isArray(activityProgress[activityId]) ? activityProgress[activityId].length : 0;
       return steps >= 6 ? 100 : Math.round((steps / 6) * 100);
     }
     if (activityId === 'prompt') return activityProgress['prompt'] ? 100 : 0;
@@ -160,6 +205,7 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
       const cards = Array.isArray(activityProgress['file']) ? activityProgress['file'].length : 0;
       return cards >= 4 ? 100 : Math.round((cards / 4) * 100);
     }
+    if (activityId === 'chat') return activityProgress['chat'] ? 100 : 0;
     if (activityId === 'conclusion') return activityProgress['conclusion'] ? 100 : 0;
     return 0;
   };
@@ -352,10 +398,18 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
         );
       case 'tutor':
         return <ClickTutor lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} copilotLanguage={copilotLanguage} />;
+      case 'tutor2':
+        return <ClickTutor2 lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} copilotLanguage={copilotLanguage} />;
       case 'prompt':
         return <PromptTask lessonId={lessonState.lessonId} onNext={goToNext} handleActivityComplete={handleActivityComplete} />;
       case 'file':
         return <FileTask lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} />;
+      case 'chat':
+        return <div className="p-8 text-center">
+          <h2 className="text-2xl font-bold mb-4">שיחה עם קופיילוט</h2>
+          <p className="text-lg mb-6">רכיב השיחה יווצר בקרוב...</p>
+          <Button onClick={goToNext}>המשך</Button>
+        </div>;
       case 'conclusion':
         return <Conclusion lessonId={lessonState.lessonId} onConclusionComplete={handleConclusionComplete} onBack={onBack} />;
       default:

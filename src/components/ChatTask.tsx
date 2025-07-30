@@ -25,7 +25,7 @@ interface ToolCall {
 }
 
 // OpenAI API configuration
-const OPENAI_API_KEY = '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';
+const OPENAI_API_KEY = '';
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 
 const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) => {

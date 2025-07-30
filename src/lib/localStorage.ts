@@ -1,14 +1,8 @@
-// Local storage utility for managing user progress
-export interface ActivityProgress {
-  [activityId: string]: boolean | number[]; // boolean for simple complete, number[] for steps/cards
-}
-
-export interface UserProgress {
-  lessonId: string;
-  percent: number;
-  lastActivity?: string;
-  lastStep?: number;
-  activityProgress?: ActivityProgress;
+// Simple progress tracking - single source of truth
+export interface ModuleProgress {
+  [moduleId: string]: {
+    [activityKey: string]: boolean; // lesson1_video, lesson1_tutor, lesson2_prompt, etc.
+  };
 }
 
 export interface Assignment {
@@ -22,38 +16,102 @@ export interface Assignment {
   grade?: number;
 }
 
-const PROGRESS_KEY = 'copilot_user_progress';
+const PROGRESS_KEY = 'copilot_demo_progress_v1';
 const USER_KEY = 'copilot_current_user';
 const ASSIGNMENTS_KEY = 'copilot_user_assignments';
 
+// Define all activities for each module - this is our schema
+const MODULE_SCHEMA = {
+  basics: [
+    'lesson1_video',
+    'lesson1_tutor', 
+    'lesson2_video',
+    'lesson2_prompt',
+    'lesson2_conclusion'
+  ],
+  word: [
+    'lesson1_video',
+    'lesson1_chat',
+    'lesson1_tutor2',
+    'lesson2_video', 
+    'lesson2_file',
+    'lesson2_conclusion'
+  ],
+  excel: [
+    'lesson1_video',
+    'lesson1_chat',
+    'lesson2_video',
+    'lesson2_file',
+    'lesson2_conclusion'
+  ]
+};
+
 export const progressStorage = {
-  // Get all progress for a user
-  getProgress: (userId: string): UserProgress[] => {
+  // Get progress for a user - returns initialized structure if none exists
+  getProgress: (userId: string): ModuleProgress => {
     try {
       const stored = localStorage.getItem(`${PROGRESS_KEY}_${userId}`);
-      return stored ? JSON.parse(stored) : [];
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      
+      // Initialize with all activities as false
+      const initialProgress: ModuleProgress = {};
+      Object.entries(MODULE_SCHEMA).forEach(([moduleId, activities]) => {
+        initialProgress[moduleId] = {};
+        activities.forEach(activityKey => {
+          initialProgress[moduleId][activityKey] = false;
+        });
+      });
+      
+      return initialProgress;
     } catch (error) {
       console.error('Error reading progress from localStorage:', error);
-      return [];
+      return {};
     }
   },
 
-  // Save progress for a specific lesson
-  saveProgress: (userId: string, lessonProgress: UserProgress): void => {
+  // Mark a single activity as completed
+  markCompleted: (userId: string, moduleId: string, activityKey: string): void => {
     try {
-      const allProgress = progressStorage.getProgress(userId);
-      const existingIndex = allProgress.findIndex(p => p.lessonId === lessonProgress.lessonId);
-      
-      if (existingIndex >= 0) {
-        allProgress[existingIndex] = lessonProgress;
-      } else {
-        allProgress.push(lessonProgress);
+      const progress = progressStorage.getProgress(userId);
+      if (!progress[moduleId]) {
+        progress[moduleId] = {};
       }
-      
-      localStorage.setItem(`${PROGRESS_KEY}_${userId}`, JSON.stringify(allProgress));
+      progress[moduleId][activityKey] = true;
+      localStorage.setItem(`${PROGRESS_KEY}_${userId}`, JSON.stringify(progress));
+      console.log(`✅ Marked completed: ${moduleId}.${activityKey}`);
     } catch (error) {
       console.error('Error saving progress to localStorage:', error);
     }
+  },
+
+  // Get completion status for a specific activity
+  isCompleted: (userId: string, moduleId: string, activityKey: string): boolean => {
+    const progress = progressStorage.getProgress(userId);
+    return progress[moduleId]?.[activityKey] || false;
+  },
+
+  // Get module completion percentage
+  getModuleProgress: (userId: string, moduleId: string): number => {
+    const progress = progressStorage.getProgress(userId);
+    const moduleActivities = MODULE_SCHEMA[moduleId as keyof typeof MODULE_SCHEMA] || [];
+    if (moduleActivities.length === 0) return 0;
+    
+    const completedCount = moduleActivities.filter(activityKey => 
+      progress[moduleId]?.[activityKey] || false
+    ).length;
+    
+    return Math.round((completedCount / moduleActivities.length) * 100);
+  },
+
+  // Get overall progress across all modules
+  getOverallProgress: (userId: string): number => {
+    const moduleIds = Object.keys(MODULE_SCHEMA);
+    const totalProgress = moduleIds.reduce((sum, moduleId) => 
+      sum + progressStorage.getModuleProgress(userId, moduleId), 0
+    );
+    return Math.round(totalProgress / moduleIds.length);
   },
 
   // Clear all progress for a user
@@ -63,12 +121,6 @@ export const progressStorage = {
     } catch (error) {
       console.error('Error clearing progress from localStorage:', error);
     }
-  },
-
-  // Get progress for a specific lesson
-  getLessonProgress: (userId: string, lessonId: string): UserProgress | null => {
-    const allProgress = progressStorage.getProgress(userId);
-    return allProgress.find(p => p.lessonId === lessonId) || null;
   }
 };
 

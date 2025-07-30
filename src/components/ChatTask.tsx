@@ -35,6 +35,7 @@ interface ToolCall {
 }
 
 // OpenAI API configuration - PUT YOUR API KEY HERE
+const OPENAI_API_KEY = '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'; // Replace with your actual API key
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 
 const ChatTask = ({ lessonId, moduleId, onNext, onNavigateToActivity, onNavigateToLesson, handleActivityComplete }: ChatTaskProps) => {

@@ -64,23 +64,24 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
           id: 'lesson1',
           title: 'קופיילוט עם Word',
           sidebarTitle: 'קופיילוט עם Word',
-          video: 'https://player.vimeo.com/video/1090416363?badge=0&autopause=0&player_id=0&app_id=58479',
+          video: 'https://player.vimeo.com/video/1090416363?h=2eb88496e3&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479',
           videoTitle: 'Word 1 Restored Final',
           activities: [
             { id: 'video', title: 'קופיילוט עם Word', completed: false },
-            { id: 'tutor2', title: 'תרגול מתקדם', completed: false },
-            { id: 'chat', title: 'שיחה עם קופיילוט', completed: false }
+            { id: 'chat', title: 'שיחה עם קופיילוט', completed: false },
+            { id: 'tutor2', title: 'מדריך טכני', completed: false, hidden: true }
           ]
         },
         {
           id: 'lesson2',
           title: 'העמקה בוורד',
           sidebarTitle: 'העמקה בוורד',
-          video: 'PLACEHOLDER_VIDEO_URL_FOR_LESSON2',
+          video: 'https://player.vimeo.com/video/1101462883?h=dc8cff28d7&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479',
           videoTitle: 'Word Advanced',
           activities: [
-            { id: 'video', title: 'וידאו מתקדם', completed: false },
-            { id: 'file', title: 'תרגול משולחן העבודה', completed: false }
+            { id: 'video', title: 'יוז קייס', completed: false },
+            { id: 'file', title: 'תרגול משולחן העבודה', completed: false },
+            { id: 'conclusion', title: 'סיכום מודול', completed: false }
           ]
         }
       ]
@@ -399,15 +400,33 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
       case 'tutor':
         return <ClickTutor lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} copilotLanguage={copilotLanguage} />;
       case 'tutor2':
-        return <ClickTutor2 lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} copilotLanguage={copilotLanguage} />;
+        return <ClickTutor2 
+          lessonId={lessonState.lessonId} 
+          handleActivityComplete={handleActivityComplete} 
+          copilotLanguage={copilotLanguage}
+          onNavigateToLesson={(lessonId: string, activityId: string) => {
+            console.log(`🔧 ModuleView: ClickTutor2 navigating to ${lessonId} -> ${activityId}`);
+            setLessonState({ lessonId, activityId });
+          }}
+        />;
       case 'prompt':
         return <PromptTask lessonId={lessonState.lessonId} onNext={goToNext} handleActivityComplete={handleActivityComplete} />;
       case 'file':
         return <FileTask lessonId={lessonState.lessonId} handleActivityComplete={handleActivityComplete} />;
       case 'chat':
-        return <ChatTask lessonId={lessonState.lessonId} onNext={goToNext} handleActivityComplete={handleActivityComplete} />;
+        return <ChatTask 
+          lessonId={lessonState.lessonId} 
+          moduleId={moduleId}
+          onNext={goToNext} 
+          onNavigateToActivity={(activityId: string) => setLessonState(prev => ({ ...prev, activityId }))}
+          onNavigateToLesson={(lessonId: string, activityId: string) => {
+            console.log(`🔧 ModuleView: Navigating to ${lessonId} -> ${activityId}`);
+            setLessonState({ lessonId, activityId });
+          }}
+          handleActivityComplete={handleActivityComplete} 
+        />;
       case 'conclusion':
-        return <Conclusion lessonId={lessonState.lessonId} onConclusionComplete={handleConclusionComplete} onBack={onBack} />;
+        return <Conclusion lessonId={lessonState.lessonId} moduleId={moduleId} onConclusionComplete={handleConclusionComplete} onBack={onBack} />;
       default:
         return <div>פעילות לא נמצאה</div>;
     }

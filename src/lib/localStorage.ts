@@ -11,8 +11,20 @@ export interface UserProgress {
   activityProgress?: ActivityProgress;
 }
 
+export interface Assignment {
+  id: string;
+  title: string;
+  prompt: string;
+  feedback: string;
+  status: 'completed' | 'pending' | 'graded';
+  lessonId: string;
+  submittedAt: string;
+  grade?: number;
+}
+
 const PROGRESS_KEY = 'copilot_user_progress';
 const USER_KEY = 'copilot_current_user';
+const ASSIGNMENTS_KEY = 'copilot_user_assignments';
 
 export const progressStorage = {
   // Get all progress for a user
@@ -87,6 +99,46 @@ export const userStorage = {
       localStorage.removeItem(USER_KEY);
     } catch (error) {
       console.error('Error clearing user from localStorage:', error);
+    }
+  }
+};
+
+export const assignmentStorage = {
+  // Get all assignments for a user
+  getAssignments: (userId: string): Assignment[] => {
+    try {
+      const stored = localStorage.getItem(`${ASSIGNMENTS_KEY}_${userId}`);
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.error('Error reading assignments from localStorage:', error);
+      return [];
+    }
+  },
+
+  // Save a new assignment
+  saveAssignment: (userId: string, assignment: Assignment): void => {
+    try {
+      const allAssignments = assignmentStorage.getAssignments(userId);
+      const existingIndex = allAssignments.findIndex(a => a.id === assignment.id);
+      
+      if (existingIndex >= 0) {
+        allAssignments[existingIndex] = assignment;
+      } else {
+        allAssignments.push(assignment);
+      }
+      
+      localStorage.setItem(`${ASSIGNMENTS_KEY}_${userId}`, JSON.stringify(allAssignments));
+    } catch (error) {
+      console.error('Error saving assignment to localStorage:', error);
+    }
+  },
+
+  // Clear all assignments for a user
+  clearAssignments: (userId: string): void => {
+    try {
+      localStorage.removeItem(`${ASSIGNMENTS_KEY}_${userId}`);
+    } catch (error) {
+      console.error('Error clearing assignments from localStorage:', error);
     }
   }
 };

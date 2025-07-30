@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { assignmentStorage, userStorage } from '@/lib/localStorage';
 
 interface PromptTaskProps {
   lessonId: string;
@@ -162,6 +163,28 @@ const PromptTask = ({ lessonId, onNext, handleActivityComplete }: PromptTaskProp
       setFeedback(cleanedResponse);
       setShowContinue(true);
       setHasSubmitted(true);
+
+      // Save assignment to localStorage
+      try {
+        const currentUser = userStorage.getCurrentUser();
+        if (currentUser) {
+          const assignment = {
+            id: `prompt_task_${lessonId}_${Date.now()}`,
+            title: 'משימה - שיפור פרומפט',
+            prompt: prompt,
+            feedback: cleanedResponse,
+            status: 'completed' as const,
+            lessonId: lessonId,
+            submittedAt: new Date().toISOString(),
+            grade: 95 // You can calculate or assign a grade based on feedback quality
+          };
+          
+          assignmentStorage.saveAssignment(currentUser.id || currentUser.email, assignment);
+          console.log('Assignment saved to localStorage:', assignment);
+        }
+      } catch (error) {
+        console.error('Error saving assignment:', error);
+      }
     } catch (error) {
       setFeedback('אירעה שגיאה בשליחת התשובה');
       console.error('Error submitting prompt:', error);

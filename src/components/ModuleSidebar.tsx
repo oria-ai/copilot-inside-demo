@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress, CircularProgress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, PlayCircle, CheckCircle2, Activity, BookOpenCheck, Dumbbell } from 'lucide-react';
+import { ChevronDown, ChevronUp, PlayCircle, CheckCircle2, Activity, BookOpenCheck, Dumbbell, MessageSquare } from 'lucide-react';
 
 interface UserProgress {
   lessonId: string;
@@ -16,6 +16,7 @@ interface Activity {
   id: string;
   title: string;
   completed: boolean;
+  hidden?: boolean;
 }
 
 interface Lesson {
@@ -138,7 +139,13 @@ const ModuleSidebar = ({
               
               {expandedLesson === lesson.id && (
                 <div className="px-4 pb-4 space-y-2">
-                  {lesson.activities.map((activity) => {
+                  {lesson.activities.filter((activity) => {
+                    // Show activity if it's not hidden, or if it's current, or if it has progress (been accessed)
+                    if (!activity.hidden) return true;
+                    const isCurrent = currentLessonId === lesson.id && currentActivityId === activity.id;
+                    const progress = getActivityProgress(lesson.id, activity.id);
+                    return isCurrent || progress > 0;
+                  }).map((activity) => {
                     const progress = getActivityProgress(lesson.id, activity.id);
                     const isCompleted = progress === 100;
                     const isCurrent = currentLessonId === lesson.id && currentActivityId === activity.id;
@@ -148,7 +155,9 @@ const ModuleSidebar = ({
                       IconComponent = PlayCircle;
                     } else if (activity.id === 'conclusion') {
                       IconComponent = BookOpenCheck;
-                    } else if (['tutor', 'prompt', 'file'].includes(activity.id)) {
+                    } else if (activity.id === 'chat') {
+                      IconComponent = MessageSquare;
+                    } else if (['tutor', 'tutor2', 'prompt', 'file'].includes(activity.id)) {
                       IconComponent = Dumbbell;
                     } else {
                       IconComponent = Activity;

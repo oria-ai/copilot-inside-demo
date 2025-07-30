@@ -26,65 +26,90 @@ interface ClickTutor2Props {
   lessonId: string;
   handleActivityComplete: (lessonId: string, progress: number, understandingRating?: number, lastActivity?: string, lastStep?: number) => void;
   copilotLanguage: string;
+  onNavigateToLesson?: (lessonId: string, activityId: string) => void;
 }
 
 const configH: StepConfig[] = [
   {
     stepNumber: 1,
-    imageName: `1-3.png`,
+    imageName: `2-1-h.png`,
     instructions: 'נכנסנו לקופיילוט, בחר ב"עבודה"',
-    clickArea: { top: '42%', left: '52%', width: '26%', height: '31%' },
-    bg: 'n',
-    stepHeader: 'בכניסה לקופיילוט, בחר ב"עבודה"',
+    clickArea: { top: '34.8%', left: '44%', width: '26%', height: '7%' },
+    bg: 'y',
+    stepHeader: 'מצא היכן כותבים לקופיילוט פרומפט, וכתוב לו משהו',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
   {
     stepNumber: 2,
-    imageName: `1-4-h.png`,
+    imageName: `2-2-h.png`,
     instructions: 'כתוב לקופיילוט פרומפט קצר ושלח',
-    clickArea: { top: '36%', left: '28.5%', width: '65%', height: '9%' },
+    clickArea: { top: '37%', left: '26%', width: '3%', height: '3%' },
     hasInput: true,
     inputPlaceholder: '',
-    bg: 'n',
-    stepHeader: 'כתוב לקופיילוט פרומפט קצר ושלח',
+    bg: 'y',
+    stepHeader: 'מצא היכן כותבים לקופיילוט פרומפט, וכתוב לו משהו',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
   {
     stepNumber: 3,
-    imageName: `1-4-h.png`,
-    instructions: 'לחץ "הראה עוד"',
-    clickArea: { top: '73%', left: '8%', width: '9%', height: '6%' },
-    bg: 'n',
-    stepHeader: 'עכשיו נמצא את ספריית הפרומפטים. לחץ "הצג יותר"',
+    imageName: `2-1-h.png`,
+    instructions: 'נכנסנו לקופיילוט, בחר ב"עבודה"',
+    clickArea: { top: '34.8%', left: '44%', width: '26%', height: '7%' },
+    bg: 'y',
+    stepHeader: 'כעת לחץ על שורת החיפוש והקלד /',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
   {
     stepNumber: 4,
-    imageName: `1-6-h.png`,
-    instructions: 'לחץ "Prompt Gallery"',
-    clickArea: { top: '82.5%', left: '16%', width: '10%', height: '6%' },
-    bg: 'n',
-    stepHeader: 'לחץ "גלריית ההנחיות"',
+    imageName: `2-2-h.png`,
+    instructions: 'כתוב לקופיילוט פרומפט קצר ושלח',
+    clickArea: { top: '37%', left: '26%', width: '3%', height: '3%' },
+    hasInput: true,
+    inputPlaceholder: '',
+    bg: 'y',
+    stepHeader: 'כעת לחץ על שורת החיפוש והקלד /',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
-  {
+   {
     stepNumber: 5,
-    imageName: `1-7-h.png`,
-    instructions: 'פתח את התפקיד ובחר מכירות',
-    clickArea: { top: '30%', left: '47%', width: '19%', height: '5%' },
-    bg: 'n',
-    stepHeader: 'פתח את "סוג משימה" ובחר "טכנולוגיית מידע".',
+    imageName: `2-3-h.png`,
+    instructions: 'בחר בקובץ "דרישות משרה מנהל שיווק דיגיטלי"',
+    clickArea: { top: '67%', left: '54%', width: '20%', height: '6%' },
+    bg: 'y',
+    stepHeader: 'בחר בקובץ "דרישות משרה מנהל שיווק דיגיטלי"',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
   {
     stepNumber: 6,
-    imageName: `1-8-h.png`,
-    instructions: 'פתח את התפקיד ובחר מכירות',
-    clickArea: { top: '59%', left: '48%', width: '18%', height: '5%' },
-    bg: 'n',
-    stepHeader: 'פתח את "סוג משימה" ובחר "טכנולוגיית מידע".',
+    imageName: `2-4-h.png`,
+    instructions: 'לחץ "Prompt Gallery"',
+    clickArea: { top: '82.5%', left: '16%', width: '10%', height: '6%' },
+    hasInput: true,
+    inputPlaceholder: '',
+    bg: 'y',
+    stepHeader: 'בקש מקופיילוט לסכם עבורך את הקובץ',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
-  }
+  },
+  {
+    stepNumber: 7,
+    imageName: `2-6-h.png`,
+    instructions: 'פתח את התפקיד ובחר מכירות',
+    clickArea: { top: '72%', left: '23%', width: '50%', height: '5%' },
+    bg: 'y',
+    stepHeader: 'תן לקופיילוט הערה לתיקון',
+    stepInstruction: 'לחץ על האזור הנכון בתמונה',
+  },
+     {
+     stepNumber: 8,
+     imageName: `2-6-h.png`,
+     instructions: 'פתח את התפקיד ובחר מכירות',
+     clickArea: { top: '59%', left: '48%', width: '18%', height: '5%' },
+     hasInput: true,
+     inputPlaceholder: '',
+     bg: 'y',
+     stepHeader: 'תן לקופיילוט הערה לתיקון',
+     stepInstruction: 'לחץ על האזור הנכון בתמונה',
+   }
 ];
 
 const configE: StepConfig[] = [
@@ -146,18 +171,19 @@ const configE: StepConfig[] = [
   }
 ];
 
-const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: ClickTutor2Props) => {
+const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavigateToLesson }: ClickTutor2Props) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [inputValue, setInputValue] = useState('');
   const [showInput, setShowInput] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [startDialogOpen, setStartDialogOpen] = useState(true);
+  const [devMode, setDevMode] = useState(false); // Development mode to show click areas
 
-  // Progress logic
-  const totalSteps = 6;
+     // Progress logic
+   const totalSteps = 8; // Updated to match the actual number of steps
   const baseProgress = 50; // After video
-  const stepIncrement = 40 / totalSteps; // ≈6.67 per step
+  const stepIncrement = 40 / totalSteps; // ≈4.44 per step
 
   // Select config based on copilotLanguage
   const stepConfigs = copilotLanguage === 'hebrew' ? configH : configE;
@@ -166,12 +192,8 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
   // Helper to parse percentage string to number
   const percentToNumber = (percent: string) => parseFloat(percent.replace('%', '')) / 100;
 
-  // For step 2, determine which image to show based on input focus or value
+  // For step 2, keep showing the correct image (don't switch to 1-4-1)
   const step2Image = (() => {
-    if (currentStep === 2 && (isInputFocused || inputValue.trim() !== '')) {
-      if (copilotLanguage === 'hebrew') return '1-4-1-h.png';
-      return '1-4-1-e.png';
-    }
     return currentStepConfig.imageName;
   })();
 
@@ -179,13 +201,13 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && showConfetti) {
-        console.log('Escape pressed, closing confetti');
-        setShowConfetti(false);
-        if (currentStep === 2) {
-          proceedToStep3();
-        } else if (currentStep === totalSteps) {
-          handleFinalCompletion();
-        }
+                                                                                                                                               console.log('Escape pressed, closing confetti');
+            setShowConfetti(false);
+            if (currentStep === totalSteps) {
+              handleFinalCompletion();
+            } else if (currentStep === 2 || currentStep === 4 || currentStep === 6) {
+              proceedToNextStep();
+            }
       }
     };
 
@@ -193,11 +215,21 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
     return () => document.removeEventListener('keydown', handleEscape);
   }, [showConfetti, currentStep]);
 
-  const proceedToStep3 = () => {
-    console.log('Proceeding to step 3');
+           // Auto-focus input when entering step 2, 4, 6, or 8
+    useEffect(() => {
+      if (currentStep === 2 || currentStep === 4 || currentStep === 6 || currentStep === 8) {
+        // Small delay to ensure the input is rendered
+        setTimeout(() => {
+          setIsInputFocused(true);
+        }, 100);
+      }
+    }, [currentStep]);
+
+  const proceedToNextStep = () => {
+    console.log(`Proceeding to step ${currentStep + 1}`);
     const newProgress = baseProgress + stepIncrement * currentStep;
     handleActivityComplete(lessonId, newProgress, undefined, 'tutor2', currentStep);
-    setCurrentStep(3);
+    setCurrentStep(currentStep + 1);
     setShowInput(false);
     setInputValue('');
   };
@@ -205,24 +237,25 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
   const handleFinalCompletion = () => {
     console.log('Final completion');
     handleActivityComplete(lessonId, 90, undefined, 'tutor2', currentStep);
-    // Move to conclusion activity
-    const event = new CustomEvent('goToConclusion', { detail: { lessonId } });
-    window.dispatchEvent(event);
+    // Move to lesson2 video
+    if (onNavigateToLesson) {
+      onNavigateToLesson('lesson2', 'video');
+    }
   };
 
-  // Handler for clicking anywhere on the image
-  const handleImageClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    // In step 2, if input is focused or has text, do nothing (except for the send button, which is handled separately)
-    if (
-      currentStep === 2 &&
-      (isInputFocused || inputValue.trim() !== '')
-    ) {
-      return;
-    }
-    // In step 2, if input is empty, do nothing
-    if (currentStep === 2 && inputValue.trim() === '') {
-      return;
-    }
+     // Handler for clicking anywhere on the image
+   const handleImageClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+                       // In steps 2, 4, 6, or 8, if input is focused or has text, do nothing (except for the send button, which is handled separately)
+       if (
+         (currentStep === 2 || currentStep === 4 || currentStep === 6 || currentStep === 8) &&
+         (isInputFocused || inputValue.trim() !== '')
+       ) {
+         return;
+       }
+       // In steps 2, 4, 6, or 8, if input is empty, do nothing
+       if ((currentStep === 2 || currentStep === 4 || currentStep === 6 || currentStep === 8) && inputValue.trim() === '') {
+         return;
+       }
     // Get bounding rect of the image wrapper
     const wrapper = e.currentTarget;
     const rect = wrapper.getBoundingClientRect();
@@ -262,19 +295,19 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
       alert('אנא הכנס ערך בשדה');
       return;
     }
-    if (currentStep < totalSteps) {
-      // Show confetti popup after step 2
-      if (currentStep === 2) {
-        console.log('Step 2 completed, showing confetti');
-        setShowConfetti(true);
-        return;
-      }
-      const newProgress = baseProgress + stepIncrement * currentStep;
-      handleActivityComplete(lessonId, newProgress, undefined, 'tutor2', currentStep);
-      setCurrentStep(currentStep + 1);
-      setShowInput(false);
-      setInputValue('');
-    }
+                   if (currentStep < totalSteps) {
+                // Show confetti popup after step 2, 4, 6, or 8
+         if (currentStep === 2 || currentStep === 4 || currentStep === 6 || currentStep === 8) {
+           console.log(`Step ${currentStep} completed, showing confetti`);
+           setShowConfetti(true);
+           return;
+         }
+       const newProgress = baseProgress + stepIncrement * currentStep;
+       handleActivityComplete(lessonId, newProgress, undefined, 'tutor2', currentStep);
+       setCurrentStep(currentStep + 1);
+       setShowInput(false);
+       setInputValue('');
+     }
   };
 
   const handleSkip = () => {
@@ -285,13 +318,13 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
     window.dispatchEvent(event);
   };
 
-  const handleSendButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    // Only proceed if input is not empty
-    if (inputValue.trim() === '') return;
-    console.log('Send button clicked in step 2, showing confetti');
-    setShowConfetti(true);
-  };
+     const handleSendButtonClick = (e: React.MouseEvent) => {
+     e.stopPropagation();
+     // Only proceed if input is not empty
+     if (inputValue.trim() === '') return;
+     console.log(`Send button clicked in step ${currentStep}, showing confetti`);
+     setShowConfetti(true);
+   };
 
   console.log('Current step:', currentStep, 'Show confetti:', showConfetti);
 
@@ -315,38 +348,44 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
       <ConfettiOverlay 
         open={showConfetti} 
         onClose={() => {
-          console.log('Confetti overlay closed');
-          setShowConfetti(false);
-          if (currentStep === 2) {
-            proceedToStep3();
-          } else if (currentStep === totalSteps) {
-            handleFinalCompletion();
-          }
+                                                                                                                                                                               console.log('Confetti overlay closed');
+              setShowConfetti(false);
+              if (currentStep === totalSteps) {
+                handleFinalCompletion();
+              } else if (currentStep === 2 || currentStep === 4 || currentStep === 6) {
+                proceedToNextStep();
+              }
         }}
       >
         <div className="text-center" dir="rtl">
-          <h2 className="text-2xl font-bold mb-4">
-            {currentStep === 2 ? 'מעולה!' : 'כל הכבוד!'}
-          </h2>
-          <p className="text-lg mb-6">
-            {currentStep === 2 
-              ? 'עכשיו אתה יודע איך לשוחח עם קופיילוט. כעת נלמד למצוא את ספריית הפרומפטים.'
-              : 'סיימת בהצלחה את כל השלבים! נעבור לסיכום השיעור.'
-            }
-          </p>
+                                                                                                                                                                               <h2 className="text-2xl font-bold mb-4">
+                {currentStep === totalSteps ? 'כל הכבוד!' : 'מעולה!'}
+              </h2>
+              <p className="text-lg mb-6">
+                {currentStep === 2 
+                  ? 'עכשיו נלמד לצרף לקופיילוט קבצים.'
+                  : currentStep === 4
+                  ? 'נהדר! עכשיו נלמד לבחור קבצים.'
+                  : currentStep === 6
+                  ? 'מצוין! עכשיו נמשיך לשלב הבא.'
+                  : currentStep === totalSteps
+                  ? 'כל הכבוד! השלמת את המשימה בהצלחה.'
+                  : 'סיימת בהצלחה את כל השלבים! נעבור לסיכום השיעור.'
+                }
+              </p>
           <Button 
             className="mt-6 w-40 mx-auto block" 
             onClick={() => {
-              console.log('Continue button clicked');
-              setShowConfetti(false);
-              if (currentStep === 2) {
-                proceedToStep3();
-              } else if (currentStep === totalSteps) {
-                handleFinalCompletion();
-              }
+                                                                                                                                                                                                                                               console.log('Continue button clicked');
+                  setShowConfetti(false);
+                  if (currentStep === totalSteps) {
+                    handleFinalCompletion();
+                  } else if (currentStep === 2 || currentStep === 4 || currentStep === 6) {
+                    proceedToNextStep();
+                  }
             }}
           >
-            {currentStep === 2 ? 'המשך' : 'סיום'}
+                                                                                                                                                                                                               {currentStep === totalSteps ? 'סיום' : 'המשך'}
           </Button>
         </div>
       </ConfettiOverlay>
@@ -385,8 +424,8 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
               }}
               draggable={false}
             />
-            {/* Show the red hotspot for positioning, except on step 2 */}
-            {currentStep !== 2 && (
+            {/* Show the red hotspot for positioning */}
+            {(currentStep !== 2 || devMode) && (
               <div
                 className="absolute pointer-events-none"
                 style={{
@@ -394,34 +433,47 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
                   left: currentStepConfig.clickArea.left,
                   width: currentStepConfig.clickArea.width,
                   height: currentStepConfig.clickArea.height,
-                  background: currentStepConfig.bg === 'y' ? 'rgba(255,0,0,0.3)' : 'transparent',
+                  background: (currentStepConfig.bg === 'y' || devMode) ? 'rgba(255,0,0,0.3)' : 'transparent',
                   borderRadius: '8px',
-                  border: currentStepConfig.bg === 'y' ? '2px solid red' : 'none',
+                  border: (currentStepConfig.bg === 'y' || devMode) ? '2px solid red' : 'none',
                   zIndex: 10
                 }}
               />
             )}
-            {/* Step 2: Overlay invisible input and send button */}
-            {currentStep === 2 && (
+                                                                                                       {/* Step 2 & 4: Input for 2-2-h image */}
+              {(currentStep === 2 || currentStep === 4) && (
               <>
                 {copilotLanguage === 'hebrew' ? (
-                  // ---- HEBREW INPUT POSITION: Edit style here for Hebrew ----
-                  <input
-                    type="text"
-                    dir="rtl"
-                    value={inputValue}
-                    onChange={e => setInputValue(e.target.value)}
+                                                                            // ---- HEBREW INPUT POSITION for 2-2-h: Edit style here ----
+                    <input
+                      type="text"
+                      dir="rtl"
+                      value={inputValue}
+                      onChange={e => {
+                        const newValue = e.target.value;
+                        setInputValue(newValue);
+                        // Step 4: Auto-proceed when user types "/" or "\"
+                        if (currentStep === 4 && (newValue.includes('/') || newValue.includes('\\'))) {
+                          setTimeout(() => {
+                            console.log('Auto-proceeding from step 4 due to / or \\ input');
+                            const newProgress = baseProgress + stepIncrement * currentStep;
+                            handleActivityComplete(lessonId, newProgress, undefined, 'tutor2', currentStep);
+                            setCurrentStep(currentStep + 1);
+                            setInputValue('');
+                          }, 500); // Small delay to show the input
+                        }
+                      }}
                     placeholder={currentStepConfig.inputPlaceholder}
                     style={{
                       position: 'absolute',
-                      left: '8%',
+                      left: '30%',
                       top: '36%',
-                      width: '63%',
-                      height: '9%',
+                      width: '46.5%',
+                      height: '5%',
                       fontFamily: 'ginto',
-                      fontSize: '1em',
-                      background: 'transparent',
-                      border: 'none',
+                      fontSize: '0.8em',
+                      background: devMode ? 'rgba(0,255,0,0.4)' : 'transparent',
+                      border: devMode ? '3px solid green' : 'none',
                       color: '#333',
                       caretColor: '#333',
                       outline: 'none',
@@ -434,17 +486,30 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
                       setIsInputFocused(true);
                     }}
                     onBlur={() => setIsInputFocused(false)}
-                    autoFocus={false}
+                    autoFocus={true}
                     onFocus={e => e.stopPropagation()}
                     tabIndex={0}
                   />
                 ) : (
-                  // ---- ENGLISH INPUT POSITION: Edit style here for English ----
-                  <input
-                    type="text"
-                    dir="ltr"
-                    value={inputValue}
-                    onChange={e => setInputValue(e.target.value)}
+                                                                            // ---- ENGLISH INPUT POSITION for 2-2-h: Edit style here ----
+                    <input
+                      type="text"
+                      dir="ltr"
+                      value={inputValue}
+                      onChange={e => {
+                        const newValue = e.target.value;
+                        setInputValue(newValue);
+                        // Step 4: Auto-proceed when user types "/" or "\"
+                        if (currentStep === 4 && (newValue.includes('/') || newValue.includes('\\'))) {
+                          setTimeout(() => {
+                            console.log('Auto-proceeding from step 4 due to / or \\ input');
+                            const newProgress = baseProgress + stepIncrement * currentStep;
+                            handleActivityComplete(lessonId, newProgress, undefined, 'tutor2', currentStep);
+                            setCurrentStep(currentStep + 1);
+                            setInputValue('');
+                          }, 500); // Small delay to show the input
+                        }
+                      }}
                     placeholder={currentStepConfig.inputPlaceholder}
                     style={{
                       position: 'absolute',
@@ -454,8 +519,8 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
                       height: '9%',
                       fontFamily: 'ginto',
                       fontSize: '1em',
-                      background: 'transparent',
-                      border: 'none',
+                      background: devMode ? 'rgba(0,255,0,0.2)' : 'transparent',
+                      border: devMode ? '2px solid green' : 'none',
                       color: '#333',
                       caretColor: '#333',
                       outline: 'none',
@@ -468,61 +533,348 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
                       setIsInputFocused(true);
                     }}
                     onBlur={() => setIsInputFocused(false)}
-                    autoFocus={false}
+                    autoFocus={true}
                     onFocus={e => e.stopPropagation()}
                     tabIndex={0}
                   />
                 )}
                 {copilotLanguage === 'hebrew' ? (
-                  // ---- HEBREW BUTTON POSITION: Edit style here for Hebrew ----
+                  // ---- HEBREW BUTTON POSITION for 2-2-h: Edit style here ----
                   <button
                     type="button"
                     style={{
                       position: 'absolute',
-                      left: '8%',
-                      top: '45%',
-                      width: '4%',
-                      height: '6%',
-                      background: 'red',
-                      border: 'none',
-                      color: 'red',
+                      left: '26%',
+                      top: '37%',
+                      width: '3%',
+                      height: '3%',
+                      background: devMode ? 'rgba(255,0,255,0.5)' : 'red',
+                      border: devMode ? '2px solid magenta' : 'none',
+                      color: devMode ? 'magenta' : 'red',
                       fontWeight: 600,
                       fontSize: '1em',
                       cursor: 'pointer',
-                      opacity: 0,
+                      opacity: devMode ? 0.8 : 0,
                       zIndex: 21,
                     }}
                     onClick={handleSendButtonClick}
                   >
-                    {/* No text */}
+                    {devMode ? 'SEND' : ''}
                   </button>
                 ) : (
-                  // ---- ENGLISH BUTTON POSITION: Edit style here for English ----
+                  // ---- ENGLISH BUTTON POSITION for 2-2-h: Edit style here ----
                   <button
                     type="button"
                     style={{
                       position: 'absolute',
-                      left: '88.5%',
-                      top: '45%',
+                      left: '50%',
+                      top: '26%',
                       width: '4%',
                       height: '6%',
-                      background: 'transparent',
-                      border: 'none',
-                      color: 'transparent',
+                      background: devMode ? 'rgba(255,0,255,0.5)' : 'transparent',
+                      border: devMode ? '2px solid magenta' : 'none',
+                      color: devMode ? 'magenta' : 'transparent',
                       fontWeight: 600,
                       fontSize: '1em',
                       cursor: 'pointer',
-                      opacity: 0,
+                      opacity: devMode ? 0.8 : 0,
                       zIndex: 21,
                     }}
                     onClick={handleSendButtonClick}
                   >
-                    {/* No text */}
+                    {devMode ? 'SEND' : ''}
                   </button>
                 )}
               </>
             )}
-            {showInput && currentStepConfig.hasInput && currentStep !== 2 && (
+            
+            {/* Step 6: Input for 2-4-h image */}
+            {currentStep === 6 && (
+              <>
+                                 {copilotLanguage === 'hebrew' ? (
+                                                                             // ---- HEBREW INPUT POSITION for 2-4-h: Edit style here ----
+                     <input
+                       type="text"
+                       dir="rtl"
+                       value={inputValue}
+                       onChange={e => {
+                         const newValue = e.target.value;
+                         setInputValue(newValue);
+                                                // Step 6: Just update the input value, no auto-progression
+                       }}
+                                                                                     placeholder="הכנס טקסט"
+                                           title="שדה קלט להכנסת טקסט הכולל את האותיות: ס, כ, ם"
+                     style={{
+                      position: 'absolute',
+                      left: '35%',
+                      top: '35%',
+                      width: '22%',
+                      height: '6%',
+                      fontFamily: 'ginto',
+                      fontSize: '0.9em',
+                      background: devMode ? 'rgba(0,100,255,0.4)' : 'transparent',
+                      border: devMode ? '3px solid blue' : 'none',
+                      color: '#333',
+                      caretColor: '#333',
+                      outline: 'none',
+                      padding: '0 8px',
+                      zIndex: 20,
+                      cursor: 'pointer',
+                    }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setIsInputFocused(true);
+                    }}
+                    onBlur={() => setIsInputFocused(false)}
+                    autoFocus={true}
+                    onFocus={e => e.stopPropagation()}
+                    tabIndex={0}
+                  />
+                                 ) : (
+                                                                             // ---- ENGLISH INPUT POSITION for 2-4-h: Edit style here ----
+                     <input
+                       type="text"
+                       dir="ltr"
+                       value={inputValue}
+                       onChange={e => {
+                         const newValue = e.target.value;
+                         setInputValue(newValue);
+                         // Step 6: Just update the input value, no auto-progression
+                       }}
+                                         placeholder="Enter text"
+                     style={{
+                      position: 'absolute',
+                      left: '15%',
+                      top: '25%',
+                      width: '60%',
+                      height: '8%',
+                      fontFamily: 'ginto',
+                      fontSize: '1em',
+                      background: devMode ? 'rgba(0,100,255,0.2)' : 'transparent',
+                      border: devMode ? '2px solid blue' : 'none',
+                      color: '#333',
+                      caretColor: '#333',
+                      outline: 'none',
+                      padding: '0 8px',
+                      zIndex: 20,
+                      cursor: 'pointer',
+                    }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setIsInputFocused(true);
+                    }}
+                    onBlur={() => setIsInputFocused(false)}
+                    autoFocus={true}
+                    onFocus={e => e.stopPropagation()}
+                    tabIndex={0}
+                  />
+                )}
+                {copilotLanguage === 'hebrew' ? (
+                                     // ---- HEBREW BUTTON POSITION for 2-4-h: Edit style here ----
+                   <button
+                     type="button"
+                     style={{
+                       position: 'absolute',
+                       left: '26%',
+                       top: '37%',
+                       width: '2%',
+                       height: '3%',
+                       background: devMode ? 'rgba(255,0,255,0.5)' : 'red',
+                       border: devMode ? '2px solid magenta' : 'none',
+                       color: devMode ? 'magenta' : 'red',
+                       fontWeight: 600,
+                       fontSize: '1em',
+                       cursor: 'pointer',
+                       opacity: devMode ? 0.8 : 0,
+                       zIndex: 21,
+                     }}
+                                          onClick={(e) => {
+                        e.stopPropagation();
+                        // Check if required characters are present
+                        const hasRequiredChars = ['ס', 'כ', 'ם'].every(char => inputValue.includes(char));
+                        if (!hasRequiredChars || inputValue.trim() === '') return;
+                        console.log(`Send button clicked in step ${currentStep}, proceeding to next step`);
+                        proceedToNextStep();
+                      }}
+                  >
+                    {devMode ? 'SEND' : ''}
+                  </button>
+                ) : (
+                                     // ---- ENGLISH BUTTON POSITION for 2-4-h: Edit style here ----
+                   <button
+                     type="button"
+                     style={{
+                       position: 'absolute',
+                       left: '12%',
+                       top: '26%',
+                       width: '4%',
+                       height: '6%',
+                       background: devMode ? 'rgba(255,0,255,0.5)' : 'transparent',
+                       border: devMode ? '2px solid magenta' : 'none',
+                       color: devMode ? 'magenta' : 'transparent',
+                       fontWeight: 600,
+                       fontSize: '1em',
+                       cursor: 'pointer',
+                       opacity: devMode ? 0.8 : 0,
+                       zIndex: 21,
+                     }}
+                                          onClick={(e) => {
+                        e.stopPropagation();
+                        // Check if required characters are present
+                        const hasRequiredChars = ['ס', 'כ', 'ם'].every(char => inputValue.includes(char));
+                        if (!hasRequiredChars || inputValue.trim() === '') return;
+                        console.log(`Send button clicked in step ${currentStep}, proceeding to next step`);
+                        proceedToNextStep();
+                      }}
+                  >
+                    {devMode ? 'SEND' : ''}
+                  </button>
+                )}
+                             </>
+             )}
+             
+             {/* Step 8: Input for 2-6-h image */}
+             {currentStep === 8 && (
+               <>
+                 {copilotLanguage === 'hebrew' ? (
+                                                                             // ---- HEBREW INPUT POSITION for 2-6-h: Edit style here ----
+                                           <input
+                        type="text"
+                        dir="rtl"
+                        value={inputValue}
+                        onChange={e => {
+                          const newValue = e.target.value;
+                          setInputValue(newValue);
+                          // Step 8: Just update the input value, no auto-progression
+                        }}
+                      placeholder=""
+                      title="שדה קלט להכנסת טקסט"
+                     style={{
+                       position: 'absolute',
+                       left: '26%',
+                       top: '72.3%',
+                       width: '47%',
+                       height: '5%',
+                       fontFamily: 'ginto',
+                       fontSize: '0.9em',
+                       background: devMode ? 'rgba(255,165,0,0.4)' : 'transparent',
+                       border: devMode ? '3px solid orange' : 'none',
+                       color: '#333',
+                       caretColor: '#333',
+                       outline: 'none',
+                       padding: '0 8px',
+                       zIndex: 20,
+                       cursor: 'pointer',
+                     }}
+                     onClick={e => {
+                       e.stopPropagation();
+                       setIsInputFocused(true);
+                     }}
+                     onBlur={() => setIsInputFocused(false)}
+                     autoFocus={true}
+                     onFocus={e => e.stopPropagation()}
+                     tabIndex={0}
+                   />
+                 ) : (
+                                                                             // ---- ENGLISH INPUT POSITION for 2-6-h: Edit style here ----
+                                           <input
+                        type="text"
+                        dir="ltr"
+                        value={inputValue}
+                        onChange={e => {
+                          const newValue = e.target.value;
+                          setInputValue(newValue);
+                          // Step 8: Just update the input value, no auto-progression
+                        }}
+                      placeholder=""
+                      title="Input field for entering text"
+                     style={{
+                       position: 'absolute',
+                       left: '20%',
+                       top: '40%',
+                       width: '50%',
+                       height: '5%',
+                       fontFamily: 'ginto',
+                       fontSize: '1em',
+                       background: devMode ? 'rgba(255,165,0,0.2)' : 'transparent',
+                       border: devMode ? '2px solid orange' : 'none',
+                       color: '#333',
+                       caretColor: '#333',
+                       outline: 'none',
+                       padding: '0 8px',
+                       zIndex: 20,
+                       cursor: 'pointer',
+                     }}
+                     onClick={e => {
+                       e.stopPropagation();
+                       setIsInputFocused(true);
+                     }}
+                     onBlur={() => setIsInputFocused(false)}
+                     autoFocus={true}
+                     onFocus={e => e.stopPropagation()}
+                     tabIndex={0}
+                   />
+                 )}
+                 {copilotLanguage === 'hebrew' ? (
+                   // ---- HEBREW BUTTON POSITION for 2-6-h: Edit style here ----
+                   <button
+                     type="button"
+                     style={{
+                       position: 'absolute',
+                       left: '23%',
+                       top: '72%',
+                       width: '3%',
+                       height: '5%',
+                       background: devMode ? 'rgba(255,0,255,0.5)' : 'red',
+                       border: devMode ? '2px solid magenta' : 'none',
+                       color: devMode ? 'magenta' : 'red',
+                       fontWeight: 600,
+                       fontSize: '1em',
+                       cursor: 'pointer',
+                       opacity: devMode ? 0.8 : 0,
+                       zIndex: 21,
+                     }}
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       if (inputValue.trim() === '') return;
+                       console.log(`Send button clicked in step ${currentStep}, showing confetti`);
+                       setShowConfetti(true);
+                     }}
+                   >
+                     {devMode ? 'SEND' : ''}
+                   </button>
+                 ) : (
+                   // ---- ENGLISH BUTTON POSITION for 2-6-h: Edit style here ----
+                   <button
+                     type="button"
+                     style={{
+                       position: 'absolute',
+                       left: '18S%',
+                       top: '40%',
+                       width: '3%',
+                       height: '5%',
+                       background: devMode ? 'rgba(255,0,255,0.5)' : 'transparent',
+                       border: devMode ? '2px solid magenta' : 'none',
+                       color: devMode ? 'magenta' : 'transparent',
+                       fontWeight: 600,
+                       fontSize: '1em',
+                       cursor: 'pointer',
+                       opacity: devMode ? 0.8 : 0,
+                       zIndex: 21,
+                     }}
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       if (inputValue.trim() === '') return;
+                       console.log(`Send button clicked in step ${currentStep}, showing confetti`);
+                       setShowConfetti(true);
+                     }}
+                   >
+                     {devMode ? 'SEND' : ''}
+                   </button>
+                 )}
+               </>
+             )}
+             {showInput && currentStepConfig.hasInput && currentStep !== 2 && (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
                 <Input
                   value={inputValue}
@@ -539,6 +891,28 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage }: Clic
         {/* Instructions */}
         <div className="text-center mb-8">
           <p className="text-xl font-medium text-dark-gray">{currentStepConfig.stepInstruction}</p>
+        </div>
+
+        {/* Dev Mode Toggle Button */}
+        <div className="text-center mb-4">
+          <Button 
+            variant={devMode ? "default" : "outline"}
+            onClick={() => setDevMode(!devMode)}
+            className={`px-6 py-2 rounded-xl text-sm ${
+              devMode 
+                ? 'bg-purple-500 text-white hover:bg-purple-600' 
+                : 'border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white'
+            } transition-all duration-300`}
+          >
+            {devMode ? '🔧 Dev Mode ON' : '🔧 Dev Mode OFF'}
+          </Button>
+                     {devMode && (
+                           <div className="text-xs text-gray-500 mt-1">
+                                 <p>Red = Click Areas | Green = Input for 2-2-h | Blue = Input for 2-4-h | Orange = Input for 2-6-h | Magenta = Send Buttons</p>
+                <p>Current Language: <span className="font-bold">{copilotLanguage}</span></p>
+                <p>Step: {currentStep} | Image: {currentStepConfig.imageName}</p>
+              </div>
+           )}
         </div>
 
         {/* Skip Button */}

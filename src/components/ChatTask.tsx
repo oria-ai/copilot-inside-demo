@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Bot, User, Play, MessageSquare, ArrowRight, Video } from 'lucide-react';
+import { Send, Bot, User, Play, MessageSquare, ArrowRight, Video, Download } from 'lucide-react';
 
 interface ChatTaskProps {
   lessonId: string;
+  moduleId?: string;
   onNext?: () => void;
+  onNavigateToActivity?: (activityId: string) => void;
+  onNavigateToLesson?: (lessonId: string, activityId: string) => void;
   handleActivityComplete?: (lessonId: string, progress: number) => void;
 }
 
@@ -32,10 +35,10 @@ interface ToolCall {
 }
 
 // OpenAI API configuration - PUT YOUR API KEY HERE
-const OPENAI_API_KEY = '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'; // Replace with your actual API key
+const OPENAI_API_KEY = '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'; // Replace with your actual API key
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 
-const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) => {
+const ChatTask = ({ lessonId, moduleId, onNext, onNavigateToActivity, onNavigateToLesson, handleActivityComplete }: ChatTaskProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -51,8 +54,8 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Storage key for this lesson's conversation
-  const storageKey = `conversation_${lessonId}`;
+  // Storage key for this lesson's conversation (include moduleId to separate modules)
+  const storageKey = `conversation_${moduleId || 'default'}_${lessonId}`;
 
   // Load system prompt from prompt1.txt
   useEffect(() => {
@@ -554,10 +557,16 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
         await executeToolAutomatically(toolCall);
       }
     }
+    
+    // Focus back to input field after response completes
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
   };
 
   const executeToolAutomatically = async (toolCall: ToolCall) => {
     console.log('🔧 Auto-executing tool:', toolCall.name, toolCall.arguments);
+    console.log('🔧 Available navigation functions:', { onNavigateToActivity: !!onNavigateToActivity, onNavigateToLesson: !!onNavigateToLesson });
     
     // Execute the tool locally and get result
     let toolResult = '';
@@ -565,12 +574,28 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
     switch (toolCall.name) {
       case 'go_to_clicktutor':
         toolResult = `ClickTutor button displayed`;
+        // Navigate to tutor2 automatically
+        console.log('🔧 go_to_clicktutor tool: attempting to navigate to tutor2');
+        if (onNavigateToActivity) {
+          console.log('✅ onNavigateToActivity function available, calling it');
+          onNavigateToActivity('tutor2');
+        } else {
+          console.log('❌ onNavigateToActivity function not available');
+        }
         break;
       case 'give_feedback':
         toolResult = toolCall.arguments.save_flag ? `Feedback saved` : `Feedback displayed`;
         break;
       case 'move_on':
         toolResult = `Move on button displayed`;
+        // Navigate to lesson2 video automatically
+        console.log('🔧 move_on tool: attempting to navigate to lesson2 video');
+        if (onNavigateToLesson) {
+          console.log('✅ onNavigateToLesson function available, calling it');
+          onNavigateToLesson('lesson2', 'video');
+        } else {
+          console.log('❌ onNavigateToLesson function not available');
+        }
         break;
       case 'show_file':
         toolResult = `File button displayed`;
@@ -616,20 +641,28 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
     // Just show feedback to user, tool was already executed automatically
     let userFeedback = '';
     
-    switch (toolCall.name) {
-      case 'go_to_clicktutor':
-        userFeedback = `נווט ל-ClickTutor: ${toolCall.arguments.reason as string}`;
-        if (onNext) onNext(); // Still navigate when user clicks
-        break;
+         switch (toolCall.name) {
+       case 'go_to_clicktutor':
+         userFeedback = `נווט ל-ClickTutor: ${toolCall.arguments.reason as string}`;
+         if (onNavigateToActivity) {
+           onNavigateToActivity('tutor2'); // Navigate to tutor2 activity
+         } else if (onNext) {
+           onNext(); // Fallback to onNext
+         }
+         break;
       case 'give_feedback':
         userFeedback = toolCall.arguments.save_flag 
           ? `משוב נשמר: ${toolCall.arguments.feedback as string}`
           : `משוב: ${toolCall.arguments.feedback as string}`;
         break;
-      case 'move_on':
-        userFeedback = `עבור לפעילות הבאה: ${toolCall.arguments.next_activity as string}`;
-        if (onNext) onNext(); // Still navigate when user clicks
-        break;
+             case 'move_on':
+         userFeedback = `עבור לפעילות הבאה: ${toolCall.arguments.next_activity as string}`;
+         if (onNavigateToLesson) {
+           onNavigateToLesson('lesson2', 'video'); // Navigate to lesson2's video
+         } else if (onNext) {
+           onNext(); // Fallback to onNext
+         }
+         break;
       case 'show_file':
         userFeedback = `הצג קובץ: ${toolCall.arguments.video_topic as string}`;
         break;
@@ -650,9 +683,24 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
       case 'move_on':
         return <ArrowRight className="w-4 h-4" />;
       case 'show_file':
-        return <Video className="w-4 h-4" />;
+        return <Download className="w-4 h-4" />;
       default:
         return <Bot className="w-4 h-4" />;
+    }
+  };
+
+  const getToolText = (toolName: string) => {
+    switch (toolName) {
+      case 'go_to_clicktutor':
+        return 'למדריך הטכני';
+      case 'give_feedback':
+        return 'משוב';
+      case 'move_on':
+        return 'המשך';
+      case 'show_file':
+        return 'להורדת הקובץ';
+      default:
+        return toolName.replace(/_/g, ' ');
     }
   };
 
@@ -703,8 +751,8 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
   return (
     <Card className="!mb-0 !pb-0 flex flex-col h-full">
       <CardHeader>
-        <CardTitle>שיחה עם קופיילוט</CardTitle>
-        <p className="text-sm text-gray-600">נסה לנהל שיחה עם קופיילוט על הנושא שלמדנו</p>
+        <CardTitle>תרגול עם מורה פרטי</CardTitle>
+        <p className="text-sm text-gray-600">תוכלו לשאול שאלות על הסרטון או לבצע תרגול בצ'אט</p>
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col p-0">
@@ -747,19 +795,19 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
                  {/* Tool call buttons */}
                  {message.toolCalls && message.toolCalls.length > 0 && (
                    <div className="mt-3 space-y-2">
-                                           {message.toolCalls.map((toolCall) => (
-                        <Button
-                          key={toolCall.id}
-                          onClick={() => handleToolClick(toolCall)}
-                          variant="outline"
-                          size="sm"
-                          className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center gap-2"
-                         disabled={isLoading}
-                        >
-                          {getToolIcon(toolCall.name)}
-                          {toolCall.name.replace(/_/g, ' ')}
-                        </Button>
-                      ))}
+                                                                                       {message.toolCalls.map((toolCall) => (
+                         <Button
+                           key={toolCall.id}
+                           onClick={() => handleToolClick(toolCall)}
+                           variant="outline"
+                           size="sm"
+                           className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center gap-2"
+                          disabled={isLoading}
+                         >
+                           {getToolIcon(toolCall.name)}
+                           {getToolText(toolCall.name)}
+                         </Button>
+                       ))}
                    </div>
                  )}
                  
@@ -819,21 +867,21 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
            
            {/* Debug buttons - remove in production */}
            <div className="mt-2 flex gap-2 justify-center text-xs">
-             <Button 
+             {/* <Button 
                onClick={showConversationDebug}
                variant="outline"
                size="sm"
                className="text-xs"
              >
                🐛 Debug Info
-             </Button>
+             </Button> */}
              <Button 
                onClick={clearConversation}
                variant="outline"
                size="sm"
                className="text-xs text-red-600 hover:text-red-700"
              >
-               🗑️ Clear Chat
+               🗑️ נקה צ'אט
              </Button>
            </div>
         </div>

@@ -103,26 +103,26 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
   const leftPathCards: CardType[] = [
     {
       title: 'רקע',
-      instructions: 'סיימנו עכשיו פגישת פתיחת שבוע ארוכה ועמוסה.<br />אתה מעוניין להפיק מתמלול השיחה מסמך קצר שמסכם את המשימות של הצוות שלך - צוות הפיתוח.<br />הורד את הקובץ, ולחץ "הבא" להמשך ההנחיות.',
+      instructions: 'סיימת עכשיו פגישת פתיחת שבוע עם צוות הפיתוח בחו"ל.<br />קופיילוט תמלל עבורך את הפגישה, וכעת אתה מעוניין לסכם את הפגישה ולדווח למנהל שלך.<br />הורד את הקובץ, ולחץ "הבא" להמשך ההנחיות.',
       showDownload: true,
       showUpload: false,
       isInitialUpload: false
     },
     {
       title: 'הוראות עבודה',
-      instructions: 'שמור את הקובץ בענן, כך שקופיילוט יוכל לגשת אליו.<br />פתח מסמך וורד חדש, ובקש מקופיילוט ליצור עבורך סיכום מהתמלול.<br />עבור על המסמך כדי להבין את ההקשר, והקפד לשלוח לקופיילוט פרומפט מלא ומפורט.',
+      instructions: 'שמור את הקובץ בענן, כך שקופיילוט יוכל לגשת אליו.<br />מצא את התרגום האוטומטי שקופיילוט ביצע. אם אתה לא מוצא - בקש ממנו לתרגם.<br />התנסה בתרגום של פסקאות ספציפיות, בדוק את איכות התרגום.',
       showDownload: false,
       showUpload: false
     },
     {
       title: 'הוראות עבודה',
-      instructions: "בדוק את התוצאה, ובמידת הצורך תן לקופיילוט הנחיות לתיקון. <br />אל תשאיר הכל בידי המכונה! תמיד טוב לעבור על הטקסט, ולתת קצת טאצ' אישי.",
+      instructions: 'סכם את הטקסט בעזרת קופיילוט.<br />התנסה בפיצ\'ר "הצעות" - סמן טקסט ובחר "כתיבת הצעות"<br />שמור את המסמך המתורגם בענן.',
       showDownload: false,
       showUpload: false
     },
     {
       title: 'העלאת קובץ',
-      instructions: 'העלה את הקובץ המסוכם שיצרת לטובת קבלת משוב.',
+      instructions: 'פתח מסמך וורד חדש, וצרף את המסמך המתורגם שיצרת לקופיילוט.<br />בקש ממנו ליצור עבורך מסמך מתורגם מהקובץ הצורף.<br />העלה את הקובץ לבדיקה.',
       showDownload: false,
       showUpload: true
     }
@@ -181,11 +181,11 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
   /*   Helpers                                          */
   /* -------------------------------------------------- */
   const handleDownload = () => {
-    // Download the file תמלול.docx from the public directory
-    const url = '/תמלול.docx';
+    // Download the file transcript.docx from the public directory
+    const url = '/transcript.docx';
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'תמלול.docx';
+    link.download = 'transcript.docx';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -266,19 +266,24 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
     if (selectedPath === 'left') {
       if (currentCard === 1) {
         return (
-          <ul><li>לאחר שתפתח קובץ וורד חדש, תראה שורת שיחה עם קופיילוט בראש הקובץ.</li><li>לחץ על המקש "/", וכך תוכל לבחור קובץ מהמחשב להתייחסות. בחר את קובץ התמלול.</li><li>כתוב פרומפט מפורט שמסביר מה זה קובץ התמלול ומה על קופיילוט לעשות.</li></ul>
-        );
-      } else if (currentCard === 2) {
-        return (
-          <>
-            לאחר יצירת הסיכום, קופיילוט יפתח עבורך חלון צ'אט בתחתית המסך לטובת הנחיות לתיקון.
-            <br />
-            תמיד תוכל להמשיך לבקש מקופיילוט עריכות על המסמך, באמצעות לחיצה על סימן הקופיילוט - 
-            <br />
-            הוא מופיע תמיד ליד השורה בה אתה כותב.
+          <> 
+          כדי לתרגם פסקה סמן אותה בעזרת העכבר,
+          <br />
+          לחץ בסרגל הכלים למעלה "סקירה" ואז "תרגם"
           </>
         );
-      }
+      } 
+      // else if (currentCard === 2) {
+      //   return (
+      //     <>
+      //       לאחר יצירת הסיכום, קופיילוט יפתח עבורך חלון צ'אט בתחתית המסך לטובת הנחיות לתיקון.
+      //       <br />
+      //       תמיד תוכל להמשיך לבקש מקופיילוט עריכות על המסמך, באמצעות לחיצה על סימן הקופיילוט - 
+      //       <br />
+      //       הוא מופיע תמיד ליד השורה בה אתה כותב.
+      //     </>
+      //   );
+      // }
     } else {
       if (currentCard === 1) {
         return (
@@ -350,8 +355,8 @@ const FileTask = ({ lessonId, handleActivityComplete }: FileTaskProps) => {
                   <h3 className="text-xl font-semibold mb-4">{cards[currentCard].title}</h3>
                   <div className="text-gray-700 mb-6 prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pr-6 [&_ol]:list-decimal [&_ol]:pr-6 [&_li]:mb-2 [&_strong]:font-bold [&_strong]:text-gray-900" dangerouslySetInnerHTML={{ __html: cards[currentCard].instructions }} />
                   
-                  {/* How link for card 1 and 2 */}
-                  {(currentCard === 1 || currentCard === 2) && (
+                  {/* How link for card 2 only (left path) or card 1 and 2 (right path) */}
+                  {((selectedPath === 'left' && currentCard === 1) || (selectedPath === 'right' && (currentCard === 1 || currentCard === 2))) && (
                     <>
                       {/* Extra instructions for card 1 and 2 */}
                       {getCurrentShowHow() && (

@@ -5,6 +5,7 @@ import ConfettiOverlay from '@/components/ConfettiOverlay';
 
 interface ConclusionProps {
   lessonId: string;
+  moduleId?: string;
   onConclusionComplete: (lessonId: string, rating: number) => Promise<void>;
   onBack?: () => void;
 }
@@ -38,10 +39,20 @@ const conclusions = {
       '* למדנו איך קופיילוט יכול לשמש אותנו ליצירת טיוטה מאפס.',
       '* למדנו איך לתת לקופיילוט קבצים אחרים להתייחסות או לסיכום.'
     ]
+  },
+  'word_lesson2': {
+    title: 'סיכום מודול - קופיילוט בוורד',
+    content: [
+      '* למדנו להשתמש בקופיילוט לכתיבה מקצועית ויעילה.',
+      '* הבנו איך לשלב קבצים וקישורים בעבודה עם קופיילוט.',
+      '* תרגלנו שימוש בכלים המתקדמים של Word יחד עם קופיילוט.',
+      '* למדנו להפיק מסמכים איכותיים ומעוצבים בקלות.',
+      '* הבנו איך קופיילוט יכול לחסוך זמן משמעותי בעבודה היומיומית.'
+    ]
   }
 };
 
-const Conclusion = ({ lessonId, onConclusionComplete, onBack }: ConclusionProps) => {
+const Conclusion = ({ lessonId, moduleId, onConclusionComplete, onBack }: ConclusionProps) => {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,6 +66,9 @@ const Conclusion = ({ lessonId, onConclusionComplete, onBack }: ConclusionProps)
       await onConclusionComplete(lessonId, rating);
       if (isLastLesson) {
         setShowConfetti(true);
+      } else {
+        // For non-last lessons, navigate back immediately
+        if (onBack) onBack();
       }
     } catch (error) {
       console.error('Error completing conclusion:', error);
@@ -69,7 +83,14 @@ const Conclusion = ({ lessonId, onConclusionComplete, onBack }: ConclusionProps)
     return isFilled ? 'text-yellow-400' : 'text-gray-300';
   };
 
-  const currentConclusion = conclusions[lessonId as keyof typeof conclusions] || conclusions['lesson1'];
+  const getConclusionKey = () => {
+    if (moduleId === 'word' && lessonId === 'lesson2') {
+      return 'word_lesson2';
+    }
+    return lessonId;
+  };
+
+  const currentConclusion = conclusions[getConclusionKey() as keyof typeof conclusions] || conclusions['lesson1'];
 
   return (
     <>
@@ -90,7 +111,7 @@ const Conclusion = ({ lessonId, onConclusionComplete, onBack }: ConclusionProps)
               if (onBack) onBack();
             }}
           >
-            חזרה לדף הבית
+            סיים את המודול
           </Button>
         </div>
       </ConfettiOverlay>
@@ -141,7 +162,7 @@ const Conclusion = ({ lessonId, onConclusionComplete, onBack }: ConclusionProps)
                   className="px-8"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'שולח...' : isLastLesson ? 'סיים קורס' : 'המשך לשיעור הבא'}
+                  {isSubmitting ? 'שולח...' : 'סיים את המודול'}
                 </Button>
               </div>
             </div>

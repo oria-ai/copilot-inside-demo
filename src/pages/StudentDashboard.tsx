@@ -4,7 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Clock, Trophy, ArrowLeft, FileText, MessageSquare, LogOut } from 'lucide-react';
 import { Dialog } from '@headlessui/react';
-import { progressStorage } from '@/lib/localStorage';
+import { progressStorage, assignmentStorage, Assignment } from '@/lib/localStorage';
 
 export interface UserData {
   id?: string;
@@ -30,6 +30,7 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
   const [completedLessons, setCompletedLessons] = useState(0);
   const [totalLessons, setTotalLessons] = useState(6);
   const [lesson2Progress, setLesson2Progress] = useState<number | null>(null);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
 
   // To control the space between the cards, change the value of 'centerSpaceWidth' below
   /** Adjust this number to control the space between the cards (in pixels) */
@@ -38,12 +39,10 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'prompt' | 'feedback' | null>(null);
-
-  // Feedback HTML (from user)
-  const feedbackHtml = `<p class="mb-4">היי, הנה משוב על הפרומפט שלך:</p><ul class="list-disc list-inside mb-4 space-y-1"><li class="mb-1"><strong>תפקיד:</strong> חסר. הפרומפט לא מציין מי אמור לסכם את הפגישה.</li><li class="mb-1"><strong>מטרה:</strong> קיימת, אך כללית מאוד - "שאוכל לשלוח מייל לכולם".</li><li class="mb-1"><strong>הקשר:</strong> חסר לחלוטין. אין שום מידע על הפגישה עצמה (נושא, משתתפים, החלטות שהתקבלו וכו').</li><li class="mb-1"><strong>תוצר רצוי:</strong> חסר פירוט. "סיכום" זה כללי מדי. מה בדיוק צריך לכלול הסיכום? מה אורך הסיכום הרצוי?</li></ul><p class="mb-4">המלצות לשיפור:</p><ul class="list-disc list-inside mb-4 space-y-1"><li class="mb-1">הוסף תפקיד: לדוגמה, "בתור עוזר/ת אישי/ת...".</li><li class="mb-1">פרט את ההקשר: ציין את נושא הפגישה, תאריך, משתתפים מרכזיים, מטרת הפגישה.</li><li class="mb-1">הגדר את התוצר הרצוי בצורה מפורטת: לדוגמה, "סיכום תמציתי של עיקרי הדברים, החלטות שהתקבלו ופעולות המשך נדרשות, באורך של עד 200 מילים".</li><li class="mb-1">חדד את המטרה: פרט למה הסיכום ישמש, לדוגמה "כדי ליידע את כל המשתתפים על ההחלטות שהתקבלו ולתאם את המשך הפעילות".</li></ul>`;
+  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
 
   useEffect(() => {
-    const fetchProgress = () => {
+    const fetchData = () => {
       // Get progress from localStorage instead of API
       const data = progressStorage.getProgress(userData.id || userData.email);
       const total = data.reduce((sum, p) => sum + (p.percent || 0), 0);
@@ -52,8 +51,12 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
       // Find lesson2 progress
       const lesson2 = data.find((p) => p.lessonId === 'lesson2');
       setLesson2Progress(lesson2 ? lesson2.percent : 0);
+      
+      // Get assignments from localStorage
+      const userAssignments = assignmentStorage.getAssignments(userData.id || userData.email);
+      setAssignments(userAssignments);
     };
-    fetchProgress();
+    fetchData();
   }, [userData, totalLessons]);
 
   const modules = [
@@ -80,16 +83,7 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
     }
   ];
 
-  const assignments = [
-    {
-      id: 'task2',
-      title: 'משימה 2 - שיפור פרומפט',
-      prompt: 'כתוב לי בבקשה סיכום של הפגישה שהייתה שאוכל לשלוח',
-      feedback: feedbackHtml,
-      status: 'completed',
-      grade: 95
-    }
-  ];
+
 
   // Helper to truncate text
   const truncateText = (text: string, maxLength: number) => {
@@ -179,13 +173,13 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
               <p className="text-medium-gray">משימות שהוגשו וקיבלו משוב</p>
             </div>
             <div className="space-y-4 flex-1 flex flex-col">
-              {/* Conditional rendering for lesson2 progress */}
-              {lesson2Progress === 0 && (
+              {/* Conditional rendering for assignments */}
+              {assignments.length === 0 && (
                 <div className="bg-white rounded-3xl shadow-card border-0 p-8 text-center text-xl text-medium-gray font-semibold">
                   עדיין לא הוגשו משימות
                 </div>
               )}
-              {lesson2Progress === 100 && assignments.map((assignment) => (
+              {assignments.length > 0 && assignments.map((assignment) => (
                 <Card 
                   key={assignment.id} 
                   className="bg-gradient-card shadow-card rounded-3xl border-0 overflow-hidden flex flex-col h-full"
@@ -206,22 +200,30 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0 space-y-4 mt-auto">
-                    <div className="bg-light-gray rounded-2xl p-4 cursor-pointer" onClick={() => { setModalType('prompt'); setModalOpen(true); }}>
+                    <div className="bg-light-gray rounded-2xl p-4 cursor-pointer" onClick={() => { 
+                      setSelectedAssignment(assignment); 
+                      setModalType('prompt'); 
+                      setModalOpen(true); 
+                    }}>
                       <h4 className="font-semibold text-dark-gray mb-2">הפרומפט שלי:</h4>
                       <p className="text-sm text-medium-gray leading-relaxed">
-                        {truncateText(assignment.prompt, 40)}
-                        {assignment.prompt.length > 40 && <span className="text-blue-500"> קרא עוד</span>}
+                        {truncateText(assignment.prompt, 25)}
+                        {assignment.prompt.length > 25 && <span className="text-blue-500"> קרא עוד</span>}
                       </p>
                     </div>
-                    <div className="bg-white rounded-2xl p-4 border-2 border-green/20 cursor-pointer" onClick={() => { setModalType('feedback'); setModalOpen(true); }}>
+                    <div className="bg-white rounded-2xl p-4 border-2 border-green/20 cursor-pointer" onClick={() => { 
+                      setSelectedAssignment(assignment); 
+                      setModalType('feedback'); 
+                      setModalOpen(true); 
+                    }}>
                       <div className="flex items-center gap-2 mb-2">
                         <MessageSquare className="h-4 w-4 text-green" />
                         <h4 className="font-semibold text-dark-gray">משוב :</h4>
                       </div>
                       <div className="text-sm text-medium-gray leading-relaxed">
                         {/* Render only a preview of the feedback (strip HTML tags for preview) */}
-                        {truncateText(assignment.feedback.replace(/<[^>]+>/g, ''), 40)}
-                        {assignment.feedback.replace(/<[^>]+>/g, '').length > 40 && <span className="text-blue-500"> קרא עוד</span>}
+                        {truncateText(assignment.feedback.replace(/<[^>]+>/g, ''), 25)}
+                        {assignment.feedback.replace(/<[^>]+>/g, '').length > 25 && <span className="text-blue-500"> קרא עוד</span>}
                       </div>
                     </div>
                   </CardContent>
@@ -268,19 +270,19 @@ const StudentDashboard = ({ userData, onModuleClick, onLogout }: StudentDashboar
       </div>
 
       {/* Modal for full prompt/feedback */}
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
+      <Dialog open={modalOpen} onClose={() => { setModalOpen(false); setSelectedAssignment(null); }} className="fixed z-50 inset-0 overflow-y-auto">
         <div className="flex items-center justify-center min-h-screen px-4">
           <div className="fixed inset-0 bg-black opacity-30 z-40" />
           <div className="relative bg-white rounded-3xl shadow-xl max-w-lg w-full mx-auto p-8 z-50" dir="rtl">
-            <button onClick={() => setModalOpen(false)} className="absolute left-4 top-4 text-gray-400 hover:text-gray-600 text-2xl">×</button>
+            <button onClick={() => { setModalOpen(false); setSelectedAssignment(null); }} className="absolute left-4 top-4 text-gray-400 hover:text-gray-600 text-2xl">×</button>
             <h2 className="text-2xl font-bold mb-4 text-dark-gray">
               {modalType === 'prompt' ? 'הפרומפט שלי' : 'משוב AI על המשימה'}
             </h2>
             <div className="prose prose-sm max-w-none text-gray-700" style={{ direction: 'rtl' }}>
               {modalType === 'prompt' ? (
-                <div>{assignments[0].prompt}</div>
+                <div>{selectedAssignment?.prompt}</div>
               ) : (
-                <div dangerouslySetInnerHTML={{ __html: assignments[0].feedback }} />
+                <div dangerouslySetInnerHTML={{ __html: selectedAssignment?.feedback || '' }} />
               )}
             </div>
           </div>

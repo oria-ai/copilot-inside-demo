@@ -18,7 +18,7 @@ const DEFAULT_USERS = {
   student: {
     id: 'default-student',
     email: 'oria@gmail.com', 
-    password: '1234',
+    password: '1234shir',
     name: 'אוריה',
     department: 'פיתוח',
     copilotLanguage: 'hebrew',

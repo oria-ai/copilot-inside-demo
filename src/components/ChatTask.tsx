@@ -32,7 +32,7 @@ interface ToolCall {
 }
 
 // OpenAI API configuration - PUT YOUR API KEY HERE
-const OPENAI_API_KEY = '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'; // Replace with your actual API key
+const OPENAI_API_KEY = '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'; // Replace with your actual API key
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 
 const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) => {
@@ -66,49 +66,8 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
         setSystemPrompt(text);
       } catch (error) {
         console.error('Error loading system prompt:', error);
-        // Fallback prompt with full content
-        setSystemPrompt(`אתה מורה פרטי בשיעור שימוש בקופיילוט בוורד.
-אתה מתמחה בשימוש בקופיילוט בוורד, ונסמך על הידע שיצורף בהמשך.
-יש לך 3 תפקידים - מורה הזמין לשאלות על החומר ועל הסרטון, מתרגל שמדריך את המשתמש בביצוע תרגול ומתן פידבק, ומלווה למידה ששולח את המשתמש למשימות שונות בהתאם להבנה שלו
-1. לשמש כמדריך על קופיילוט בוורד, לסייע בשימוש, בביצוע, ובשאלות.
-להלן הידע שלך על קופיילוט בוורד, ולאחר מכן תמלול של הסרטון שבו צפה המשתמש, על מנת שתוכל לעזור לו במידה ויש לו שאלות על הסרטון.
-הידע התיאורטי שלך :
-# Copilot בוורד – הידע התיאורטי
-
-## מבוא
-
-Copilot בוורד (Microsoft 365 Copilot) הוא סוכן בינה מלאכותית שמוטמע כחלק מ‑Word ומסוגל להפיק טיוטות, לשכתב, לסכם, לענות על שאלות ולתרגם מסמכים בזמן אמת על‑סמך פקודות שפה טבעית שניתנות בממשק וורד. הפעלתו מתבצעת בלחיצה על סמל Copilot (שתי טבעות משולבות) בפינה הימנית‑עליונה או בקיצור ‎Alt + I.
-
-## דרישות מוקדמות
-
-* רישיון Microsoft 365 עם Copilot (Pro/Enterprise) פעיל.
-* חיבור לאינטרנט כדי לבצע עיבוד בענן.
-* שמירת המסמך ב‑OneDrive או SharePoint לקבלת יכולות הקשר חוצות‑קבצים.
-* גרסת Word: שולחן‑עבודה (Windows/Mac), Web או iPad.
-
-## שימושים עיקריים
-
-1. **יצירת טיוטה מלאה (Draft)** – מעבר מדף ריק לטקסט ראשוני על‑פי פרומפט.
-2. **תיקון ושיפור טיוטה** – שימוש ב‑**תיבת החיבור** (שורת ההנחיה) שמופיעה מיד אחרי יצירת הטיוטה.
-3. **שכתוב פסקאות ספציפיות** – בחירת טקסט קיים ולחיצה על **שכתב באמצעות Copilot**.
-4. **סיכום ושאילתות** – בקשת תקציר או מענה לשאלות על תוכן המסמך.
-5. **הזנת קבצים חיצוניים כהקשר** – הצמדת מסמכים נוספים כדי לשפר את התוצאה.
-6. **תרגום מסמכים** – המרת המסמך לשפה אחרת תוך שמירה על עיצוב.
-
-הכלים הזמינים לך:
-1. go_to_clicktutor - כאשר המשתמש צריך תרגול מעשי או רוצה לחזור על התרגילים
-2. give_feedback - כאשר אתה רוצה לתת משוב על הביצועים או ההבנה של המשתמש
-3. move_on - כאשר המשתמש מוכן לעבור לפעילות הבאה
-4. show_video - כאשר וידאו יכול לעזור להסביר נושא או להדגים תהליך
-
-עקרונות חשובים:
-- ענה בעברית בצורה ידידותית ומקצועית
-- השתמש בכלים כאשר זה מתאים ויעיל
-- עודד למידה אקטיבית ותרגול
-- תן משוב בונה וחיובי
-- הנח שהמשתמש כבר צפה בוידאו של השיעור
-
-התחל את השיחה בברכה ושאל איך תוכל לעזור למשתמש עם לימוד קופיילוט.`);
+        // Inform user that prompt didn't load
+        setSystemPrompt('שגיאה: לא הצלחתי לטעון את הוראות המערכת. אנא נסה לרענן את הדף.');
       }
     };
     
@@ -167,7 +126,7 @@ Copilot בוורד (Microsoft 365 Copilot) הוא סוכן בינה מלאכות
     {
       type: "function",
       name: "go_to_clicktutor",
-      description: "Navigate to the ClickTutor interactive tutorial",
+      description: "Navigate to the ClickTutor interactive tutorial for users who need orientation",
       parameters: {
         type: "object",
         properties: {
@@ -218,8 +177,8 @@ Copilot בוורד (Microsoft 365 Copilot) הוא סוכן בינה מלאכות
     },
     {
       type: "function",
-      name: "show_video",
-      description: "Show a relevant video to the user",
+      name: "show_file",
+      description: "when the user want the premade file for the exercise",
       parameters: {
         type: "object",
         properties: {
@@ -234,7 +193,7 @@ Copilot בוורד (Microsoft 365 Copilot) הוא סוכן בינה מלאכות
     }
   ];
 
-  const sendRequest = async (inputData: string | Array<{role: string, content?: string, name?: string, tool_call_id?: string}>, isFirstMessage: boolean = false) => {
+  const sendRequest = async (inputData: string | Array<{role: string, content?: string, name?: string, tool_call_id?: string} | {type: string, call_id?: string, name?: string, arguments?: string, output?: string}>, isFirstMessage: boolean = false) => {
     const requestBody: Record<string, unknown> = {
       model: conversationState.model,
       input: inputData,
@@ -418,6 +377,9 @@ Copilot בוורד (Microsoft 365 Copilot) הוא סוכן בינה מלאכות
                          return newMessages;
                        });
                    }
+                
+                // Immediately execute tool and send result back to API
+                pendingToolCalls.push(toolCall);
               }
               
                             // Handle text content deltas (for regular text responses)
@@ -549,6 +511,7 @@ Copilot בוורד (Microsoft 365 Copilot) הוא סוכן בינה מלאכות
 
     console.log('🔚 Finished processing stream. Bot message created:', !!currentBotMessage);
     console.log('🔚 Response ID captured:', responseId);
+    console.log('🔚 Pending tool calls to execute:', pendingToolCalls.length);
     
     // Update conversation state with the complete conversation
     if (currentBotMessage) {
@@ -583,56 +546,56 @@ Copilot בוורד (Microsoft 365 Copilot) הוא סוכן בינה מלאכות
          updatedAt: Date.now()
        }));
     }
+    
+    // Auto-execute any pending tool calls
+    if (pendingToolCalls.length > 0) {
+      console.log('🔧 Auto-executing pending tool calls...');
+      for (const toolCall of pendingToolCalls) {
+        await executeToolAutomatically(toolCall);
+      }
+    }
   };
 
-  const handleToolCall = async (toolCall: ToolCall) => {
-    console.log('🔧 Tool button clicked:', toolCall.name, toolCall.arguments);
+  const executeToolAutomatically = async (toolCall: ToolCall) => {
+    console.log('🔧 Auto-executing tool:', toolCall.name, toolCall.arguments);
     
     // Execute the tool locally and get result
     let toolResult = '';
-    let userFeedback = '';
      
-     switch (toolCall.name) {
-       case 'go_to_clicktutor':
-        toolResult = `ClickTutor button displayed and clicked. User is now navigating to interactive tutorial.`;
-        userFeedback = `נווט ל-ClickTutor: ${toolCall.arguments.reason as string}`;
-        // alert(userFeedback);
-         break;
-       case 'give_feedback':
-        toolResult = `Feedback displayed to user: "${toolCall.arguments.feedback}". Save flag: ${toolCall.arguments.save_flag}`;
-        userFeedback = toolCall.arguments.save_flag 
-          ? `משוב נשמר: ${toolCall.arguments.feedback as string}`
-          : `משוב: ${toolCall.arguments.feedback as string}`;
-        // alert(userFeedback);
-         break;
-       case 'move_on':
-        toolResult = `Move on button displayed and clicked. User is proceeding to: ${toolCall.arguments.next_activity}`;
-        userFeedback = `עבור לפעילות הבאה: ${toolCall.arguments.next_activity as string}`;
-        // alert(userFeedback);
-         if (onNext) onNext();
-         break;
-       case 'show_video':
-        toolResult = `Video button displayed and clicked. Video topic: ${toolCall.arguments.video_topic}`;
-        userFeedback = `הצג וידאו: ${toolCall.arguments.video_topic as string}`;
-        // alert(userFeedback);
-         break;
+    switch (toolCall.name) {
+      case 'go_to_clicktutor':
+        toolResult = `ClickTutor button displayed`;
+        break;
+      case 'give_feedback':
+        toolResult = toolCall.arguments.save_flag ? `Feedback saved` : `Feedback displayed`;
+        break;
+      case 'move_on':
+        toolResult = `Move on button displayed`;
+        break;
+      case 'show_file':
+        toolResult = `File button displayed`;
+        break;
       default:
-        toolResult = `Tool "${toolCall.name}" executed successfully.`;
-        userFeedback = `פעולה בוצעה: ${toolCall.name}`;
+        toolResult = `Button displayed`;
     }
 
-    console.log('✅ Tool executed locally, sending result back to API:', toolResult);
+    console.log('✅ Tool executed automatically, sending result back to API:', toolResult);
 
-    // Send tool result back to API automatically
-    setIsLoading(true);
-    
     try {
-      const toolInput = [{
-        role: "tool",
-        name: toolCall.name,
-        tool_call_id: toolCall.id,
-        content: toolResult
-      }];
+      // The input should include both the original function call AND the result
+      const toolInput = [
+        {
+          type: "function_call",
+          call_id: toolCall.id,
+          name: toolCall.name,
+          arguments: JSON.stringify(toolCall.arguments)
+        },
+        {
+          type: "function_call_output", 
+          call_id: toolCall.id,
+          output: toolResult
+        }
+      ];
 
       const response = await sendRequest(toolInput, false);
       
@@ -640,14 +603,43 @@ Copilot בוורד (Microsoft 365 Copilot) הוא סוכן בינה מלאכות
       const currentMessages = [...messages];
       await processStreamingResponse(response, currentMessages);
       
-      console.log('✅ Tool result sent, continuing conversation');
+      console.log('✅ Tool result sent automatically, continuing conversation');
       
     } catch (error) {
-      console.error('❌ Error sending tool result:', error);
-    } finally {
-      setIsLoading(false);
-     }
-   };
+      console.error('❌ Error sending tool result automatically:', error);
+    }
+  };
+
+  const handleToolClick = (toolCall: ToolCall) => {
+    console.log('🔧 Tool button clicked (display only):', toolCall.name);
+    
+    // Just show feedback to user, tool was already executed automatically
+    let userFeedback = '';
+    
+    switch (toolCall.name) {
+      case 'go_to_clicktutor':
+        userFeedback = `נווט ל-ClickTutor: ${toolCall.arguments.reason as string}`;
+        if (onNext) onNext(); // Still navigate when user clicks
+        break;
+      case 'give_feedback':
+        userFeedback = toolCall.arguments.save_flag 
+          ? `משוב נשמר: ${toolCall.arguments.feedback as string}`
+          : `משוב: ${toolCall.arguments.feedback as string}`;
+        break;
+      case 'move_on':
+        userFeedback = `עבור לפעילות הבאה: ${toolCall.arguments.next_activity as string}`;
+        if (onNext) onNext(); // Still navigate when user clicks
+        break;
+      case 'show_file':
+        userFeedback = `הצג קובץ: ${toolCall.arguments.video_topic as string}`;
+        break;
+      default:
+        userFeedback = `פעולה בוצעה: ${toolCall.name}`;
+    }
+    
+    console.log('ℹ️ User feedback:', userFeedback);
+    // Could show a toast or alert here if needed
+  };
 
   const getToolIcon = (toolName: string) => {
     switch (toolName) {
@@ -657,7 +649,7 @@ Copilot בוורד (Microsoft 365 Copilot) הוא סוכן בינה מלאכות
         return <MessageSquare className="w-4 h-4" />;
       case 'move_on':
         return <ArrowRight className="w-4 h-4" />;
-      case 'show_video':
+      case 'show_file':
         return <Video className="w-4 h-4" />;
       default:
         return <Bot className="w-4 h-4" />;
@@ -755,19 +747,19 @@ Copilot בוורד (Microsoft 365 Copilot) הוא סוכן בינה מלאכות
                  {/* Tool call buttons */}
                  {message.toolCalls && message.toolCalls.length > 0 && (
                    <div className="mt-3 space-y-2">
-                     {message.toolCalls.map((toolCall) => (
-                       <Button
-                         key={toolCall.id}
-                         onClick={() => handleToolCall(toolCall)}
-                         variant="outline"
-                         size="sm"
-                         className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center gap-2"
-                        disabled={isLoading}
-                       >
-                         {getToolIcon(toolCall.name)}
-                         {toolCall.name.replace(/_/g, ' ')}
-                       </Button>
-                     ))}
+                                           {message.toolCalls.map((toolCall) => (
+                        <Button
+                          key={toolCall.id}
+                          onClick={() => handleToolClick(toolCall)}
+                          variant="outline"
+                          size="sm"
+                          className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center gap-2"
+                         disabled={isLoading}
+                        >
+                          {getToolIcon(toolCall.name)}
+                          {toolCall.name.replace(/_/g, ' ')}
+                        </Button>
+                      ))}
                    </div>
                  )}
                  

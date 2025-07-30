@@ -35,7 +35,6 @@ interface ToolCall {
 }
 
 // OpenAI API configuration - PUT YOUR API KEY HERE
-const OPENAI_API_KEY = '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'; // Replace with your actual API key
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 
 const ChatTask = ({ lessonId, moduleId, onNext, onNavigateToActivity, onNavigateToLesson, handleActivityComplete }: ChatTaskProps) => {
@@ -565,37 +564,23 @@ const ChatTask = ({ lessonId, moduleId, onNext, onNavigateToActivity, onNavigate
   };
 
   const executeToolAutomatically = async (toolCall: ToolCall) => {
-    console.log('🔧 Auto-executing tool:', toolCall.name, toolCall.arguments);
-    console.log('🔧 Available navigation functions:', { onNavigateToActivity: !!onNavigateToActivity, onNavigateToLesson: !!onNavigateToLesson });
+    console.log('🔧🔧🔧 executeToolAutomatically called:', toolCall.name, toolCall.arguments);
+    console.log('🔧🔧🔧 This should ONLY display button, NO navigation!');
     
-    // Execute the tool locally and get result
+    // Execute the tool locally and get result - ONLY display button, don't navigate
     let toolResult = '';
      
     switch (toolCall.name) {
       case 'go_to_clicktutor':
+        console.log('🔧🔧🔧 go_to_clicktutor: ONLY creating button, NO navigation');
         toolResult = `ClickTutor button displayed`;
-        // Navigate to tutor2 automatically
-        console.log('🔧 go_to_clicktutor tool: attempting to navigate to tutor2');
-        if (onNavigateToActivity) {
-          console.log('✅ onNavigateToActivity function available, calling it');
-          onNavigateToActivity('tutor2');
-        } else {
-          console.log('❌ onNavigateToActivity function not available');
-        }
         break;
       case 'give_feedback':
         toolResult = toolCall.arguments.save_flag ? `Feedback saved` : `Feedback displayed`;
         break;
       case 'move_on':
+        console.log('🔧🔧🔧 move_on: ONLY creating button, NO navigation');
         toolResult = `Move on button displayed`;
-        // Navigate to lesson2 video automatically
-        console.log('🔧 move_on tool: attempting to navigate to lesson2 video');
-        if (onNavigateToLesson) {
-          console.log('✅ onNavigateToLesson function available, calling it');
-          onNavigateToLesson('lesson2', 'video');
-        } else {
-          console.log('❌ onNavigateToLesson function not available');
-        }
         break;
       case 'show_file':
         toolResult = `File button displayed`;
@@ -636,42 +621,44 @@ const ChatTask = ({ lessonId, moduleId, onNext, onNavigateToActivity, onNavigate
   };
 
   const handleToolClick = (toolCall: ToolCall) => {
-    console.log('🔧 Tool button clicked (display only):', toolCall.name);
+    console.log('🔴🔴🔴 handleToolClick called - USER CLICKED BUTTON:', toolCall.name);
+    console.log('🔴🔴🔴 This should show feedback AND navigate on manual click');
     
-    // Just show feedback to user, tool was already executed automatically
+    // Show feedback to user AND navigate when manually clicked
     let userFeedback = '';
     
-         switch (toolCall.name) {
-       case 'go_to_clicktutor':
-         userFeedback = `נווט ל-ClickTutor: ${toolCall.arguments.reason as string}`;
-         if (onNavigateToActivity) {
-           onNavigateToActivity('tutor2'); // Navigate to tutor2 activity
-         } else if (onNext) {
-           onNext(); // Fallback to onNext
-         }
-         break;
+    switch (toolCall.name) {
+      case 'go_to_clicktutor':
+        console.log('🔴🔴🔴 go_to_clicktutor button clicked: navigating to tutor2');
+        userFeedback = `למדריך הטכני: ${toolCall.arguments.reason as string}`;
+        if (onNavigateToActivity) {
+          onNavigateToActivity('tutor2');
+        } else if (onNext) {
+          onNext();
+        }
+        break;
       case 'give_feedback':
         userFeedback = toolCall.arguments.save_flag 
           ? `משוב נשמר: ${toolCall.arguments.feedback as string}`
           : `משוב: ${toolCall.arguments.feedback as string}`;
         break;
-             case 'move_on':
-         userFeedback = `עבור לפעילות הבאה: ${toolCall.arguments.next_activity as string}`;
-         if (onNavigateToLesson) {
-           onNavigateToLesson('lesson2', 'video'); // Navigate to lesson2's video
-         } else if (onNext) {
-           onNext(); // Fallback to onNext
-         }
-         break;
+      case 'move_on':
+        console.log('🔴🔴🔴 move_on button clicked: navigating to lesson2 video');
+        userFeedback = `המשך: ${toolCall.arguments.next_activity as string}`;
+        if (onNavigateToLesson) {
+          onNavigateToLesson('lesson2', 'video');
+        } else if (onNext) {
+          onNext();
+        }
+        break;
       case 'show_file':
-        userFeedback = `הצג קובץ: ${toolCall.arguments.video_topic as string}`;
+        userFeedback = `הורדת קובץ: ${toolCall.arguments.video_topic as string}`;
         break;
       default:
         userFeedback = `פעולה בוצעה: ${toolCall.name}`;
     }
     
     console.log('ℹ️ User feedback:', userFeedback);
-    // Could show a toast or alert here if needed
   };
 
   const getToolIcon = (toolName: string) => {

@@ -418,7 +418,11 @@ const ModuleView = ({ moduleId, userId, onBack, copilotLanguage }: ModuleViewPro
           lessonId={lessonState.lessonId} 
           moduleId={moduleId}
           onNext={goToNext} 
-          onNavigateToActivity={(activityId: string) => setLessonState(prev => ({ ...prev, activityId }))}
+                      onNavigateToActivity={(activityId: string) => {
+              console.log('🚨🚨🚨 ModuleView.onNavigateToActivity called!!! ActivityId:', activityId);
+              console.trace('🚨🚨🚨 Stack trace to see who called navigation:');
+              setLessonState(prev => ({ ...prev, activityId }));
+            }}
           onNavigateToLesson={(lessonId: string, activityId: string) => {
             console.log(`🔧 ModuleView: Navigating to ${lessonId} -> ${activityId}`);
             setLessonState({ lessonId, activityId });

@@ -35,7 +35,7 @@ const configH: StepConfig[] = [
     imageName: `2-1-h.png`,
     instructions: 'נכנסנו לקופיילוט, בחר ב"עבודה"',
     clickArea: { top: '34.8%', left: '44%', width: '26%', height: '7%' },
-    bg: 'y',
+    bg: 'n',
     stepHeader: 'מצא היכן כותבים לקופיילוט פרומפט, וכתוב לו משהו',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
@@ -46,7 +46,7 @@ const configH: StepConfig[] = [
     clickArea: { top: '37%', left: '26%', width: '3%', height: '3%' },
     hasInput: true,
     inputPlaceholder: '',
-    bg: 'y',
+    bg: 'n',
     stepHeader: 'מצא היכן כותבים לקופיילוט פרומפט, וכתוב לו משהו',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
@@ -55,7 +55,7 @@ const configH: StepConfig[] = [
     imageName: `2-1-h.png`,
     instructions: 'נכנסנו לקופיילוט, בחר ב"עבודה"',
     clickArea: { top: '34.8%', left: '44%', width: '26%', height: '7%' },
-    bg: 'y',
+    bg: 'n',
     stepHeader: 'כעת לחץ על שורת החיפוש והקלד /',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
@@ -66,16 +66,16 @@ const configH: StepConfig[] = [
     clickArea: { top: '37%', left: '26%', width: '3%', height: '3%' },
     hasInput: true,
     inputPlaceholder: '',
-    bg: 'y',
+    bg: 'n',
     stepHeader: 'כעת לחץ על שורת החיפוש והקלד /',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
-   {
+  {
     stepNumber: 5,
     imageName: `2-3-h.png`,
     instructions: 'בחר בקובץ "דרישות משרה מנהל שיווק דיגיטלי"',
     clickArea: { top: '67%', left: '54%', width: '20%', height: '6%' },
-    bg: 'y',
+    bg: 'n',
     stepHeader: 'בחר בקובץ "דרישות משרה מנהל שיווק דיגיטלי"',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
@@ -86,7 +86,7 @@ const configH: StepConfig[] = [
     clickArea: { top: '82.5%', left: '16%', width: '10%', height: '6%' },
     hasInput: true,
     inputPlaceholder: '',
-    bg: 'y',
+    bg: 'n',
     stepHeader: 'בקש מקופיילוט לסכם עבורך את הקובץ',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
@@ -95,7 +95,7 @@ const configH: StepConfig[] = [
     imageName: `2-6-h.png`,
     instructions: 'פתח את התפקיד ובחר מכירות',
     clickArea: { top: '72%', left: '23%', width: '50%', height: '5%' },
-    bg: 'y',
+    bg: 'n',
     stepHeader: 'תן לקופיילוט הערה לתיקון',
     stepInstruction: 'לחץ על האזור הנכון בתמונה',
   },
@@ -106,10 +106,10 @@ const configH: StepConfig[] = [
      clickArea: { top: '59%', left: '48%', width: '18%', height: '5%' },
      hasInput: true,
      inputPlaceholder: '',
-     bg: 'y',
+     bg: 'n',
      stepHeader: 'תן לקופיילוט הערה לתיקון',
-     stepInstruction: 'לחץ על האזור הנכון בתמונה',
-   }
+    stepInstruction: 'לחץ על האזור הנכון בתמונה',
+  }
 ];
 
 const configE: StepConfig[] = [
@@ -178,9 +178,9 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [startDialogOpen, setStartDialogOpen] = useState(true);
-  const [devMode, setDevMode] = useState(false); // Development mode to show click areas
 
-     // Progress logic
+
+  // Progress logic
    const totalSteps = 8; // Updated to match the actual number of steps
   const baseProgress = 50; // After video
   const stepIncrement = 40 / totalSteps; // ≈4.44 per step
@@ -201,13 +201,13 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && showConfetti) {
-                                                                                                                                               console.log('Escape pressed, closing confetti');
-            setShowConfetti(false);
+        console.log('Escape pressed, closing confetti');
+        setShowConfetti(false);
             if (currentStep === totalSteps) {
-              handleFinalCompletion();
+          handleFinalCompletion();
             } else if (currentStep === 2 || currentStep === 4 || currentStep === 6) {
               proceedToNextStep();
-            }
+        }
       }
     };
 
@@ -243,19 +243,19 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
     }
   };
 
-     // Handler for clicking anywhere on the image
-   const handleImageClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  // Handler for clicking anywhere on the image
+  const handleImageClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
                        // In steps 2, 4, 6, or 8, if input is focused or has text, do nothing (except for the send button, which is handled separately)
-       if (
+    if (
          (currentStep === 2 || currentStep === 4 || currentStep === 6 || currentStep === 8) &&
-         (isInputFocused || inputValue.trim() !== '')
-       ) {
-         return;
-       }
+      (isInputFocused || inputValue.trim() !== '')
+    ) {
+      return;
+    }
        // In steps 2, 4, 6, or 8, if input is empty, do nothing
        if ((currentStep === 2 || currentStep === 4 || currentStep === 6 || currentStep === 8) && inputValue.trim() === '') {
-         return;
-       }
+      return;
+    }
     // Get bounding rect of the image wrapper
     const wrapper = e.currentTarget;
     const rect = wrapper.getBoundingClientRect();
@@ -295,19 +295,19 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
       alert('אנא הכנס ערך בשדה');
       return;
     }
-                   if (currentStep < totalSteps) {
+    if (currentStep < totalSteps) {
                 // Show confetti popup after step 2, 4, 6, or 8
          if (currentStep === 2 || currentStep === 4 || currentStep === 6 || currentStep === 8) {
            console.log(`Step ${currentStep} completed, showing confetti`);
-           setShowConfetti(true);
-           return;
-         }
-       const newProgress = baseProgress + stepIncrement * currentStep;
-       handleActivityComplete(lessonId, newProgress, undefined, 'tutor2', currentStep);
-       setCurrentStep(currentStep + 1);
-       setShowInput(false);
-       setInputValue('');
-     }
+        setShowConfetti(true);
+        return;
+      }
+      const newProgress = baseProgress + stepIncrement * currentStep;
+      handleActivityComplete(lessonId, newProgress, undefined, 'tutor2', currentStep);
+      setCurrentStep(currentStep + 1);
+      setShowInput(false);
+      setInputValue('');
+    }
   };
 
   const handleSkip = () => {
@@ -318,13 +318,13 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
     window.dispatchEvent(event);
   };
 
-     const handleSendButtonClick = (e: React.MouseEvent) => {
-     e.stopPropagation();
-     // Only proceed if input is not empty
-     if (inputValue.trim() === '') return;
+  const handleSendButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Only proceed if input is not empty
+    if (inputValue.trim() === '') return;
      console.log(`Send button clicked in step ${currentStep}, showing confetti`);
-     setShowConfetti(true);
-   };
+    setShowConfetti(true);
+  };
 
   console.log('Current step:', currentStep, 'Show confetti:', showConfetti);
 
@@ -348,21 +348,21 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
       <ConfettiOverlay 
         open={showConfetti} 
         onClose={() => {
-                                                                                                                                                                               console.log('Confetti overlay closed');
-              setShowConfetti(false);
+          console.log('Confetti overlay closed');
+          setShowConfetti(false);
               if (currentStep === totalSteps) {
-                handleFinalCompletion();
+            handleFinalCompletion();
               } else if (currentStep === 2 || currentStep === 4 || currentStep === 6) {
                 proceedToNextStep();
-              }
+          }
         }}
       >
         <div className="text-center" dir="rtl">
-                                                                                                                                                                               <h2 className="text-2xl font-bold mb-4">
+          <h2 className="text-2xl font-bold mb-4">
                 {currentStep === totalSteps ? 'כל הכבוד!' : 'מעולה!'}
-              </h2>
-              <p className="text-lg mb-6">
-                {currentStep === 2 
+          </h2>
+          <p className="text-lg mb-6">
+            {currentStep === 2 
                   ? 'עכשיו נלמד לצרף לקופיילוט קבצים.'
                   : currentStep === 4
                   ? 'נהדר! עכשיו נלמד לבחור קבצים.'
@@ -370,19 +370,19 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                   ? 'מצוין! עכשיו נמשיך לשלב הבא.'
                   : currentStep === totalSteps
                   ? 'כל הכבוד! השלמת את המשימה בהצלחה.'
-                  : 'סיימת בהצלחה את כל השלבים! נעבור לסיכום השיעור.'
-                }
-              </p>
+              : 'סיימת בהצלחה את כל השלבים! נעבור לסיכום השיעור.'
+            }
+          </p>
           <Button 
             className="mt-6 w-40 mx-auto block" 
             onClick={() => {
-                                                                                                                                                                                                                                               console.log('Continue button clicked');
-                  setShowConfetti(false);
+              console.log('Continue button clicked');
+              setShowConfetti(false);
                   if (currentStep === totalSteps) {
-                    handleFinalCompletion();
+                handleFinalCompletion();
                   } else if (currentStep === 2 || currentStep === 4 || currentStep === 6) {
                     proceedToNextStep();
-                  }
+              }
             }}
           >
                                                                                                                                                                                                                {currentStep === totalSteps ? 'סיום' : 'המשך'}
@@ -425,7 +425,7 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
               draggable={false}
             />
             {/* Show the red hotspot for positioning */}
-            {(currentStep !== 2 || devMode) && (
+            {currentStep !== 2 && (
               <div
                 className="absolute pointer-events-none"
                 style={{
@@ -433,9 +433,9 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                   left: currentStepConfig.clickArea.left,
                   width: currentStepConfig.clickArea.width,
                   height: currentStepConfig.clickArea.height,
-                  background: (currentStepConfig.bg === 'y' || devMode) ? 'rgba(255,0,0,0.3)' : 'transparent',
+                  background: currentStepConfig.bg === 'y' ? 'rgba(255,0,0,0.3)' : 'transparent',
                   borderRadius: '8px',
-                  border: (currentStepConfig.bg === 'y' || devMode) ? '2px solid red' : 'none',
+                  border: currentStepConfig.bg === 'y' ? '2px solid red' : 'none',
                   zIndex: 10
                 }}
               />
@@ -445,10 +445,10 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
               <>
                 {copilotLanguage === 'hebrew' ? (
                                                                             // ---- HEBREW INPUT POSITION for 2-2-h: Edit style here ----
-                    <input
-                      type="text"
-                      dir="rtl"
-                      value={inputValue}
+                  <input
+                    type="text"
+                    dir="rtl"
+                    value={inputValue}
                       onChange={e => {
                         const newValue = e.target.value;
                         setInputValue(newValue);
@@ -472,8 +472,8 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                       height: '5%',
                       fontFamily: 'ginto',
                       fontSize: '0.8em',
-                      background: devMode ? 'rgba(0,255,0,0.4)' : 'transparent',
-                      border: devMode ? '3px solid green' : 'none',
+                      background: 'transparent',
+                      border: 'none',
                       color: '#333',
                       caretColor: '#333',
                       outline: 'none',
@@ -492,10 +492,10 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                   />
                 ) : (
                                                                             // ---- ENGLISH INPUT POSITION for 2-2-h: Edit style here ----
-                    <input
-                      type="text"
-                      dir="ltr"
-                      value={inputValue}
+                  <input
+                    type="text"
+                    dir="ltr"
+                    value={inputValue}
                       onChange={e => {
                         const newValue = e.target.value;
                         setInputValue(newValue);
@@ -519,8 +519,8 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                       height: '9%',
                       fontFamily: 'ginto',
                       fontSize: '1em',
-                      background: devMode ? 'rgba(0,255,0,0.2)' : 'transparent',
-                      border: devMode ? '2px solid green' : 'none',
+                      background: 'transparent',
+                      border: 'none',
                       color: '#333',
                       caretColor: '#333',
                       outline: 'none',
@@ -548,18 +548,18 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                       top: '37%',
                       width: '3%',
                       height: '3%',
-                      background: devMode ? 'rgba(255,0,255,0.5)' : 'red',
-                      border: devMode ? '2px solid magenta' : 'none',
-                      color: devMode ? 'magenta' : 'red',
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'transparent',
                       fontWeight: 600,
                       fontSize: '1em',
                       cursor: 'pointer',
-                      opacity: devMode ? 0.8 : 0,
+                      opacity: 0,
                       zIndex: 21,
                     }}
                     onClick={handleSendButtonClick}
                   >
-                    {devMode ? 'SEND' : ''}
+                    {''}
                   </button>
                 ) : (
                   // ---- ENGLISH BUTTON POSITION for 2-2-h: Edit style here ----
@@ -571,18 +571,18 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                       top: '26%',
                       width: '4%',
                       height: '6%',
-                      background: devMode ? 'rgba(255,0,255,0.5)' : 'transparent',
-                      border: devMode ? '2px solid magenta' : 'none',
-                      color: devMode ? 'magenta' : 'transparent',
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'transparent',
                       fontWeight: 600,
                       fontSize: '1em',
                       cursor: 'pointer',
-                      opacity: devMode ? 0.8 : 0,
+                      opacity: 0,
                       zIndex: 21,
                     }}
                     onClick={handleSendButtonClick}
                   >
-                    {devMode ? 'SEND' : ''}
+                    {''}
                   </button>
                 )}
               </>
@@ -602,8 +602,8 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                          setInputValue(newValue);
                                                 // Step 6: Just update the input value, no auto-progression
                        }}
-                                                                                     placeholder="הכנס טקסט"
-                                           title="שדה קלט להכנסת טקסט הכולל את האותיות: ס, כ, ם"
+                      placeholder=""
+                     title="שדה קלט להכנסת טקסט הכולל את האותיות: ס, כ, ם"
                      style={{
                       position: 'absolute',
                       left: '35%',
@@ -612,8 +612,8 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                       height: '6%',
                       fontFamily: 'ginto',
                       fontSize: '0.9em',
-                      background: devMode ? 'rgba(0,100,255,0.4)' : 'transparent',
-                      border: devMode ? '3px solid blue' : 'none',
+                      background: 'transparent',
+                      border: 'none',
                       color: '#333',
                       caretColor: '#333',
                       outline: 'none',
@@ -650,8 +650,8 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                       height: '8%',
                       fontFamily: 'ginto',
                       fontSize: '1em',
-                      background: devMode ? 'rgba(0,100,255,0.2)' : 'transparent',
-                      border: devMode ? '2px solid blue' : 'none',
+                      background: 'transparent',
+                      border: 'none',
                       color: '#333',
                       caretColor: '#333',
                       outline: 'none',
@@ -679,13 +679,13 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                        top: '37%',
                        width: '2%',
                        height: '3%',
-                       background: devMode ? 'rgba(255,0,255,0.5)' : 'red',
-                       border: devMode ? '2px solid magenta' : 'none',
-                       color: devMode ? 'magenta' : 'red',
+                       background: 'transparent',
+                       border: 'none',
+                       color: 'transparent',
                        fontWeight: 600,
                        fontSize: '1em',
                        cursor: 'pointer',
-                       opacity: devMode ? 0.8 : 0,
+                       opacity: 0,
                        zIndex: 21,
                      }}
                                           onClick={(e) => {
@@ -697,7 +697,7 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                         proceedToNextStep();
                       }}
                   >
-                    {devMode ? 'SEND' : ''}
+                    {''}
                   </button>
                 ) : (
                                      // ---- ENGLISH BUTTON POSITION for 2-4-h: Edit style here ----
@@ -709,13 +709,13 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                        top: '26%',
                        width: '4%',
                        height: '6%',
-                       background: devMode ? 'rgba(255,0,255,0.5)' : 'transparent',
-                       border: devMode ? '2px solid magenta' : 'none',
-                       color: devMode ? 'magenta' : 'transparent',
+                       background: 'transparent',
+                       border: 'none',
+                       color: 'transparent',
                        fontWeight: 600,
                        fontSize: '1em',
                        cursor: 'pointer',
-                       opacity: devMode ? 0.8 : 0,
+                       opacity: 0,
                        zIndex: 21,
                      }}
                                           onClick={(e) => {
@@ -727,7 +727,7 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                         proceedToNextStep();
                       }}
                   >
-                    {devMode ? 'SEND' : ''}
+                    {''}
                   </button>
                 )}
                              </>
@@ -757,8 +757,8 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                        height: '5%',
                        fontFamily: 'ginto',
                        fontSize: '0.9em',
-                       background: devMode ? 'rgba(255,165,0,0.4)' : 'transparent',
-                       border: devMode ? '3px solid orange' : 'none',
+                       background: 'transparent',
+                       border: 'none',
                        color: '#333',
                        caretColor: '#333',
                        outline: 'none',
@@ -796,8 +796,8 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                        height: '5%',
                        fontFamily: 'ginto',
                        fontSize: '1em',
-                       background: devMode ? 'rgba(255,165,0,0.2)' : 'transparent',
-                       border: devMode ? '2px solid orange' : 'none',
+                       background: 'transparent',
+                       border: 'none',
                        color: '#333',
                        caretColor: '#333',
                        outline: 'none',
@@ -825,13 +825,13 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                        top: '72%',
                        width: '3%',
                        height: '5%',
-                       background: devMode ? 'rgba(255,0,255,0.5)' : 'red',
-                       border: devMode ? '2px solid magenta' : 'none',
-                       color: devMode ? 'magenta' : 'red',
+                       background: 'transparent',
+                       border: 'none',
+                       color: 'transparent',
                        fontWeight: 600,
                        fontSize: '1em',
                        cursor: 'pointer',
-                       opacity: devMode ? 0.8 : 0,
+                       opacity: 0,
                        zIndex: 21,
                      }}
                      onClick={(e) => {
@@ -841,7 +841,7 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                        setShowConfetti(true);
                      }}
                    >
-                     {devMode ? 'SEND' : ''}
+                     {''}
                    </button>
                  ) : (
                    // ---- ENGLISH BUTTON POSITION for 2-6-h: Edit style here ----
@@ -853,13 +853,13 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                        top: '40%',
                        width: '3%',
                        height: '5%',
-                       background: devMode ? 'rgba(255,0,255,0.5)' : 'transparent',
-                       border: devMode ? '2px solid magenta' : 'none',
-                       color: devMode ? 'magenta' : 'transparent',
+                       background: 'transparent',
+                       border: 'none',
+                       color: 'transparent',
                        fontWeight: 600,
                        fontSize: '1em',
                        cursor: 'pointer',
-                       opacity: devMode ? 0.8 : 0,
+                       opacity: 0,
                        zIndex: 21,
                      }}
                      onClick={(e) => {
@@ -869,12 +869,12 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
                        setShowConfetti(true);
                      }}
                    >
-                     {devMode ? 'SEND' : ''}
-                   </button>
-                 )}
-               </>
-             )}
-             {showInput && currentStepConfig.hasInput && currentStep !== 2 && (
+                     {''}
+                  </button>
+                )}
+              </>
+            )}
+            {showInput && currentStepConfig.hasInput && currentStep !== 2 && (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
                 <Input
                   value={inputValue}
@@ -893,27 +893,7 @@ const ClickTutor2 = ({ lessonId, handleActivityComplete, copilotLanguage, onNavi
           <p className="text-xl font-medium text-dark-gray">{currentStepConfig.stepInstruction}</p>
         </div>
 
-        {/* Dev Mode Toggle Button */}
-        <div className="text-center mb-4">
-          <Button 
-            variant={devMode ? "default" : "outline"}
-            onClick={() => setDevMode(!devMode)}
-            className={`px-6 py-2 rounded-xl text-sm ${
-              devMode 
-                ? 'bg-purple-500 text-white hover:bg-purple-600' 
-                : 'border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white'
-            } transition-all duration-300`}
-          >
-            {devMode ? '🔧 Dev Mode ON' : '🔧 Dev Mode OFF'}
-          </Button>
-                     {devMode && (
-                           <div className="text-xs text-gray-500 mt-1">
-                                 <p>Red = Click Areas | Green = Input for 2-2-h | Blue = Input for 2-4-h | Orange = Input for 2-6-h | Magenta = Send Buttons</p>
-                <p>Current Language: <span className="font-bold">{copilotLanguage}</span></p>
-                <p>Step: {currentStep} | Image: {currentStepConfig.imageName}</p>
-              </div>
-           )}
-        </div>
+
 
         {/* Skip Button */}
         <div className="text-center">

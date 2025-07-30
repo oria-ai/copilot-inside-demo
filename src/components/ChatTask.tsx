@@ -35,7 +35,7 @@ interface ToolCall {
 }
 
 // OpenAI API configuration - PUT YOUR API KEY HERE
-const OPENAI_API_KEY = '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'; // Replace with your actual API key
+const OPENAI_API_KEY = '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'; // Replace with your actual API key
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 
 const ChatTask = ({ lessonId, moduleId, onNext, onNavigateToActivity, onNavigateToLesson, handleActivityComplete }: ChatTaskProps) => {
@@ -749,7 +749,7 @@ const ChatTask = ({ lessonId, moduleId, onNext, onNavigateToActivity, onNavigate
           {!hasStarted && (
             <div className="text-center py-8 text-gray-500">
               <Bot className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-              <p>התחל שיחה עם קופיילוט...</p>
+              <p>התחל שיחה עם המורה הפרטי</p>
             </div>
           )}
           

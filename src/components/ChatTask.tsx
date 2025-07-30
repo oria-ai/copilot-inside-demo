@@ -25,7 +25,6 @@ interface ToolCall {
 }
 
 // OpenAI API configuration
-const OPENAI_API_KEY = '';
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 
 const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Bot, User, Play, MessageSquare, ArrowRight, Video, Download } from 'lucide-react';
+import { Send, Bot, User, Play, MessageSquare, ArrowRight, Video } from 'lucide-react';
 
 interface ChatTaskProps {
   lessonId: string;
@@ -18,21 +18,14 @@ interface ChatMessage {
   toolCalls?: ToolCall[];
 }
 
-interface ConversationState {
-  messages: ChatMessage[];
-  lastResponseId?: string;
-  model: string;
-  updatedAt: number;
-}
-
 interface ToolCall {
   id: string;
   name: string;
   arguments: Record<string, unknown>;
 }
 
-// OpenAI API configuration - PUT YOUR API KEY HERE
-const OPENAI_API_KEY = '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';
+// OpenAI API configuration
+const OPENAI_API_KEY = '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';
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 
 const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) => {
@@ -40,72 +33,70 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [systemPrompt, setSystemPrompt] = useState('');
-  const [hasStarted, setHasStarted] = useState(false);
-  const [conversationState, setConversationState] = useState<ConversationState>({
-    messages: [],
-    model: "gpt-4o-mini",
-    updatedAt: Date.now()
-  });
+  
+  // Simple: just track the last response ID
+  const [lastResponseId, setLastResponseId] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const streamingStartedRef = useRef<boolean>(false);
 
-  // Storage key for this lesson's conversation
-  const storageKey = `conversation_${lessonId}`;
+  // Storage keys - separate for messages and response ID
+  const messagesKey = `chat_messages_${lessonId}`;
+  const responseIdKey = `last_response_id_${lessonId}`;
 
-  // Load system prompt from prompt1.txt
+  // Load system prompt
   useEffect(() => {
     const loadSystemPrompt = async () => {
       try {
         const response = await fetch('/prompt1.txt');
-        if (!response.ok) {
-          throw new Error('Failed to load system prompt');
-        }
         const text = await response.text();
         setSystemPrompt(text);
       } catch (error) {
         console.error('Error loading system prompt:', error);
-        // Fallback prompt
-        setSystemPrompt('אתה מדריך קופיילוט מועיל שעוזר למשתמשים ללמוד על מייקרוסופט קופיילוט. אתה יכול להציע כלים שונים כמו מעבר לתרגול, מתן משוב, מעבר לפעילות הבאה או הצגת וידאו רלוונטי. ענה בעברית בצורה ידידותית ומועילה.');
+        setSystemPrompt('אתה מדריך קופיילוט מועיל שעוזר למשתמשים ללמוד על מייקרוסופט קופיילוט.');
       }
     };
-    
     loadSystemPrompt();
   }, []);
 
-  // Load conversation state from localStorage
+  // Load messages and response ID from localStorage
   useEffect(() => {
-    const savedConversation = localStorage.getItem(storageKey);
-    if (savedConversation) {
+    // Load messages
+    const savedMessages = localStorage.getItem(messagesKey);
+    if (savedMessages) {
       try {
-        const parsedConversation: ConversationState = JSON.parse(savedConversation);
-        // Convert timestamp strings back to Date objects
-        const messagesWithDates = parsedConversation.messages.map((msg: ChatMessage & { timestamp: string }) => ({
+        const parsed = JSON.parse(savedMessages);
+        const messagesWithDates = parsed.map((msg: ChatMessage & { timestamp: string }) => ({
           ...msg,
           timestamp: new Date(msg.timestamp)
         }));
-        
-        setConversationState({
-          ...parsedConversation,
-          messages: messagesWithDates
-        });
         setMessages(messagesWithDates);
-        setHasStarted(messagesWithDates.length > 0);
       } catch (error) {
-        console.error('Error loading conversation state:', error);
+        console.error('Error loading messages:', error);
       }
+    }
+
+    // Load last response ID
+    const savedResponseId = localStorage.getItem(responseIdKey);
+    if (savedResponseId) {
+      setLastResponseId(savedResponseId);
+      console.log('🔗 Loaded response ID:', savedResponseId);
     }
   }, [lessonId]);
 
-  // Save conversation state to localStorage whenever it changes
-  useEffect(() => {
-    if (conversationState.messages.length > 0) {
-      localStorage.setItem(storageKey, JSON.stringify(conversationState));
-    }
-  }, [conversationState, storageKey]);
+  // Save messages to localStorage
+  const saveMessages = (newMessages: ChatMessage[]) => {
+    localStorage.setItem(messagesKey, JSON.stringify(newMessages));
+  };
 
-  // Auto-scroll to bottom when messages change
+  // Save response ID to localStorage
+  const saveResponseId = (responseId: string) => {
+    localStorage.setItem(responseIdKey, responseId);
+    setLastResponseId(responseId);
+    console.log('💾 Saved response ID:', responseId);
+  };
+
+  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -126,14 +117,11 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
     {
       type: "function",
       name: "go_to_clicktutor",
-      description: "Navigate to the ClickTutor interactive tutorial when user needs technical practice",
+      description: "Navigate to the ClickTutor interactive tutorial",
       parameters: {
         type: "object",
         properties: {
-          reason: {
-            type: "string",
-            description: "Why the user should go to ClickTutor"
-          }
+          reason: { type: "string", description: "Why the user should go to ClickTutor" }
         },
         required: ["reason"],
         additionalProperties: false
@@ -143,18 +131,12 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
     {
       type: "function", 
       name: "give_feedback",
-      description: "Provide feedback to the user about their progress after completing practice",
+      description: "Provide feedback to the user about their progress or understanding",
       parameters: {
         type: "object",
         properties: {
-          feedback: {
-            type: "string",
-            description: "The feedback message to give to the user"
-          },
-          save_flag: {
-            type: "boolean",
-            description: "Whether to save this feedback"
-          }
+          feedback: { type: "string", description: "The feedback message to give to the user" },
+          save_flag: { type: "boolean", description: "Whether to save this feedback" }
         },
         required: ["feedback", "save_flag"],
         additionalProperties: false
@@ -163,17 +145,14 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
     },
     {
       type: "function",
-      name: "move_to_2nd",
-      description: "Move to the advanced lesson when user completed current lesson",
+      name: "move_on",
+      description: "Move to the next activity or lesson",
       parameters: {
         type: "object", 
         properties: {
-          next_lesson: {
-            type: "string",
-            description: "The advanced lesson to move to"
-          }
+          next_activity: { type: "string", description: "The next activity to move to" }
         },
-        required: ["next_lesson"],
+        required: ["next_activity"],
         additionalProperties: false
       },
       strict: false
@@ -181,33 +160,13 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
     {
       type: "function",
       name: "show_video",
-      description: "Show a relevant video to help explain a topic or demonstrate a process",
+      description: "Show a relevant video to the user",
       parameters: {
         type: "object",
         properties: {
-          video_topic: {
-            type: "string", 
-            description: "The topic or title of the video to show"
-          }
+          video_topic: { type: "string", description: "The topic or title of the video to show" }
         },
         required: ["video_topic"],
-        additionalProperties: false
-      },
-      strict: false
-    },
-    {
-      type: "function",
-      name: "show_file",
-      description: "Provide download link for the practice file when user needs the ready-made practice file",
-      parameters: {
-        type: "object",
-        properties: {
-          file_description: {
-            type: "string",
-            description: "Description of the file being offered for download"
-          }
-        },
-        required: ["file_description"],
         additionalProperties: false
       },
       strict: false
@@ -224,32 +183,36 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
       timestamp: new Date()
     };
 
-         // Add user message to chat and conversation state
-     const updatedMessages = [...messages, userMessage];
-     setMessages(updatedMessages);
-     setInput('');
-     setIsLoading(true);
-     setHasStarted(true);
+    // Add user message
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    saveMessages(updatedMessages);
+    setInput('');
+    setIsLoading(true);
 
-     try {
-       const requestBody: Record<string, unknown> = {
-         model: conversationState.model,
-         instructions: systemPrompt,
-         input: userMessage.content,
-         tools: tools,
-         tool_choice: "auto",
-         parallel_tool_calls: true,
-         stream: true,
-         temperature: 0.7
-       };
+    try {
+      // Simple request body - always the same structure
+      const requestBody: Record<string, unknown> = {
+        model: "gpt-4o-mini",
+        stream: true,
+        tools: tools,
+        tool_choice: "auto",
+        parallel_tool_calls: false,
+        temperature: 0.7
+      };
 
-       // Add previous_response_id if we have one (for conversation continuity)
-       if (conversationState.lastResponseId) {
-         requestBody.previous_response_id = conversationState.lastResponseId;
-         console.log('Using previous_response_id:', conversationState.lastResponseId);
-       } else {
-         console.log('First message in conversation - no previous_response_id');
-       }
+      // First message: use instructions + input
+      if (!lastResponseId) {
+        console.log('🆕 First message');
+        requestBody.instructions = systemPrompt;
+        requestBody.input = userMessage.content;
+      } 
+      // Subsequent messages: use previous_response_id + input (NOT messages!)
+      else {
+        console.log('🔗 Continuing with previous_response_id:', lastResponseId);
+        requestBody.previous_response_id = lastResponseId;
+        requestBody.input = userMessage.content;  // Use input, not messages!
+      }
 
       const response = await fetch(OPENAI_API_URL, {
         method: 'POST',
@@ -259,177 +222,108 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
         },
         body: JSON.stringify(requestBody),
       });
-      
+
       if (!response.ok) {
-        throw new Error(`OpenAI API request failed: ${response.status}`);
+        throw new Error(`API request failed: ${response.status}`);
       }
 
+      // Parse streaming response
       const reader = response.body?.getReader();
-             const decoder = new TextDecoder();
-       let buffer = '';
-       
-       // Track if we got a response ID and reset streaming started flag
-       let responseId = '';
-       streamingStartedRef.current = false;
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let capturedResponseId = '';
 
-             while (reader) {
-         const { done, value } = await reader.read();
-         if (done) break;
+      const botMessage: ChatMessage = {
+        id: generateMessageId(),
+        content: '',
+        sender: 'bot',
+        timestamp: new Date()
+      };
 
-         buffer += decoder.decode(value, { stream: true });
-         const lines = buffer.split('\n');
-         buffer = lines.pop() || '';
+      // Add empty bot message for streaming
+      const messagesWithBot = [...updatedMessages, botMessage];
+      setMessages(messagesWithBot);
 
-         for (let i = 0; i < lines.length; i++) {
-           const line = lines[i].trim();
-           
-           // Skip empty lines
-           if (!line) continue;
-           
-                            // Parse Server-Sent Events format
-                 if (line.startsWith('event:')) {
-                   const eventType = line.substring(6).trim();
-                   
-                   // Get the next line which should be the data
-                   if (i + 1 < lines.length && lines[i + 1].startsWith('data:')) {
-                     const dataLine = lines[i + 1].substring(5).trim();
-                     i++; // Skip the data line in next iteration
-                     
-                     if (!dataLine || dataLine === '[DONE]') continue;
-                     
-                     try {
-                       const data = JSON.parse(dataLine);
-                       
-                       // Debug logging
-                       console.log('Event:', eventType, 'Data:', data);
-                       
-                       // Capture response ID for conversation continuity
-                       if (eventType === 'response.created' || eventType === 'response.completed') {
-                         if (data.response?.id) {
-                           responseId = data.response.id;
-                           console.log('Captured response ID:', responseId);
-                         }
-                       }
-                       
-                       // Handle text deltas
-                       if (eventType === 'response.output_text.delta' && data.delta) {
-                         console.log('Adding delta:', data.delta);
-                         
-                         setMessages(prev => {
-                           const newMessages = [...prev];
-                           
-                           // If streaming hasn't started, create the bot message
-                           if (!streamingStartedRef.current) {
-                             const botMessage: ChatMessage = {
-                               id: generateMessageId(),
-                               content: data.delta,
-                               sender: 'bot',
-                               timestamp: new Date()
-                             };
-                             streamingStartedRef.current = true;
-                             return [...newMessages, botMessage];
-                           }
-                           
-                           // Otherwise, append to the last bot message
-                           const lastMessage = newMessages[newMessages.length - 1];
-                           if (lastMessage.sender === 'bot') {
-                             lastMessage.content += data.delta;
-                           }
-                           return newMessages;
-                         });
-                       }
-                       // Handle function call completion
-                       else if (eventType === 'response.output_item.done' && data.item?.type === 'function_call') {
-                         console.log('Function call completed:', data.item);
-                         
-                         const toolCall: ToolCall = {
-                           id: data.item.id || generateMessageId(),
-                           name: data.item.name,
-                           arguments: JSON.parse(data.item.arguments || '{}')
-                         };
+      while (reader) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-                         setMessages(prev => {
-                           const newMessages = [...prev];
-                           
-                           // If no streaming started, create bot message with tool call
-                           if (!streamingStartedRef.current) {
-                             const botMessage: ChatMessage = {
-                               id: generateMessageId(),
-                               content: '',
-                               sender: 'bot',
-                               timestamp: new Date(),
-                               toolCalls: [toolCall]
-                             };
-                             streamingStartedRef.current = true;
-                             return [...newMessages, botMessage];
-                           }
-                           
-                           // Otherwise add to existing message
-                           const lastMessage = newMessages[newMessages.length - 1];
-                           if (lastMessage.sender === 'bot') {
-                             lastMessage.toolCalls = lastMessage.toolCalls || [];
-                             lastMessage.toolCalls.push(toolCall);
-                           }
-                           return newMessages;
-                         });
-                       }
-                     } catch (error) {
-                       console.error('Error parsing SSE data:', error, dataLine);
-                     }
-                   }
-                 }
-           // Handle standalone data lines (fallback)
-           else if (line.startsWith('data:')) {
-             const dataLine = line.substring(5).trim();
-             if (!dataLine || dataLine === '[DONE]') continue;
-             
-             try {
-               const data = JSON.parse(dataLine);
-               
-               // Handle text deltas in standalone format
-               if (data.type === 'response.output_text.delta' && data.delta) {
-                 setMessages(prev => {
-                   const newMessages = [...prev];
-                   const lastMessage = newMessages[newMessages.length - 1];
-                   if (lastMessage.sender === 'bot') {
-                     lastMessage.content += data.delta;
-                   }
-                   return newMessages;
-                 });
-               }
-             } catch (error) {
-               console.error('Error parsing standalone data:', error);
-             }
-           }
-                  }
-       }
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
 
-       // Update conversation state with the complete conversation and response ID
-       // Only update if streaming actually started (we have a bot message)
-       if (streamingStartedRef.current) {
-         // Use setTimeout to ensure state updates are processed
-         setTimeout(() => {
-           setMessages(currentMessages => {
-             const botResponseMessage = currentMessages[currentMessages.length - 1];
-             const finalMessages = [
-               ...updatedMessages,
-               botResponseMessage
-             ];
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
 
-             setConversationState(prev => ({
-               ...prev,
-               messages: finalMessages,
-               lastResponseId: responseId || prev.lastResponseId,
-               updatedAt: Date.now()
-             }));
+          if (line.startsWith('event:')) {
+            const eventType = line.substring(6).trim();
+            
+            if (i + 1 < lines.length && lines[i + 1].startsWith('data:')) {
+              const dataLine = lines[i + 1].substring(5).trim();
+              i++;
+              
+              if (!dataLine || dataLine === '[DONE]') continue;
+              
+              try {
+                const data = JSON.parse(dataLine);
+                
+                // Capture response ID
+                if (data.response?.id && !capturedResponseId) {
+                  capturedResponseId = data.response.id;
+                  console.log('📍 Captured response ID:', capturedResponseId);
+                }
+                
+                // Handle text deltas
+                if (eventType === 'response.output_text.delta' && data.delta) {
+                  setMessages(prev => {
+                    const newMessages = [...prev];
+                    const lastMessage = newMessages[newMessages.length - 1];
+                    if (lastMessage.sender === 'bot') {
+                      lastMessage.content += data.delta;
+                    }
+                    return newMessages;
+                  });
+                }
+                
+                // Handle function calls
+                else if (eventType === 'response.function_call.delta' && data.name) {
+                  const toolCall: ToolCall = {
+                    id: data.id || generateMessageId(),
+                    name: data.name,
+                    arguments: data.arguments || {}
+                  };
 
-             console.log('Updated conversation state with response ID:', responseId);
-             return currentMessages;
-           });
-         }, 100);
-       }
+                  setMessages(prev => {
+                    const newMessages = [...prev];
+                    const lastMessage = newMessages[newMessages.length - 1];
+                    if (lastMessage.sender === 'bot') {
+                      lastMessage.toolCalls = lastMessage.toolCalls || [];
+                      lastMessage.toolCalls.push(toolCall);
+                    }
+                    return newMessages;
+                  });
+                }
+              } catch (error) {
+                console.error('Error parsing SSE data:', error);
+              }
+            }
+          }
+        }
+      }
 
-     } catch (error) {
+      // Save response ID and final messages
+      if (capturedResponseId) {
+        saveResponseId(capturedResponseId);
+      }
+
+      // Save final messages state
+      setMessages(currentMessages => {
+        saveMessages(currentMessages);
+        return currentMessages;
+      });
+
+    } catch (error) {
       console.error('Error sending message:', error);
       
       const errorMessage: ChatMessage = {
@@ -439,55 +333,36 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
         timestamp: new Date()
       };
       
-             setMessages(prev => [...prev, errorMessage]);
-       
-       // Update conversation state with error message
-       setConversationState(prev => ({
-         ...prev,
-         messages: [...prev.messages, errorMessage],
-         updatedAt: Date.now()
-       }));
+      const errorMessages = [...updatedMessages, errorMessage];
+      setMessages(errorMessages);
+      saveMessages(errorMessages);
     } finally {
       setIsLoading(false);
     }
   };
 
-       const handleToolCall = (toolCall: ToolCall) => {
+  const handleToolCall = (toolCall: ToolCall) => {
     console.log('Tool called:', toolCall.name, toolCall.arguments);
     
     switch (toolCall.name) {
       case 'go_to_clicktutor':
-        console.log(`Navigate to ClickTutor: ${toolCall.arguments.reason as string}`);
-        // Will implement navigation later
+        alert(`נווט ל-ClickTutor: ${toolCall.arguments.reason as string}`);
         break;
       case 'give_feedback':
-        console.log(`Feedback: ${toolCall.arguments.feedback as string}`, 'Save:', toolCall.arguments.save_flag);
-        // Feedback is already displayed in chat, just log for now
+        if (toolCall.arguments.save_flag) {
+          alert(`משוב נשמר: ${toolCall.arguments.feedback as string}`);
+        } else {
+          alert(`משוב: ${toolCall.arguments.feedback as string}`);
+        }
         break;
-      case 'move_to_2nd':
-        console.log(`Move to advanced lesson: ${toolCall.arguments.next_lesson as string}`);
+      case 'move_on':
+        alert(`עבור לפעילות הבאה: ${toolCall.arguments.next_activity as string}`);
         if (onNext) onNext();
         break;
       case 'show_video':
-        console.log(`Show video: ${toolCall.arguments.video_topic as string}`);
-        // Will implement video display later
-        break;
-      case 'show_file':
-        console.log(`Download file: ${toolCall.arguments.file_description as string}`);
-        handleFileDownload();
+        alert(`הצג וידאו: ${toolCall.arguments.video_topic as string}`);
         break;
     }
-  };
-
-  const handleFileDownload = () => {
-    // Download the same file as in FileTask.tsx
-    const url = '/תמלול.docx';
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'תמלול.docx';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const getToolIcon = (toolName: string) => {
@@ -496,31 +371,12 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
         return <Play className="w-4 h-4" />;
       case 'give_feedback':
         return <MessageSquare className="w-4 h-4" />;
-      case 'move_to_2nd':
+      case 'move_on':
         return <ArrowRight className="w-4 h-4" />;
       case 'show_video':
         return <Video className="w-4 h-4" />;
-      case 'show_file':
-        return <Download className="w-4 h-4" />;
       default:
         return <Bot className="w-4 h-4" />;
-    }
-  };
-
-  const getToolButtonText = (toolName: string) => {
-    switch (toolName) {
-      case 'go_to_clicktutor':
-        return 'מעבר לתרגול טכני';
-      case 'give_feedback':
-        return 'צפה במשוב';
-      case 'move_to_2nd':
-        return 'המשך לשיעור המתקדם';
-      case 'show_video':
-        return 'צפה בוידאו';
-      case 'show_file':
-        return 'הורד קובץ תרגול';
-      default:
-        return toolName.replace(/_/g, ' ');
     }
   };
 
@@ -531,37 +387,12 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
     }
   };
 
-  const handleComplete = () => {
-    if (handleActivityComplete) {
-      handleActivityComplete(lessonId, 90);
-    }
-    
-    if (onNext) {
-      onNext();
-    }
-  };
-
-  // Debug function to show conversation state
-  const showConversationDebug = () => {
-    console.log('Current conversation state:', {
-      messageCount: conversationState.messages.length,
-      lastResponseId: conversationState.lastResponseId,
-      model: conversationState.model,
-      updatedAt: new Date(conversationState.updatedAt).toLocaleString()
-    });
-  };
-
-  // Clear conversation (for testing)
   const clearConversation = () => {
-    localStorage.removeItem(storageKey);
-    setConversationState({
-      messages: [],
-      model: "gpt-4o-mini", 
-      updatedAt: Date.now()
-    });
+    localStorage.removeItem(messagesKey);
+    localStorage.removeItem(responseIdKey);
     setMessages([]);
-    setHasStarted(false);
-    console.log('Conversation cleared');
+    setLastResponseId(null);
+    console.log('🗑️ Conversation cleared');
   };
 
   const formatTime = (date: Date) => {
@@ -578,7 +409,7 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
       <CardContent className="flex-1 flex flex-col p-0">
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[400px] max-h-[500px]">
-          {!hasStarted && (
+          {messages.length === 0 && (
             <div className="text-center py-8 text-gray-500">
               <Bot className="w-12 h-12 mx-auto mb-4 text-gray-400" />
               <p>התחל שיחה עם קופיילוט...</p>
@@ -605,37 +436,37 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
                     : 'bg-gradient-turquoise text-white'
                 }`}
               >
-                                 <div
-                   className="text-sm leading-relaxed"
-                   dangerouslySetInnerHTML={{ 
-                     __html: message.content.replace(/\n/g, '<br>') 
-                   }}
-                 />
-                 
-                 {/* Tool call buttons */}
-                 {message.toolCalls && message.toolCalls.length > 0 && (
-                   <div className="mt-3 space-y-2">
-                     {message.toolCalls.map((toolCall) => (
-                       <Button
-                         key={toolCall.id}
-                         onClick={() => handleToolCall(toolCall)}
-                         variant="outline"
-                         size="sm"
-                         className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center gap-2"
-                       >
-                         {getToolIcon(toolCall.name)}
-                         {getToolButtonText(toolCall.name)}
-                       </Button>
-                     ))}
-                   </div>
-                 )}
-                 
-                 <div className={`text-xs mt-2 opacity-70 ${
-                   message.sender === 'user' ? 'text-gray-500' : 'text-white'
-                 }`}>
-                   {formatTime(message.timestamp)}
-                 </div>
-               </div>
+                <div
+                  className="text-sm leading-relaxed"
+                  dangerouslySetInnerHTML={{ 
+                    __html: message.content.replace(/\n/g, '<br>') 
+                  }}
+                />
+                
+                {/* Tool call buttons */}
+                {message.toolCalls && message.toolCalls.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {message.toolCalls.map((toolCall) => (
+                      <Button
+                        key={toolCall.id}
+                        onClick={() => handleToolCall(toolCall)}
+                        variant="outline"
+                        size="sm"
+                        className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 flex items-center gap-2"
+                      >
+                        {getToolIcon(toolCall.name)}
+                        {toolCall.name.replace(/_/g, ' ')}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+                
+                <div className={`text-xs mt-2 opacity-70 ${
+                  message.sender === 'user' ? 'text-gray-500' : 'text-white'
+                }`}>
+                  {formatTime(message.timestamp)}
+                </div>
+              </div>
               
               {message.sender === 'bot' && (
                 <div className="w-8 h-8 rounded-full bg-gradient-turquoise flex items-center justify-center flex-shrink-0">
@@ -645,8 +476,7 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
             </div>
           ))}
           
-          {/* Loading indicator - only show before streaming starts */}
-          {isLoading && !streamingStartedRef.current && (
+          {isLoading && (
             <div className="flex items-start gap-3 justify-end">
               <div className="bg-gradient-turquoise rounded-2xl px-4 py-3">
                 <div className="flex gap-1">
@@ -688,41 +518,51 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
             </Button>
           </div>
           
-                     {hasStarted && messages.length >= 4 && (
-             <div className="mt-4 text-center">
-               <Button 
-                 onClick={handleComplete}
-                 variant="outline"
-                 className="px-8 py-2"
-               >
-                 סיים שיחה והמשך
-               </Button>
-             </div>
-           )}
-           
-           {/* Debug buttons - remove in production */}
-           <div className="mt-2 flex gap-2 justify-center text-xs">
-             <Button 
-               onClick={showConversationDebug}
-               variant="outline"
-               size="sm"
-               className="text-xs"
-             >
-               🐛 Debug Info
-             </Button>
-             <Button 
-               onClick={clearConversation}
-               variant="outline"
-               size="sm"
-               className="text-xs text-red-600 hover:text-red-700"
-             >
-               🗑️ Clear Chat
-             </Button>
-           </div>
+          {messages.length >= 4 && (
+            <div className="mt-4 text-center">
+              <Button 
+                onClick={() => {
+                  if (handleActivityComplete) handleActivityComplete(lessonId, 90);
+                  if (onNext) onNext();
+                }}
+                variant="outline"
+                className="px-8 py-2"
+              >
+                סיים שיחה והמשך
+              </Button>
+            </div>
+          )}
+          
+          {/* Debug buttons */}
+          <div className="mt-2 flex gap-2 justify-center text-xs">
+            <Button 
+              onClick={() => console.log({
+                messageCount: messages.length,
+                lastResponseId,
+                localStorage: {
+                  messages: localStorage.getItem(messagesKey),
+                  responseId: localStorage.getItem(responseIdKey)
+                }
+              })}
+              variant="outline"
+              size="sm"
+              className="text-xs"
+            >
+              🐛 Debug
+            </Button>
+            <Button 
+              onClick={clearConversation}
+              variant="outline"
+              size="sm"
+              className="text-xs text-red-600 hover:text-red-700"
+            >
+              🗑️ Clear
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
   );
 };
 
-export default ChatTask; 
+export default ChatTask;

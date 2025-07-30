@@ -25,6 +25,7 @@ interface ToolCall {
 }
 
 // OpenAI API configuration
+const OPENAI_API_KEY = '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';
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 
 const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) => {
@@ -231,17 +232,10 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
       const decoder = new TextDecoder();
       let buffer = '';
       let capturedResponseId = '';
+      let streamingStarted = false;
 
-      const botMessage: ChatMessage = {
-        id: generateMessageId(),
-        content: '',
-        sender: 'bot',
-        timestamp: new Date()
-      };
-
-      // Add empty bot message for streaming
-      const messagesWithBot = [...updatedMessages, botMessage];
-      setMessages(messagesWithBot);
+      let botMessage: ChatMessage;
+      let messagesWithBot: ChatMessage[];
 
       while (reader) {
         const { done, value } = await reader.read();
@@ -275,14 +269,31 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
                 
                 // Handle text deltas
                 if (eventType === 'response.output_text.delta' && data.delta) {
-                  setMessages(prev => {
-                    const newMessages = [...prev];
-                    const lastMessage = newMessages[newMessages.length - 1];
-                    if (lastMessage.sender === 'bot') {
-                      lastMessage.content += data.delta;
-                    }
-                    return newMessages;
-                  });
+                  // Create bot message on first content (replace typing indicator)
+                  if (!streamingStarted) {
+                    streamingStarted = true;
+                    setIsLoading(false); // Hide typing indicator
+                    
+                    botMessage = {
+                      id: generateMessageId(),
+                      content: data.delta,
+                      sender: 'bot',
+                      timestamp: new Date()
+                    };
+                    
+                    messagesWithBot = [...updatedMessages, botMessage];
+                    setMessages(messagesWithBot);
+                  } else {
+                    // Continue streaming into existing message
+                    setMessages(prev => {
+                      const newMessages = [...prev];
+                      const lastMessage = newMessages[newMessages.length - 1];
+                      if (lastMessage.sender === 'bot') {
+                        lastMessage.content += data.delta;
+                      }
+                      return newMessages;
+                    });
+                  }
                 }
                 
                 // Handle function calls
@@ -293,15 +304,33 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
                     arguments: data.arguments || {}
                   };
 
-                  setMessages(prev => {
-                    const newMessages = [...prev];
-                    const lastMessage = newMessages[newMessages.length - 1];
-                    if (lastMessage.sender === 'bot') {
-                      lastMessage.toolCalls = lastMessage.toolCalls || [];
-                      lastMessage.toolCalls.push(toolCall);
-                    }
-                    return newMessages;
-                  });
+                  // Create bot message on first function call (replace typing indicator)
+                  if (!streamingStarted) {
+                    streamingStarted = true;
+                    setIsLoading(false); // Hide typing indicator
+                    
+                    botMessage = {
+                      id: generateMessageId(),
+                      content: '',
+                      sender: 'bot',
+                      timestamp: new Date(),
+                      toolCalls: [toolCall]
+                    };
+                    
+                    messagesWithBot = [...updatedMessages, botMessage];
+                    setMessages(messagesWithBot);
+                  } else {
+                    // Add to existing message
+                    setMessages(prev => {
+                      const newMessages = [...prev];
+                      const lastMessage = newMessages[newMessages.length - 1];
+                      if (lastMessage.sender === 'bot') {
+                        lastMessage.toolCalls = lastMessage.toolCalls || [];
+                        lastMessage.toolCalls.push(toolCall);
+                      }
+                      return newMessages;
+                    });
+                  }
                 }
               } catch (error) {
                 console.error('Error parsing SSE data:', error);
@@ -310,6 +339,9 @@ const ChatTask = ({ lessonId, onNext, handleActivityComplete }: ChatTaskProps) =
           }
         }
       }
+
+      // Ensure we hide loading indicator
+      setIsLoading(false);
 
       // Save response ID and final messages
       if (capturedResponseId) {
